@@ -13,7 +13,6 @@ import UserNotifications
 @MainActor
 class BeaconManagerService: NSObject, ObservableObject {
     @Published var proximity: CLProximity = .unknown
-    @Published var mpcService: ClientManagerService?
     private var locationManager: CLLocationManager?
     private let beaconUUID = UUID(uuidString: "E2C56DB5-DFFB-48D2-B060-D0F5A71096F9")!
     private let beaconIdentifier = "com.example.myBeacon"
@@ -99,17 +98,11 @@ class BeaconManagerService: NSObject, ObservableObject {
     /// Starts MultipeerConnectivity browsing.
     private func startMPCBrowsing() {
         Logger.shared.log("Starting MPC browsing.")
-        if mpcService == nil {
-            mpcService = ClientManagerService()
-        }
-        mpcService?.startBrowsing()
     }
 
     /// Stops MultipeerConnectivity browsing.
     private func stopMPCBrowsing() {
         Logger.shared.log("Stopping MPC browsing.")
-        mpcService?.stopBrowsing()
-        mpcService = nil
     }
 
 }

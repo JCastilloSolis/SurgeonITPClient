@@ -105,6 +105,21 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
+		CFD686E62CDEA74A00728CE5 /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Services;
+			sourceTree = "<group>";
+		};
+		CFD686E92CDEC29700728CE5 /* Models */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Models;
+			sourceTree = "<group>";
+		};
+		CFD686F52CDECD0C00728CE5 /* ViewModels */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,6 +198,9 @@
 		CFD686A42CDD80EB00728CE5 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				CFD686F52CDECD0C00728CE5 /* ViewModels */,
+				CFD686E92CDEC29700728CE5 /* Models */,
+				CFD686E62CDEA74A00728CE5 /* Services */,
 				CFD686AA2CDD814800728CE5 /* Helpers */,
 			);
 			path = Shared;
@@ -206,6 +224,9 @@
 			fileSystemSynchronizedGroups = (
 				CF9726AB2CD032DD002AAC1A /* SurgeonITPClient */,
 				CFD686AA2CDD814800728CE5 /* Helpers */,
+				CFD686E62CDEA74A00728CE5 /* Services */,
+				CFD686E92CDEC29700728CE5 /* Models */,
+				CFD686F52CDECD0C00728CE5 /* ViewModels */,
 			);
 			name = SurgeonITPClient;
 			packageProductDependencies = (
@@ -275,6 +296,9 @@
 			fileSystemSynchronizedGroups = (
 				CFD6867A2CDD801500728CE5 /* IDRMacOSApp */,
 				CFD686AA2CDD814800728CE5 /* Helpers */,
+				CFD686E62CDEA74A00728CE5 /* Services */,
+				CFD686E92CDEC29700728CE5 /* Models */,
+				CFD686F52CDECD0C00728CE5 /* ViewModels */,
 			);
 			name = IDRMacOSApp;
 			packageProductDependencies = (
@@ -783,7 +807,6 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IDRMacOSApp/Info.plist;
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Connect to nearby devices";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to nearby devices";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -815,7 +838,6 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IDRMacOSApp/Info.plist;
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Connect to nearby devices";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to nearby devices";
 				LD_RUNPATH_SEARCH_PATHS = (
