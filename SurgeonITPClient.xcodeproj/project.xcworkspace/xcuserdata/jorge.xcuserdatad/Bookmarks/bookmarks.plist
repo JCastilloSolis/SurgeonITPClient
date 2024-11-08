@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>top-level-items</key>
+	<array>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>82</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>81</string>
+					<key>Timestamp</key>
+					<string>752717661.013956</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>SurgeonITPClient/Services/BeaconManagerService.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>        // TODO: Save data into user defauls or coreData along with the beaconId
+</string>
+				<key>leading</key>
+				<string>        ///
+        ///
+</string>
+				<key>trailing</key>
+				<string>        Logger.shared.log("Creating notification: \(title) - \(body)")
+        let content = UNMutableNotificationContent()
+        content.title = title
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>77</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>76</string>
+					<key>Timestamp</key>
+					<string>752717661.013905</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>SurgeonITPClient/Services/BeaconManagerService.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>        //TODO: Keep track of the last time a notification was created
+</string>
+				<key>leading</key>
+				<string>    /// Creates and schedules a local notification.
+    private func createNotification(title: String, body: String) {
+</string>
+				<key>trailing</key>
+				<string>        /// Have a time gap between each local push notification to be at least x amounts of minutes
+        /// For Testing 5 minutes, For demos 20 minutes
+        ///
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>93</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>92</string>
+					<key>Timestamp</key>
+					<string>752714240.897341</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>IDRMacOSApp/Services/ServerManagerService.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>        //TODO:  For now, accept any invitation. Later, we can check against an approved devices list.
+</string>
+				<key>leading</key>
+				<string>                    withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -&gt; Void) {
+        Logger.shared.log("Server received invitation from \(peerID.displayName). Accepting invitation.")
+</string>
+				<key>trailing</key>
+				<string>        invitationHandler(true, session)
+    }
+
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+	</array>
+</dict>
+</plist>

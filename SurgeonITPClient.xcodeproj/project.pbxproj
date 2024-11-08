@@ -21,17 +21,54 @@
 			remoteGlobalIDString = CF9726A82CD032DD002AAC1A;
 			remoteInfo = SurgeonITPClient;
 		};
+		CFD6868A2CDD801700728CE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CF9726A12CD032DD002AAC1A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CFD686782CDD801500728CE5;
+			remoteInfo = IDRMacOSApp;
+		};
+		CFD686942CDD801700728CE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CF9726A12CD032DD002AAC1A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CFD686782CDD801500728CE5;
+			remoteInfo = IDRMacOSApp;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		CF9726A92CD032DD002AAC1A /* SurgeonITPClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SurgeonITPClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF9726B92CD032DE002AAC1A /* SurgeonITPClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SurgeonITPClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF9726C32CD032DE002AAC1A /* SurgeonITPClientUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SurgeonITPClientUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFD686792CDD801500728CE5 /* IDRMacOSApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IDRMacOSApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFD686892CDD801700728CE5 /* IDRMacOSAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IDRMacOSAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFD686932CDD801700728CE5 /* IDRMacOSAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IDRMacOSAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CFA23F482CD9A19C00EA9D7B /* Exceptions for "SurgeonITPClient" folder in "SurgeonITPClient" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CF9726A82CD032DD002AAC1A /* SurgeonITPClient */;
+		};
+		CFD686B02CDD868100728CE5 /* Exceptions for "IDRMacOSApp" folder in "IDRMacOSApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CFD686782CDD801500728CE5 /* IDRMacOSApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CF9726AB2CD032DD002AAC1A /* SurgeonITPClient */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CFA23F482CD9A19C00EA9D7B /* Exceptions for "SurgeonITPClient" folder in "SurgeonITPClient" target */,
+			);
 			path = SurgeonITPClient;
 			sourceTree = "<group>";
 		};
@@ -43,6 +80,29 @@
 		CF9726C62CD032DE002AAC1A /* SurgeonITPClientUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SurgeonITPClientUITests;
+			sourceTree = "<group>";
+		};
+		CFD6867A2CDD801500728CE5 /* IDRMacOSApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CFD686B02CDD868100728CE5 /* Exceptions for "IDRMacOSApp" folder in "IDRMacOSApp" target */,
+			);
+			path = IDRMacOSApp;
+			sourceTree = "<group>";
+		};
+		CFD6868C2CDD801700728CE5 /* IDRMacOSAppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = IDRMacOSAppTests;
+			sourceTree = "<group>";
+		};
+		CFD686962CDD801700728CE5 /* IDRMacOSAppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = IDRMacOSAppUITests;
+			sourceTree = "<group>";
+		};
+		CFD686AA2CDD814800728CE5 /* Helpers */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,15 +129,40 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CFD686762CDD801500728CE5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CFD686862CDD801700728CE5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CFD686902CDD801700728CE5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		CF9726A02CD032DD002AAC1A = {
 			isa = PBXGroup;
 			children = (
+				CFD686A42CDD80EB00728CE5 /* Shared */,
 				CF9726AB2CD032DD002AAC1A /* SurgeonITPClient */,
 				CF9726BC2CD032DE002AAC1A /* SurgeonITPClientTests */,
 				CF9726C62CD032DE002AAC1A /* SurgeonITPClientUITests */,
+				CFD6868C2CDD801700728CE5 /* IDRMacOSAppTests */,
+				CFD686962CDD801700728CE5 /* IDRMacOSAppUITests */,
+				CFD6867A2CDD801500728CE5 /* IDRMacOSApp */,
 				CF9726AA2CD032DD002AAC1A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,8 +173,19 @@
 				CF9726A92CD032DD002AAC1A /* SurgeonITPClient.app */,
 				CF9726B92CD032DE002AAC1A /* SurgeonITPClientTests.xctest */,
 				CF9726C32CD032DE002AAC1A /* SurgeonITPClientUITests.xctest */,
+				CFD686792CDD801500728CE5 /* IDRMacOSApp.app */,
+				CFD686892CDD801700728CE5 /* IDRMacOSAppTests.xctest */,
+				CFD686932CDD801700728CE5 /* IDRMacOSAppUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		CFD686A42CDD80EB00728CE5 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				CFD686AA2CDD814800728CE5 /* Helpers */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -109,6 +205,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				CF9726AB2CD032DD002AAC1A /* SurgeonITPClient */,
+				CFD686AA2CDD814800728CE5 /* Helpers */,
 			);
 			name = SurgeonITPClient;
 			packageProductDependencies = (
@@ -163,6 +260,75 @@
 			productReference = CF9726C32CD032DE002AAC1A /* SurgeonITPClientUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		CFD686782CDD801500728CE5 /* IDRMacOSApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFD686A12CDD801700728CE5 /* Build configuration list for PBXNativeTarget "IDRMacOSApp" */;
+			buildPhases = (
+				CFD686752CDD801500728CE5 /* Sources */,
+				CFD686762CDD801500728CE5 /* Frameworks */,
+				CFD686772CDD801500728CE5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CFD6867A2CDD801500728CE5 /* IDRMacOSApp */,
+				CFD686AA2CDD814800728CE5 /* Helpers */,
+			);
+			name = IDRMacOSApp;
+			packageProductDependencies = (
+			);
+			productName = IDRMacOSApp;
+			productReference = CFD686792CDD801500728CE5 /* IDRMacOSApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CFD686882CDD801700728CE5 /* IDRMacOSAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFD686A22CDD801700728CE5 /* Build configuration list for PBXNativeTarget "IDRMacOSAppTests" */;
+			buildPhases = (
+				CFD686852CDD801700728CE5 /* Sources */,
+				CFD686862CDD801700728CE5 /* Frameworks */,
+				CFD686872CDD801700728CE5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CFD6868B2CDD801700728CE5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CFD6868C2CDD801700728CE5 /* IDRMacOSAppTests */,
+			);
+			name = IDRMacOSAppTests;
+			packageProductDependencies = (
+			);
+			productName = IDRMacOSAppTests;
+			productReference = CFD686892CDD801700728CE5 /* IDRMacOSAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CFD686922CDD801700728CE5 /* IDRMacOSAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFD686A32CDD801700728CE5 /* Build configuration list for PBXNativeTarget "IDRMacOSAppUITests" */;
+			buildPhases = (
+				CFD6868F2CDD801700728CE5 /* Sources */,
+				CFD686902CDD801700728CE5 /* Frameworks */,
+				CFD686912CDD801700728CE5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CFD686952CDD801700728CE5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CFD686962CDD801700728CE5 /* IDRMacOSAppUITests */,
+			);
+			name = IDRMacOSAppUITests;
+			packageProductDependencies = (
+			);
+			productName = IDRMacOSAppUITests;
+			productReference = CFD686932CDD801700728CE5 /* IDRMacOSAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -170,7 +336,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1600;
+				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					CF9726A82CD032DD002AAC1A = {
@@ -183,6 +349,17 @@
 					CF9726C22CD032DE002AAC1A = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = CF9726A82CD032DD002AAC1A;
+					};
+					CFD686782CDD801500728CE5 = {
+						CreatedOnToolsVersion = 16.1;
+					};
+					CFD686882CDD801700728CE5 = {
+						CreatedOnToolsVersion = 16.1;
+						TestTargetID = CFD686782CDD801500728CE5;
+					};
+					CFD686922CDD801700728CE5 = {
+						CreatedOnToolsVersion = 16.1;
+						TestTargetID = CFD686782CDD801500728CE5;
 					};
 				};
 			};
@@ -203,6 +380,9 @@
 				CF9726A82CD032DD002AAC1A /* SurgeonITPClient */,
 				CF9726B82CD032DE002AAC1A /* SurgeonITPClientTests */,
 				CF9726C22CD032DE002AAC1A /* SurgeonITPClientUITests */,
+				CFD686782CDD801500728CE5 /* IDRMacOSApp */,
+				CFD686882CDD801700728CE5 /* IDRMacOSAppTests */,
+				CFD686922CDD801700728CE5 /* IDRMacOSAppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +403,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CF9726C12CD032DE002AAC1A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CFD686772CDD801500728CE5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CFD686872CDD801700728CE5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CFD686912CDD801700728CE5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +454,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CFD686752CDD801500728CE5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CFD686852CDD801700728CE5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CFD6868F2CDD801700728CE5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +487,16 @@
 			isa = PBXTargetDependency;
 			target = CF9726A82CD032DD002AAC1A /* SurgeonITPClient */;
 			targetProxy = CF9726C42CD032DE002AAC1A /* PBXContainerItemProxy */;
+		};
+		CFD6868B2CDD801700728CE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CFD686782CDD801500728CE5 /* IDRMacOSApp */;
+			targetProxy = CFD6868A2CDD801700728CE5 /* PBXContainerItemProxy */;
+		};
+		CFD686952CDD801700728CE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CFD686782CDD801500728CE5 /* IDRMacOSApp */;
+			targetProxy = CFD686942CDD801700728CE5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -399,6 +631,11 @@
 				DEVELOPMENT_TEAM = F6C9X4WWW5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SurgeonITPClient/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to nearby devices";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need your location to detect nearby beacons.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "We need your location to detect nearby beacons.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to detect nearby beacons.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -411,6 +648,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jacs.SurgeonITPClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -428,6 +669,11 @@
 				DEVELOPMENT_TEAM = F6C9X4WWW5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SurgeonITPClient/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to nearby devices";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need your location to detect nearby beacons.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "We need your location to detect nearby beacons.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to detect nearby beacons.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -440,6 +686,10 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jacs.SurgeonITPClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -518,6 +768,144 @@
 			};
 			name = Release;
 		};
+		CFD6869B2CDD801700728CE5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = IDRMacOSApp/IDRMacOSApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"IDRMacOSApp/Preview Content\"";
+				DEVELOPMENT_TEAM = F6C9X4WWW5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = IDRMacOSApp/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Connect to nearby devices";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to nearby devices";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacs.IDRMacOSApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		CFD6869C2CDD801700728CE5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = IDRMacOSApp/IDRMacOSApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"IDRMacOSApp/Preview Content\"";
+				DEVELOPMENT_TEAM = F6C9X4WWW5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = IDRMacOSApp/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Connect to nearby devices";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to nearby devices";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacs.IDRMacOSApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		CFD6869D2CDD801700728CE5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F6C9X4WWW5;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacs.IDRMacOSAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IDRMacOSApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IDRMacOSApp";
+			};
+			name = Debug;
+		};
+		CFD6869E2CDD801700728CE5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F6C9X4WWW5;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacs.IDRMacOSAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IDRMacOSApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IDRMacOSApp";
+			};
+			name = Release;
+		};
+		CFD6869F2CDD801700728CE5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F6C9X4WWW5;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacs.IDRMacOSAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = IDRMacOSApp;
+			};
+			name = Debug;
+		};
+		CFD686A02CDD801700728CE5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F6C9X4WWW5;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacs.IDRMacOSAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = IDRMacOSApp;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -553,6 +941,33 @@
 			buildConfigurations = (
 				CF9726D42CD032DE002AAC1A /* Debug */,
 				CF9726D52CD032DE002AAC1A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CFD686A12CDD801700728CE5 /* Build configuration list for PBXNativeTarget "IDRMacOSApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFD6869B2CDD801700728CE5 /* Debug */,
+				CFD6869C2CDD801700728CE5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CFD686A22CDD801700728CE5 /* Build configuration list for PBXNativeTarget "IDRMacOSAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFD6869D2CDD801700728CE5 /* Debug */,
+				CFD6869E2CDD801700728CE5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CFD686A32CDD801700728CE5 /* Build configuration list for PBXNativeTarget "IDRMacOSAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFD6869F2CDD801700728CE5 /* Debug */,
+				CFD686A02CDD801700728CE5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
