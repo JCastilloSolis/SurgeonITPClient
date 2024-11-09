@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        ClientView(viewModel: PeerViewModel(), beaconManager: BeaconManagerService())
+        ClientView(viewModel: .init())
     }
 
 }

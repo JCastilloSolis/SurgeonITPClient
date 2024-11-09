@@ -22,6 +22,7 @@ class BeaconManagerService: NSObject, ObservableObject {
 
     override init() {
         Logger.shared.log("BeaconManager initialized.")
+        //TODO: Move notification code somewhere else
         self.notificationCenter = UNUserNotificationCenter.current()
         super.init()
         requestNotificationAuthorization()
@@ -51,7 +52,7 @@ class BeaconManagerService: NSObject, ObservableObject {
     }
 
     /// Initiates beacon ranging and monitoring.
-    private func startRangingBeacons() {
+    func startRangingBeacons() {
         Logger.shared.log("Starting to range and monitor beacons.")
         let constraint = CLBeaconIdentityConstraint(uuid: beaconUUID)
         beaconConstraint = constraint
@@ -95,15 +96,7 @@ class BeaconManagerService: NSObject, ObservableObject {
         }
     }
 
-    /// Starts MultipeerConnectivity browsing.
-    private func startMPCBrowsing() {
-        Logger.shared.log("Starting MPC browsing.")
-    }
-
-    /// Stops MultipeerConnectivity browsing.
-    private func stopMPCBrowsing() {
-        Logger.shared.log("Stopping MPC browsing.")
-    }
+   
 
 }
 
@@ -126,24 +119,23 @@ extension BeaconManagerService: CLLocationManagerDelegate {
             if proximity != .unknown {
                 Logger.shared.log("Beacon lost. Stopping MPC browsing.")
                 proximity = .unknown
-                stopMPCBrowsing()
             }
             return
         }
 
         let previousProximity = proximity
         proximity = nearestBeacon.proximity
-        Logger.shared.log("Beacon detected with proximity: \(proximityDescription(proximity)).")
 
-        if proximity != .unknown && previousProximity == .unknown {
-            // Just started detecting the beacon; start MPC browsing
-            createNotification(title: "Beacon Detected", body: "You are near the beacon.")
-            startMPCBrowsing()
-        } else if proximity == .unknown && previousProximity != .unknown {
-            // Beacon was lost; stop MPC browsing
-            Logger.shared.log("Beacon lost. Stopping MPC browsing.")
-            stopMPCBrowsing()
-        }
+//
+//        Logger.shared.log("Beacon detected with proximity: \(proximityDescription(proximity)).")
+//
+//        if proximity != .unknown && previousProximity == .unknown {
+//            // Just started detecting the beacon; start MPC browsing
+//            createNotification(title: "Beacon Detected", body: "You are near the beacon.")
+//        } else if proximity == .unknown && previousProximity != .unknown {
+//            // Beacon was lost; stop MPC browsing
+//            Logger.shared.log("Beacon lost. Stopping MPC browsing.")
+//        }
     }
 
 

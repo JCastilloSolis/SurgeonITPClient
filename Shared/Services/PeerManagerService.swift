@@ -32,12 +32,10 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     private var savedClientPeerID: MCPeerID?
 
     func log(_ message: String) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-        let timestamp = dateFormatter.string(from: Date())
-        print("[\(timestamp)] \(message)")
+        Logger.shared.log(message)
     }
 
+    //TODO: Refactor this to take in a server or client role
     override init() {
         // Define the displayName for peerID based on platform
         let displayName: String = {
@@ -80,25 +78,25 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     private func setupBrowser() {
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: "example-service")
         self.browser?.delegate = self
-        startBrowsing()
+        //startBrowsing()
     }
 
-    private func startAdvertising() {
+    func startAdvertising() {
         advertiser?.startAdvertisingPeer()
         log("Started advertising...")
     }
 
-    private func stopAdvertising() {
+    func stopAdvertising() {
         advertiser?.stopAdvertisingPeer()
         log("Stopped advertising...")
     }
 
-    private func startBrowsing() {
+    func startBrowsing() {
         browser?.startBrowsingForPeers()
         log("Started browsing for peers...")
     }
 
-    private func stopBrowsing() {
+    func stopBrowsing() {
         browser?.stopBrowsingForPeers()
         log("Stopped browsing for peers...")
     }
@@ -192,6 +190,8 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
                 if !self.connectedDevices.contains(peerID.displayName) {
                     self.connectedDevices.append(peerID.displayName)
                 }
+
+                //TODO: Stop browsing once connected
 
 #if os(macOS)
                 if self.savedClientPeerID == nil {
