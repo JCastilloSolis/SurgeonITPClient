@@ -50,6 +50,11 @@
 		CFA56CA42CE2BC2C0081AA88 /* zVideoApp.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = CFA56C622CE2BB080081AA88 /* zVideoApp.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CFA56CA52CE2BC2C0081AA88 /* zWebService.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = CFA56C582CE2BB080081AA88 /* zWebService.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CFA56CA82CE2BCD50081AA88 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = CFA56CA72CE2BCD50081AA88 /* SwiftJWT */; };
+		CFA56CBE2CE2C58F0081AA88 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = CFA56CBD2CE2C58F0081AA88 /* SwiftJWT */; };
+		CFA56CC02CE2C7B10081AA88 /* ZoomVideoSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA56CBF2CE2C7B10081AA88 /* ZoomVideoSDK.xcframework */; };
+		CFA56CC12CE2C7B10081AA88 /* ZoomVideoSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CFA56CBF2CE2C7B10081AA88 /* ZoomVideoSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CFA56CC42CE2C7CC0081AA88 /* CptShare.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA56CC32CE2C7CC0081AA88 /* CptShare.xcframework */; };
+		CFA56CC52CE2C7CC0081AA88 /* CptShare.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CFA56CC32CE2C7CC0081AA88 /* CptShare.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,6 +131,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CFA56CC22CE2C7B10081AA88 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CFA56CC12CE2C7B10081AA88 /* ZoomVideoSDK.xcframework in Embed Frameworks */,
+				CFA56CC52CE2C7CC0081AA88 /* CptShare.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -171,6 +188,8 @@
 		CFA56C782CE2BB090081AA88 /* aomhost.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = aomhost.app; path = ZoomVideoSDK/aomhost.app; sourceTree = "<group>"; };
 		CFA56C792CE2BB090081AA88 /* mcm.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = mcm.bundle; path = ZoomVideoSDK/mcm.bundle; sourceTree = "<group>"; };
 		CFA56C7A2CE2BB090081AA88 /* ZoomVideoSDKMeetingBridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ZoomVideoSDKMeetingBridge.framework; path = ZoomVideoSDK/ZoomVideoSDKMeetingBridge.framework; sourceTree = "<group>"; };
+		CFA56CBF2CE2C7B10081AA88 /* ZoomVideoSDK.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:BJ4HAAB9B3:Zoom Video Communications, Inc."; lastKnownFileType = wrapper.xcframework; name = ZoomVideoSDK.xcframework; path = lib/ZoomVideoSDK.xcframework; sourceTree = "<group>"; };
+		CFA56CC32CE2C7CC0081AA88 /* CptShare.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:BJ4HAAB9B3:Zoom Video Communications, Inc."; lastKnownFileType = wrapper.xcframework; name = CptShare.xcframework; path = lib/CptShare.xcframework; sourceTree = "<group>"; };
 		CFD686792CDD801500728CE5 /* IDRMacOSApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IDRMacOSApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFD686892CDD801700728CE5 /* IDRMacOSAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IDRMacOSAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFD686932CDD801700728CE5 /* IDRMacOSAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IDRMacOSAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -257,6 +276,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA56CBE2CE2C58F0081AA88 /* SwiftJWT in Frameworks */,
+				CFA56CC42CE2C7CC0081AA88 /* CptShare.xcframework in Frameworks */,
+				CFA56CC02CE2C7B10081AA88 /* ZoomVideoSDK.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,6 +360,8 @@
 		CFA56C4E2CE2BB080081AA88 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CFA56CC32CE2C7CC0081AA88 /* CptShare.xcframework */,
+				CFA56CBF2CE2C7B10081AA88 /* ZoomVideoSDK.xcframework */,
 				CFA56C562CE2BB080081AA88 /* annoter.bundle */,
 				CFA56C662CE2BB080081AA88 /* aomagent.bundle */,
 				CFA56C782CE2BB090081AA88 /* aomhost.app */,
@@ -443,6 +467,7 @@
 				CF9726A52CD032DD002AAC1A /* Sources */,
 				CF9726A62CD032DD002AAC1A /* Frameworks */,
 				CF9726A72CD032DD002AAC1A /* Resources */,
+				CFA56CC22CE2C7B10081AA88 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -457,6 +482,7 @@
 			);
 			name = SurgeonITPClient;
 			packageProductDependencies = (
+				CFA56CBD2CE2C58F0081AA88 /* SwiftJWT */,
 			);
 			productName = SurgeonITPClient;
 			productReference = CF9726A92CD032DD002AAC1A /* SurgeonITPClient.app */;
@@ -889,10 +915,13 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SurgeonITPClient/Info.plist;
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Bluetooth Peripheral Usage Description";
+				INFOPLIST_KEY_NSCameraUsageDescription = "required for video";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to nearby devices";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need your location to detect nearby beacons.";
 				INFOPLIST_KEY_NSLocationUsageDescription = "We need your location to detect nearby beacons.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to detect nearby beacons.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "required for audio";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -927,10 +956,13 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SurgeonITPClient/Info.plist;
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Bluetooth Peripheral Usage Description";
+				INFOPLIST_KEY_NSCameraUsageDescription = "required for video";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to nearby devices";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need your location to detect nearby beacons.";
 				INFOPLIST_KEY_NSLocationUsageDescription = "We need your location to detect nearby beacons.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to detect nearby beacons.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "required for audio";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1264,6 +1296,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		CFA56CA72CE2BCD50081AA88 /* SwiftJWT */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFA56CA62CE2BCD50081AA88 /* XCRemoteSwiftPackageReference "Swift-JWT" */;
+			productName = SwiftJWT;
+		};
+		CFA56CBD2CE2C58F0081AA88 /* SwiftJWT */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CFA56CA62CE2BCD50081AA88 /* XCRemoteSwiftPackageReference "Swift-JWT" */;
 			productName = SwiftJWT;
