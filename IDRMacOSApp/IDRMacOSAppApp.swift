@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct IDRMacOSAppApp: App {
+    
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

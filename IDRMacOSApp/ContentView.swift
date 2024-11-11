@@ -9,7 +9,12 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        ServerView(viewModel: PeerViewModel())
+        HStack {
+            ServerView(viewModel: PeerViewModel())
+
+            SessionView(viewModel: SessionViewModel())
+        }
+
     }
 }
 
