@@ -106,7 +106,7 @@ struct CameraListView: View {
 
 
             Button(action: {
-                viewModel.requestZoomCamera()
+                viewModel.requestZoomCameraIn()
             }) {
                 Image(systemName: "plus.magnifyingglass")
                     .resizable()

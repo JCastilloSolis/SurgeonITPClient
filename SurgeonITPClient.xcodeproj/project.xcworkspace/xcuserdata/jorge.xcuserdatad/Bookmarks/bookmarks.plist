@@ -360,6 +360,140 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 			<key>type</key>
 			<string>bookmark</string>
 		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>425</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>424</string>
+					<key>Timestamp</key>
+					<string>753139623.669507</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>SurgeonITPClient/ViewModels/SessionViewModel.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>        }
+</string>
+				<key>leading</key>
+				<string>            Logger.shared.log("SessionViewModel - Remote control helper is not available")
+            return
+</string>
+				<key>trailing</key>
+				<string>        //TODO: try to get camera name
+        let result = remoteControlHelper.turnLeft(range)
+        if result == .Errors_Success {
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>386</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>385</string>
+					<key>Timestamp</key>
+					<string>753139623.669487</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>SurgeonITPClient/ViewModels/SessionViewModel.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>
+</string>
+				<key>leading</key>
+				<string>        self.remoteControlHelper = remoteControlHelper
+
+</string>
+				<key>trailing</key>
+				<string>        //TODO: Add more comments around this and the related scenarios
+        if canControlCamera {
+            let result = remoteControlHelper.giveUpControlRemoteCamera()
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>7</string>
+					<key>EndingLineNumber</key>
+					<string>75</string>
+					<key>StartingColumnNumber</key>
+					<string>7</string>
+					<key>StartingLineNumber</key>
+					<string>75</string>
+					<key>Timestamp</key>
+					<string>753139368.991498</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>SurgeonITPClient/ViewModels/SessionViewModel.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string></string>
+				<key>leading</key>
+				<string>    /// - Returns: A JWT token string if successful; otherwise, an empty string.
+    func getJWTToken() -&gt; String {
+       </string>
+				<key>trailing</key>
+				<string> //TODO: Save this into firebase or something and add some validation steps
+        let zoomJWT = ZoomAPIJWT(apiKey: "vWORwGngSfyZ4PIio6bqCg", apiSecret: "i3II29cNHHnL98vc0qGtVbp3SrVC3yYv2vIT")
+        //let zoomJWT = ZoomAPIJWT(apiKey: "apikey", apiSecret: "secret")
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
 	</array>
 </dict>
 </plist>

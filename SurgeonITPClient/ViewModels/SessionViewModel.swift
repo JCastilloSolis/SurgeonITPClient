@@ -16,7 +16,10 @@ struct Camera: Identifiable, Codable {
     let name: String
 }
 
+/// The `SessionViewModel` manages the Zoom session, handles user interactions,
+/// and communicates with the `ZoomSessionCoordinator` to respond to Zoom SDK events.
 class SessionViewModel: ObservableObject {
+    // MARK: - Published Properties
     @Published var isVideoOn = true
     @Published var isAudioMuted = false
     @Published var sessionIsActive = false
@@ -28,13 +31,17 @@ class SessionViewModel: ObservableObject {
     @Published var cameraList: [Camera] = []
     @Published var canControlCamera = false
 
+    // MARK: - Session Properties
     let sessionName = "demoSession2"
-    let userName = "Ipad"
+    let userName = UIDevice.current.name
 
+    // MARK: - Private Variables
     private var coordinator: ZoomSessionCoordinator?
     private var commandChannel: ZoomVideoSDKCmdChannel?
     private var remoteControlHelper: ZoomVideoSDKRemoteCameraControlHelper?
 
+
+    // MARK: - Initialization
     init() {
         coordinator = ZoomSessionCoordinator(viewModel: self)
         setupSession()
@@ -42,38 +49,45 @@ class SessionViewModel: ObservableObject {
 
     func setupSession() {
         let sessionContext = ZoomVideoSDKSessionContext()
-        
+
         sessionContext.token = getJWTToken()
         sessionContext.sessionName = sessionName
         sessionContext.userName = userName
 
         ZoomVideoSDK.shareInstance()?.delegate = coordinator
 
-        if let _ = ZoomVideoSDK.shareInstance()?.joinSession(sessionContext) {
+        if let session = ZoomVideoSDK.shareInstance()?.joinSession(sessionContext) { // returns a ZoomVideoSDKSession
             // Session joined successfully
-            print("-SessionViewModel- Session joined successfully")
+            Logger.shared.log("SessionViewModel - Session joined successfully")
             commandChannel = ZoomVideoSDK.shareInstance()?.getCmdChannel()
         } else {
             // Handle failure to join session
-            //showError = true
             DispatchQueue.main.async {
                 self.showAlert = true
                 self.alertMessage = "Failed to join session."
             }
-            print("-SessionViewModel- Failed to join session")
+            Logger.shared.log("SessionViewModel - Failed to join session")
         }
     }
 
+    /// Generates a JWT token required for joining the Zoom session.
+    /// - Returns: A JWT token string if successful; otherwise, an empty string.
     func getJWTToken() -> String {
-        // Instantiate ZoomAPIJWT with your Zoom API credentials
+        //TODO: Save this into firebase or something and add some validation steps
         let zoomJWT = ZoomAPIJWT(apiKey: "vWORwGngSfyZ4PIio6bqCg", apiSecret: "i3II29cNHHnL98vc0qGtVbp3SrVC3yYv2vIT")
+        //let zoomJWT = ZoomAPIJWT(apiKey: "apikey", apiSecret: "secret")
+        let roleType = 0  // 1 for host, 0 for participant
 
-        // Generate the JWT token for the session
-        let roleType = 1  // 1 for host, 0 for participant
         let jwtToken = zoomJWT.generateToken(sessionName: sessionName, roleType: roleType)
-
-        // Output the generated JWT token
-        print("Generated JWT Token: \(jwtToken)")
+        if jwtToken.isEmpty {
+            Logger.shared.log("SessionViewModel - Failed to generate JWT Token")
+            DispatchQueue.main.async {
+                self.showAlert = true
+                self.alertMessage = "Failed to generate JWT Token."
+            }
+        } else {
+            Logger.shared.log("SessionViewModel - JWT Token generated successfully")
+        }
         return jwtToken
     }
 
@@ -81,61 +95,132 @@ class SessionViewModel: ObservableObject {
         pinnedParticipantID = participantID
     }
 
+    /// Toggles the local video on or off based on the current state.
     func toggleVideo() {
         guard let videoHelper = ZoomVideoSDK.shareInstance()?.getVideoHelper(),
               let myUser = ZoomVideoSDK.shareInstance()?.getSession()?.getMySelf(),
               let videoCanvas = myUser.getVideoCanvas(),
               let isVideoOn = videoCanvas.videoStatus()?.on else {
-            print("- SessionViewModel- Failed to access video components")
+            Logger.shared.log("SessionViewModel - Failed to access video components")
             return
         }
 
-            if isVideoOn {
-                _ = videoHelper.stopVideo()
+        if isVideoOn {
+            let result = videoHelper.stopVideo()
+            if result == .Errors_Success {
                 DispatchQueue.main.async {
                     self.isVideoOn = false
                 }
-                print("- SessionViewModel - Video stopped")
+                Logger.shared.log("SessionViewModel - Video stopped successfully")
             } else {
-                _ = videoHelper.startVideo()
+                let errorMessage = self.errorMessage(for: result)
+                Logger.shared.log("SessionViewModel - Failed to stop video: \(errorMessage)")
                 DispatchQueue.main.async {
-                    self.isVideoOn = true
+                    self.showAlert = true
+                    self.alertMessage = "Failed to stop video: \(errorMessage)"
                 }
-                print("- SessionViewModel - Video started")
             }
-
+        } else {
+            DispatchQueue.global(qos: .background).async {
+                
+                
+                let result = videoHelper.startVideo()
+                if result == .Errors_Success {
+                    DispatchQueue.main.async {
+                        self.isVideoOn = true
+                    }
+                    Logger.shared.log("SessionViewModel - Video started successfully")
+                } else {
+                    let errorMessage = self.errorMessage(for: result)
+                    Logger.shared.log("SessionViewModel - Failed to start video: \(errorMessage)")
+                    DispatchQueue.main.async {
+                        self.showAlert = true
+                        self.alertMessage = "Failed to start video: \(errorMessage)"
+                    }
+                }
+            }
+        }
     }
 
+    /// Toggles the local audio mute status based on the current state.
     func toggleAudio() {
         guard let audioHelper = ZoomVideoSDK.shareInstance()?.getAudioHelper(),
               let myUser = ZoomVideoSDK.shareInstance()?.getSession()?.getMySelf(),
               let audioStatus = myUser.audioStatus() else {
-            print("- SessionViewModel - Failed to access audio components")
+            Logger.shared.log("SessionViewModel - Failed to access audio components")
             return
         }
 
         if audioStatus.audioType == .none {
-            audioHelper.startAudio()
+            let result = audioHelper.startAudio()
+            if result == .Errors_Success {
+                Logger.shared.log("SessionViewModel - Audio started successfully")
+            } else {
+                let errorMessage = self.errorMessage(for: result)
+                Logger.shared.log("SessionViewModel - Failed to start audio: \(errorMessage)")
+                DispatchQueue.main.async {
+                    self.showAlert = true
+                    self.alertMessage = "Failed to start audio: \(errorMessage)"
+                }
+            }
         } else {
             if audioStatus.isMuted {
-                _ = audioHelper.unmuteAudio(myUser)
-                DispatchQueue.main.async {
-                    self.isAudioMuted = false
+                let result = audioHelper.unmuteAudio(myUser)
+                if result == .Errors_Success {
+                    DispatchQueue.main.async {
+                        self.isAudioMuted = false
+                    }
+                    Logger.shared.log("SessionViewModel - Audio unmuted successfully")
+                } else {
+                    let errorMessage = self.errorMessage(for: result)
+                    Logger.shared.log("SessionViewModel - Failed to unmute audio: \(errorMessage)")
+                    DispatchQueue.main.async {
+                        self.showAlert = true
+                        self.alertMessage = "Failed to unmute audio: \(errorMessage)"
+                    }
                 }
-                print("- SessionViewModel - Audio unmuted")
             } else {
-                _ = audioHelper.muteAudio(myUser)
-                DispatchQueue.main.async {
-                    self.isAudioMuted = true
+                let result = audioHelper.muteAudio(myUser)
+                if result == .Errors_Success {
+                    DispatchQueue.main.async {
+                        self.isAudioMuted = true
+                    }
+                    Logger.shared.log("SessionViewModel - Audio muted successfully")
+                } else {
+                    let errorMessage = self.errorMessage(for: result)
+                    Logger.shared.log("SessionViewModel - Failed to mute audio: \(errorMessage)")
+                    DispatchQueue.main.async {
+                        self.showAlert = true
+                        self.alertMessage = "Failed to mute audio: \(errorMessage)"
+                    }
                 }
-                print("- SessionViewModel - Audio muted")
             }
         }
     }
 
+    /// Leaves the current Zoom session and updates the session state.
     func leaveSession() {
-        ZoomVideoSDK.shareInstance()?.leaveSession(true)
-        print("- SessionViewModel - Session left")
+        if let result = ZoomVideoSDK.shareInstance()?.leaveSession(true) {
+            if result == .Errors_Success {
+                Logger.shared.log("SessionViewModel - Session left successfully")
+                DispatchQueue.main.async {
+                    self.sessionIsActive = false
+                }
+            } else {
+                let errorMessage = self.errorMessage(for: result)
+                Logger.shared.log("SessionViewModel - Failed to leave session: \(errorMessage)")
+                DispatchQueue.main.async {
+                    self.showAlert = true
+                    self.alertMessage = "Failed to leave session: \(errorMessage)"
+                }
+            }
+        } else {
+            Logger.shared.log("SessionViewModel - leaveSession returned nil")
+            DispatchQueue.main.async {
+                self.showAlert = true
+                self.alertMessage = "Failed to leave session: Unknown error"
+            }
+        }
     }
 
 
@@ -155,7 +240,6 @@ class SessionViewModel: ObservableObject {
                 return "Error: Failed to load a module"
             case .Errors_UnLoad_Module_Error:
                 return "Error: Failed to unload a module"
-                // Add additional cases for other specific errors...
             case .Errors_Auth_Error:
                 return "Error: Authentication failed"
             case .Errors_JoinSession_NoSessionName:
@@ -177,37 +261,75 @@ class SessionViewModel: ObservableObject {
         }
     }
 
+    /// Updates the list of participants in the session.
     func updateParticipants() {
-        guard let session = ZoomVideoSDK.shareInstance()?.getSession() else { return }
+        guard let session = ZoomVideoSDK.shareInstance()?.getSession() else {
+            Logger.shared.log("SessionViewModel - Failed to get session for updating participants")
+            return
+        }
         let allUsers = session.getRemoteUsers() ?? []
-        participants = allUsers.map { user in
-            let name = user.getName() ?? "Unknown"
+        let updatedParticipants = allUsers.compactMap { user -> Participant? in
+            guard let name = user.getName() else {
+                Logger.shared.log("SessionViewModel - Skipping user with missing name")
+                return nil
+            }
             let id = user.getID().description
             let canvas = user.getVideoCanvas()
             return Participant(id: id, name: name, videoCanvas: canvas)
         }
+        DispatchQueue.main.async {
+            self.participants = updatedParticipants
+        }
+        Logger.shared.log("SessionViewModel - Updated participants. Count: \(updatedParticipants.count)")
     }
 
-    func updateCameraList(cameras: [[String: String]]) {
+
+    /// Updates the list of available cameras.
+    func updateCameraList(cameras: [Camera]) {
         DispatchQueue.main.async {
-            self.cameraList = cameras.compactMap { dict -> Camera? in
-                guard let id = dict["id"], let name = dict["name"] else {
-                    return nil
+            self.cameraList = cameras
+        }
+        Logger.shared.log("SessionViewModel - Updated camera list. Count: \(cameras.count)")
+    }
+
+    /// Sends a command to request the list of available cameras from the macOS server.
+    func requestCameraList() {
+        let command = Command(type: .requestCameraList, payload: .empty)
+        do {
+            let jsonData = try JSONEncoder().encode(command)
+            guard let jsonString = String(data: jsonData, encoding: .utf8) else {
+                throw NSError(domain: "SessionViewModel", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode Zoom Command to string"])
+            }
+            guard let commandChannel = commandChannel else {
+                Logger.shared.log("SessionViewModel - Command channel is not active")
+                DispatchQueue.main.async {
+                    self.showAlert = true
+                    self.alertMessage = "Cannot request camera list: Command channel is inactive."
                 }
-                return Camera(id: id, name: name)
+                return
+            }
+            let result = commandChannel.sendCommand(jsonString, receive: nil)
+            if result == .Errors_Success {
+                Logger.shared.log("SessionViewModel - Request camera list command sent successfully")
+
+            } else {
+                let errorMessage = self.errorMessage(for: result)
+                Logger.shared.log("SessionViewModel - Failed to send request camera list command: \(errorMessage)")
+                DispatchQueue.main.async {
+                    self.showAlert = true
+                    self.alertMessage = "Failed to request camera list: \(errorMessage)"
+                }
+            }
+        } catch {
+            Logger.shared.log("SessionViewModel - Error sending request camera list command: \(error.localizedDescription)")
+            DispatchQueue.main.async {
+                self.showAlert = true
+                self.alertMessage = "Error requesting camera list: \(error.localizedDescription)"
             }
         }
     }
 
-    func requestCameraList() throws {
-        let command = Command(type: .requestCameraList, payload: .empty)
-        let jsonData = try JSONEncoder().encode(command)
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else { throw NSError() }
-        commandChannel?.sendCommand(jsonString, receive: nil)
-        print("Request camera list command sent")
-        //session?.sendCommand(jsonString)
-    }
-
+    /// Sends a request to the zoom host to change its camera
     func requestSwitchCamera(toDeviceID deviceID: String) {
         let payload = Payload.selectedCameraID(deviceID)
         let command = Command(type: .requestSwitchCamera, payload: payload)
@@ -215,139 +337,195 @@ class SessionViewModel: ObservableObject {
         do {
             let jsonData = try JSONEncoder().encode(command)
             guard let commandString = String(data: jsonData, encoding: .utf8) else {
-                print("Error: Unable to encode command to string")
+                Logger.shared.log("Error: Unable to encode command to string")
                 return
             }
 
             // Assuming `commandChannel` and `sendCommand` are properly implemented
             if let result = commandChannel?.sendCommand(commandString, receive: nil) { // Define how to specify the macOS client if needed
-                print("Requested to switch camera. Result: \(errorMessage(for: result))")
+                Logger.shared.log("Requested to switch camera. Result: \(errorMessage(for: result))")
 
                 if result == .Errors_Success {
                     requestCameraControl()
                 }
 
             } else {
-                print("Failed to send camera switch request")
+                Logger.shared.log("Failed to send camera switch request")
             }
         } catch {
-            print("Error sending camera switch request: \(error)")
+            Logger.shared.log("Error sending camera switch request: \(error)")
         }
     }
 
+    /// Requests the hosts for control of the remote PTZ  camera.
     func requestCameraControl() {
-        let session = ZoomVideoSDK.shareInstance()?.getSession()
-        let users = session?.getRemoteUsers()?.compactMap { $0 as ZoomVideoSDKUser } ?? []
+        guard let session: ZoomVideoSDKSession = ZoomVideoSDK.shareInstance()?.getSession(),
+              let users: [ZoomVideoSDKUser] = session.getRemoteUsers() else {
+            Logger.shared.log("SessionViewModel - No remote users available")
+            return
+        }
 
-        // Determine the user to subscribe to
+        // Determine the user to control
         let user: ZoomVideoSDKUser? = {
             if let participantID = pinnedParticipantID,
-               let intValue: Int = Int(participantID),
+               let intValue = Int(participantID),
                let foundUser = users.first(where: { $0.getID() == intValue }) {
                 return foundUser
             }
-            return nil // Default to no user, if no pinned participant
+            return nil
         }()
 
-
-
-        guard let selectedUser =  user,
+        guard let selectedUser = user,
               let remoteControlHelper = selectedUser.getRemoteCameraControlHelper() else {
-            print("error retrieving pinned user remote control helper")
+            Logger.shared.log("SessionViewModel - Error retrieving remote control helper for selected user")
             return
         }
 
         self.remoteControlHelper = remoteControlHelper
 
+
+        //TODO: Add more comments around this and the related scenarios
         if canControlCamera {
             let result = remoteControlHelper.giveUpControlRemoteCamera()
-            print("giveUpControlRemoteCamera \(errorMessage(for: result))")
             if result == .Errors_Success {
+                Logger.shared.log("SessionViewModel - Successfully gave up control of remote camera")
                 DispatchQueue.main.async {
                     self.canControlCamera = false
+                }
+            } else {
+                let errorMessage = self.errorMessage(for: result)
+                Logger.shared.log("SessionViewModel - Failed to give up control of remote camera: \(errorMessage)")
+                DispatchQueue.main.async {
+                    self.showAlert = true
+                    self.alertMessage = "Failed to give up camera control: \(errorMessage)"
                 }
             }
         } else {
             let result = remoteControlHelper.requestControlRemoteCamera()
-            print("requestControlRemoteCamera \(errorMessage(for: result))")
-
+            if result == .Errors_Success {
+                Logger.shared.log("SessionViewModel - Requested control of remote camera successfully")
+                // The approval result will be handled in `onCameraControlRequestResult`
+            } else {
+                let errorMessage = self.errorMessage(for: result)
+                Logger.shared.log("SessionViewModel - Failed to request control of remote camera: \(errorMessage)")
+                DispatchQueue.main.async {
+                    self.showAlert = true
+                    self.alertMessage = "Failed to request camera control: \(errorMessage)"
+                }
+            }
         }
     }
 
+    /// Moves the remote camera to the left.
     func requestMoveCameraLeft() {
-        let range:UInt32 = 100
+        let range: UInt32 = 100  // Adjust the range as needed
         guard let remoteControlHelper = remoteControlHelper else {
-            print("Invalid remoteController helper")
+            Logger.shared.log("SessionViewModel - Remote control helper is not available")
             return
         }
-
+        //TODO: try to get camera name
         let result = remoteControlHelper.turnLeft(range)
-
-        //TODO: Get current camera name
-        //print("Move \(cameraName) left:  \(errorMessage(for: result))")
-        print("Move camera left:  \(errorMessage(for: result))")
+        if result == .Errors_Success {
+            Logger.shared.log("SessionViewModel - Camera moved left successfully")
+        } else {
+            let errorMessage = self.errorMessage(for: result)
+            Logger.shared.log("SessionViewModel - Failed to move camera left: \(errorMessage)")
+            DispatchQueue.main.async {
+                self.showAlert = true
+                self.alertMessage = "Failed to move camera left: \(errorMessage)"
+            }
+        }
     }
 
+
+    /// Moves the remote camera to the right.
     func requestMoveCameraRight() {
-        let range:UInt32 = 100
+        let range: UInt32 = 100
         guard let remoteControlHelper = remoteControlHelper else {
-            print("Invalid remoteController helper")
+            Logger.shared.log("SessionViewModel - Remote control helper is not available")
             return
         }
 
         let result = remoteControlHelper.turnRight(range)
-
-        //TODO: Get current camera name
-        //print("Move \(cameraName) left:  \(errorMessage(for: result))")
-        print("Move camera right:  \(errorMessage(for: result))")
+        if result == .Errors_Success {
+            Logger.shared.log("SessionViewModel - Camera moved right successfully")
+        } else {
+            let errorMessage = self.errorMessage(for: result)
+            Logger.shared.log("SessionViewModel - Failed to move camera right: \(errorMessage)")
+            DispatchQueue.main.async {
+                self.showAlert = true
+                self.alertMessage = "Failed to move camera right: \(errorMessage)"
+            }
+        }
     }
 
+    /// Moves the remote camera upwards.
     func requestMoveCameraUp() {
-        let range:UInt32 = 100
+        let range: UInt32 = 100
         guard let remoteControlHelper = remoteControlHelper else {
-            print("Invalid remoteController helper")
+            Logger.shared.log("SessionViewModel - Remote control helper is not available")
             return
         }
 
         let result = remoteControlHelper.turnUp(range)
-
-        //TODO: Get current camera name
-        //print("Move \(cameraName) left:  \(errorMessage(for: result))")
-        print("Move camera up:  \(errorMessage(for: result))")
+        if result == .Errors_Success {
+            Logger.shared.log("SessionViewModel - Camera moved up successfully")
+        } else {
+            let errorMessage = self.errorMessage(for: result)
+            Logger.shared.log("SessionViewModel - Failed to move camera up: \(errorMessage)")
+            DispatchQueue.main.async {
+                self.showAlert = true
+                self.alertMessage = "Failed to move camera up: \(errorMessage)"
+            }
+        }
     }
 
+    /// Moves the remote camera downwards.
     func requestMoveCameraDown() {
-        let range:UInt32 = 100
+        let range: UInt32 = 100
         guard let remoteControlHelper = remoteControlHelper else {
-            print("Invalid remoteController helper")
+            Logger.shared.log("SessionViewModel - Remote control helper is not available")
             return
         }
 
         let result = remoteControlHelper.turnDown(range)
-
-        //TODO: Get current camera name
-        //print("Move \(cameraName) left:  \(errorMessage(for: result))")
-        print("Move camera down:  \(errorMessage(for: result))")
+        if result == .Errors_Success {
+            Logger.shared.log("SessionViewModel - Camera moved down successfully")
+        } else {
+            let errorMessage = self.errorMessage(for: result)
+            Logger.shared.log("SessionViewModel - Failed to move camera down: \(errorMessage)")
+            DispatchQueue.main.async {
+                self.showAlert = true
+                self.alertMessage = "Failed to move camera down: \(errorMessage)"
+            }
+        }
     }
 
-    func requestZoomCamera() {
-        let range:UInt32 = 100
+    /// Zooms the remote camera in.
+    func requestZoomCameraIn() {
+        let range: UInt32 = 100
         guard let remoteControlHelper = remoteControlHelper else {
-            print("Invalid remoteController helper")
+            Logger.shared.log("SessionViewModel - Remote control helper is not available")
             return
         }
 
         let result = remoteControlHelper.zoom(in: range)
-
-        //TODO: Get current camera name
-        //print("Move \(cameraName) left:  \(errorMessage(for: result))")
-        print("Zoom camera:  \(errorMessage(for: result))")
+        if result == .Errors_Success {
+            Logger.shared.log("SessionViewModel - Camera zoomed in successfully")
+        } else {
+            let errorMessage = self.errorMessage(for: result)
+            Logger.shared.log("SessionViewModel - Failed to zoom camera in: \(errorMessage)")
+            DispatchQueue.main.async {
+                self.showAlert = true
+                self.alertMessage = "Failed to zoom camera in: \(errorMessage)"
+            }
+        }
     }
 
     func requestZoomCameraOut() {
         let range:UInt32 = 100
         guard let remoteControlHelper = remoteControlHelper else {
-            print("Invalid remoteController helper")
+            Logger.shared.log("Invalid remoteController helper")
             return
         }
 
@@ -355,6 +533,8 @@ class SessionViewModel: ObservableObject {
 
         //TODO: Get current camera name
         //print("Move \(cameraName) left:  \(errorMessage(for: result))")
-        print("Zoom camera out:  \(errorMessage(for: result))")
+        Logger.shared.log("Zoom camera out:  \(errorMessage(for: result))")
     }
+
+    
 }
