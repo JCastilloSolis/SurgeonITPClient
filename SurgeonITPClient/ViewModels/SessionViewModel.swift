@@ -5,16 +5,9 @@
 //  Created by Jorge Castillo on 11/11/24.
 //
 
-
-
 import Foundation
 import SwiftUI
 import ZoomVideoSDK
-
-struct Camera: Identifiable, Codable {
-    let id: String
-    let name: String
-}
 
 /// The `SessionViewModel` manages the Zoom session, handles user interactions,
 /// and communicates with the `ZoomSessionCoordinator` to respond to Zoom SDK events.
@@ -122,8 +115,8 @@ class SessionViewModel: ObservableObject {
             }
         } else {
             DispatchQueue.global(qos: .background).async {
-                
-                
+
+
                 let result = videoHelper.startVideo()
                 if result == .Errors_Success {
                     DispatchQueue.main.async {
@@ -532,7 +525,6 @@ class SessionViewModel: ObservableObject {
         let result = remoteControlHelper.zoomOut(range)
 
         //TODO: Get current camera name
-        //print("Move \(cameraName) left:  \(errorMessage(for: result))")
         Logger.shared.log("Zoom camera out:  \(errorMessage(for: result))")
     }
 

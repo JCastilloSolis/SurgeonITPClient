@@ -96,7 +96,7 @@ class PeerViewModel: ObservableObject {
             .receive(on: RunLoop.main)
             .map {$0}
             .sink { peer  in
-                self.log("New peer discovered \(peer)")
+                Logger.shared.log("New peer discovered \(peer)")
                 //TODO: Move this to a timer so that the device tries every certain time
                 self.attemptReconnection()
             }
@@ -115,30 +115,23 @@ class PeerViewModel: ObservableObject {
 
     func sendCommand(_ command: String) {
         peerManager.send(command, type: .command)
-        log("Command sent: \(command)")
-    }
-
-    func log(_ message: String) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-        let timestamp = dateFormatter.string(from: Date())
-        print("[\(timestamp)] \(message)")
+        Logger.shared.log("Command sent: \(command)")
     }
 
     private func attemptReconnection() {
-        log("Will start Attempt for Reconnection")
+        Logger.shared.log("Will start Attempt for Reconnection")
         if let savedServerName = UserDefaults.standard.string(forKey: "savedServerName"),
            let serverPeer = peerManager.discoveredPeers.first(where: { $0.displayName == savedServerName }) {
-            log("Will try to connect to \(savedServerName)")
+            Logger.shared.log("Will try to connect to \(savedServerName)")
             previouslyPaired = true
             peerManager.selectPeerForConnection(peerID: serverPeer)
         } else {
-            log("There was not available server to attempt to connect to.")
+            Logger.shared.log("There was not available server to attempt to connect to.")
         }
     }
 
     func clearSavedServer() {
-        log("Clear Saved Server info")
+        Logger.shared.log("Clear Saved Server info")
         UserDefaults.standard.removeObject(forKey: "savedServerName")
         connectionStatus = "Not Connected"
         previouslyPaired = false
@@ -149,7 +142,7 @@ class PeerViewModel: ObservableObject {
     }
 
     func clearSavedClient() {
-        log("Clear Saved Client info")
+        Logger.shared.log("Clear Saved Client info")
         UserDefaults.standard.removeObject(forKey: "savedClientName")
         connectionStatus = "Not Connected"
         previouslyPaired = false

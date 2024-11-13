@@ -9,20 +9,16 @@ import Foundation
 import ZMVideoSDK
 import SwiftUI
 
-
-struct Camera: Identifiable, Codable {
-    let id: String
-    let name: String
-}
-
+/// Represents a participant in the Zoom session.
 struct Participant {
     let id: String
     let name: String
     var videoCanvas: ZMVideoSDKVideoCanvas?
 }
 
-
+// Manages the Zoom session, handling user interactions and SDK communications.
 class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
+    // MARK: - Published Properties
     @Published var sessionName: String = "demoSession2"
     @Published var userDisplayName: String = "Mac2"
     @Published var isAudioMuted: Bool = false
@@ -31,19 +27,24 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
     @Published var participants = [Participant]()
     @Published var sessionIsActive = false
     @Published var commandsActive = false
+    @Published var cameraList: [Camera] = []
 
+    // MARK: - Private Properties
     private var coordinator: ZoomSessionCoordinator?
     private var commandChannel: ZMVideoSDKCmdChannel?
 
+    // MARK: - Initialization and Setup
+
+    /// Initializes the SessionViewModel by setting up the SDK and joining a session.
     override init() {
         super.init()
         initializeSDK()
         let token = getJWTToken()
         createAndJoinSession(token: token)
         commandChannel = ZMVideoSDK.shared().getCmdChannel()
-
     }
 
+    /// Initializes the Zoom SDK with the required parameters.
     func initializeSDK() {
         let initParams = ZMVideoSDKInitParams()
         initParams.domain = "https://zoom.us"
@@ -51,33 +52,63 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
         initParams.logFilePrefix = "ZoomSDK"
         initParams.videoRawDataMemoryMode = ZMVideoSDKRawDataMemoryMode_Heap
         initParams.shareRawDataMemoryMode = ZMVideoSDKRawDataMemoryMode_Heap
+
+        // Initialize the coordinator and set it as the delegate
         coordinator = ZoomSessionCoordinator(viewModel: self)
-        ZMVideoSDK.shared().addListener(coordinator!)
+        if let coordinator = coordinator {
+            ZMVideoSDK.shared().addListener(coordinator)
+        } else {
+            Logger.shared.log("Failed to initialize ZoomSessionCoordinator")
+        }
+
+        // Initialize the SDK and log the status
         let sdkInitReturnStatus = ZMVideoSDK.shared().initialize(initParams)
-        print("\(errorMessage(for: sdkInitReturnStatus)) ")
+        Logger.shared.log("SDK Initialization: \(errorMessage(for: sdkInitReturnStatus))")
+
+        if sdkInitReturnStatus != ZMVideoSDKErrors_Success {
+            Logger.shared.log("SDK failed to initialize with error: \(errorMessage(for: sdkInitReturnStatus))")
+            DispatchQueue.main.async {
+                self.showError = true
+            }
+        }
     }
 
+
+    /// Generates a JWT token required for joining the Zoom session.
+    /// - Returns: A JWT token string if successful; otherwise, an empty string.
     func getJWTToken() -> String {
         // Instantiate ZoomAPIJWT with your Zoom API credentials
-        let zoomJWT = ZoomAPIJWT(apiKey: "vWORwGngSfyZ4PIio6bqCg", apiSecret: "i3II29cNHHnL98vc0qGtVbp3SrVC3yYv2vIT")
+        let zoomJWT = ZoomAPIJWT(apiKey: "vWORwGngSfyZ4PIio6bqCg", apiSecret: "i3II29cNHHnL98vc0qGtVbp3SrVC3yYv2vIT")  // Replace with secure storage
 
         // Generate the JWT token for the session
         let roleType = 1  // 1 for host, 0 for participant
         let jwtToken = zoomJWT.generateToken(sessionName: sessionName, roleType: roleType)
 
-        // Output the generated JWT token
-        print("Generated JWT Token: \(jwtToken)")
+        if jwtToken.isEmpty {
+            Logger.shared.log("Failed to generate JWT Token")
+            DispatchQueue.main.async {
+                self.showError = true
+            }
+        } else {
+            Logger.shared.log("Generated JWT Token successfully")
+        }
+
         return jwtToken
     }
 
+    /// Creates and attempts to join a Zoom session with the provided token.
+    /// - Parameter token: The JWT token for authentication.
     func createAndJoinSession(token: String) {
+        // Configure audio options
         let audioOption = ZMVideoSDKAudioOption()
         audioOption.connect = true
         audioOption.mute = isAudioMuted
 
+        // Configure video options
         let videoOption = ZMVideoSDKVideoOption()
         videoOption.localVideoOn = !isVideoOn
 
+        // Set up the session context
         let sessionContext = ZMVideoSDKSessionContext()
         sessionContext.sessionName = sessionName
         sessionContext.userName = userDisplayName
@@ -87,113 +118,208 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
 
         // Attempt to join the session with the given context
         if ZMVideoSDK.shared().joinSession(sessionContext) != nil {
-            // If the session is created and joined successfully
-            print("Session joined successfully")
-
+            // Session joined successfully
+            Logger.shared.log("Session joined successfully")
+            DispatchQueue.main.async {
+                self.sessionIsActive = true
+            }
         } else {
-            // If there is an issue in joining the session
-            print("Failed to join the session")
-            showError = true
+            // Failed to join the session
+            Logger.shared.log("Failed to join the session")
+            DispatchQueue.main.async {
+                self.showError = true
+                self.sessionIsActive = false
+            }
         }
     }
 
+    /// Toggles the local audio on/off.
     func toggleAudio() {
-        if let myself = ZMVideoSDK.shared().getSessionInfo().getMySelf(),
-           let audioStatus = myself.getAudioStatus() {
-            let audioHelper = ZMVideoSDK.shared().getAudioHelper()
+        let sessionInfo = ZMVideoSDK.shared().getSessionInfo()
+        let audioHelper = ZMVideoSDK.shared().getAudioHelper()
 
-            var result: ZMVideoSDKErrors
+        guard
+              let myself = sessionInfo.getMySelf(),
+              let audioStatus = myself.getAudioStatus()
+              else {
+            Logger.shared.log("Failed to access audio components")
+            return
+        }
 
-            if audioStatus.audioType == ZMVideoSDKAudioType_None {
-                audioHelper.startAudio()
+
+        var result: ZMVideoSDKErrors
+
+        if audioStatus.audioType == ZMVideoSDKAudioType_None {
+            // Start audio if it's not connected
+            result = audioHelper.startAudio()
+            if result == ZMVideoSDKErrors_Success {
+                DispatchQueue.main.async {
+                    self.isAudioMuted = false
+                }
+                Logger.shared.log("Audio started successfully")
             } else {
-                if audioStatus.isMuted {
-                    result = audioHelper.unMuteAudio(myself)
+                Logger.shared.log("Failed to start audio: \(errorMessage(for: result))")
+            }
+        } else {
+            if audioStatus.isMuted {
+                // Unmute audio
+                result = audioHelper.unMuteAudio(myself)
+                if result == ZMVideoSDKErrors_Success {
                     DispatchQueue.main.async {
                         self.isAudioMuted = false
                     }
-                    print("Mute audio \(errorMessage(for: result))")
+                    Logger.shared.log("Audio unmuted successfully")
                 } else {
-                    result = audioHelper.muteAudio(myself)
+                    Logger.shared.log("Failed to unmute audio: \(errorMessage(for: result))")
+                }
+            } else {
+                // Mute audio
+                result = audioHelper.muteAudio(myself)
+                if result == ZMVideoSDKErrors_Success {
                     DispatchQueue.main.async {
                         self.isAudioMuted = true
                     }
-                    print("Unmute audio \(errorMessage(for: result))")
+                    Logger.shared.log("Audio muted successfully")
+                } else {
+                    Logger.shared.log("Failed to mute audio: \(errorMessage(for: result))")
                 }
             }
         }
     }
 
+    /// Toggles the local video on or off.
     func toggleVideo() {
+        let sessionInfo = ZMVideoSDK.shared().getSessionInfo()
+        let videoHelper = ZMVideoSDK.shared().getVideoHelper()
 
-        if let myself = ZMVideoSDK.shared().getSessionInfo().getMySelf(),
-           let isVideoOn = myself.getVideoPipe()?.getVideoStatus()?.isOn {
-            let videoHelper = ZMVideoSDK.shared().getVideoHelper()
-            var result: ZMVideoSDKErrors
+        guard
+              let myself = sessionInfo.getMySelf(),
+              let isVideoOn = myself.getVideoPipe()?.getVideoStatus()?.isOn else {
+            Logger.shared.log("Failed to access video components")
+            return
+        }
 
-            if isVideoOn {
-                result = videoHelper.stopVideo()
+        var result: ZMVideoSDKErrors
+
+        if isVideoOn {
+            // Stop video
+            result = videoHelper.stopVideo()
+            if result == ZMVideoSDKErrors_Success {
                 DispatchQueue.main.async {
                     self.isVideoOn = false
                 }
-                print("Toggle Video off \(errorMessage(for: result))")
+                Logger.shared.log("Video stopped successfully")
             } else {
-                result = videoHelper.startVideo()
+                Logger.shared.log("Failed to stop video: \(errorMessage(for: result))")
+            }
+        } else {
+            // Start video
+            result = videoHelper.startVideo()
+            if result == ZMVideoSDKErrors_Success {
                 DispatchQueue.main.async {
                     self.isVideoOn = true
                 }
-                print("Toggle Video on \(errorMessage(for: result))")
+                Logger.shared.log("Video started successfully")
+            } else {
+                Logger.shared.log("Failed to start video: \(errorMessage(for: result))")
             }
         }
     }
 
+    /// Leaves the current Zoom session and updates the session state.
     func leaveSession() {
         let result = ZMVideoSDK.shared().leaveSession(true)
-        print("Leave session \(errorMessage(for: result))")
+        if result == ZMVideoSDKErrors_Success {
+            Logger.shared.log("Left session successfully")
+            DispatchQueue.main.async {
+                self.sessionIsActive = false
+            }
+        } else {
+            Logger.shared.log("Failed to leave session: \(errorMessage(for: result))")
+            DispatchQueue.main.async {
+                self.showError = true
+            }
+        }
     }
 
+
+    /// Sends the list of available cameras to a specified user.
+    /// - Parameter user: The user to send the camera list to; if `nil`, broadcasts to all users.
     func sendCameraList(to user: ZMVideoSDKUser?) {
         let cameras = fetchCameras()
         let cameraData = cameras.map { Camera(id: $0.deviceID, name: $0.deviceName) }
 
-        let payload = Payload.cameraList(cameras.map { Camera(id: $0.deviceID, name: $0.deviceName) })
+        let payload = Payload.cameraList(cameraData)
         let command = Command(type: .responseCameraList, payload: payload)
-        print("sendCameraList will send \(cameras.count) cameras")
+        Logger.shared.log("sendCameraList will send \(cameras.count) cameras")
 
         do {
             let jsonData = try JSONEncoder().encode(command)
             guard let commandString = String(data: jsonData, encoding: .utf8) else {
-                throw NSError(domain: "CameraViewModel", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to encode command to string"])
+                throw NSError(domain: "SessionViewModel", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to encode command to string"])
+            }
+
+            // Ensure command channel is available
+            guard let commandChannel = commandChannel else {
+                Logger.shared.log("Command channel is not available")
+                return
             }
 
             // Send the command string
-            if let result = commandChannel?.sendCommand(commandString, receive: user) {
-                print("Send camera list to: \(user?.getName()). \(errorMessage(for: result))")
+            let result = commandChannel.sendCommand(commandString, receive: user)
+            if result == ZMVideoSDKErrors_Success {
+                let recipient = user?.getName() ?? "All Users"
+                Logger.shared.log("Sent camera list to: \(recipient)")
             } else {
-                print("Failed to send camera list to \(String(describing: user?.getName()))")
+                Logger.shared.log("Failed to send camera list: \(errorMessage(for: result))")
             }
         } catch {
-            print("Error processing camera list: \(error)")
+            Logger.shared.log("Error processing camera list: \(error.localizedDescription)")
         }
     }
 
+    /// Fetches the list of available camera devices.
+    /// - Returns: An array of `ZMVideoSDKCameraDevice`.
     func fetchCameras() -> [ZMVideoSDKCameraDevice] {
-        print("-SessionViewModel- fetch camera list")
+        Logger.shared.log("-SessionViewModel- fetch camera list")
       let videoHelper = ZMVideoSDK.shared().getVideoHelper()
         return videoHelper.getCameraList() ?? []
     }
 
-    func switchCamera(to deviceID: String?) {
-        let videoHelper = ZMVideoSDK.shared().getVideoHelper()
-        if let cameraDeviceID = deviceID {
-            let result = videoHelper.selectCamera(cameraDeviceID)
-            print(" -SessionViewModel- Camera switched successfully? : \(result)")
+    /// Fetches the list of available cameras and updates the `cameraList` property.
+    func fetchAndUpdateCameraList() {
+        let cameras = fetchCameras()
+        let cameraData = cameras.map { Camera(id: $0.deviceID, name: $0.deviceName) }
 
-        } else {
-            print("selectCamera: Invalid Device ID")
+        DispatchQueue.main.async {
+            self.cameraList = cameraData
+            Logger.shared.log("SessionViewModel - Updated camera list. Count: \(self.cameraList.count)")
         }
     }
 
+
+    /// Switches the camera to the specified device ID.
+    /// - Parameter deviceID: The identifier of the camera device to switch to.
+    func switchCamera(to deviceID: String?) {
+        let videoHelper = ZMVideoSDK.shared().getVideoHelper()
+
+        if let cameraDeviceID = deviceID {
+            let result = videoHelper.selectCamera(cameraDeviceID)
+
+            if result {
+                Logger.shared.log("Camera switched successfully to device ID: \(cameraDeviceID)")
+            } else {
+                Logger.shared.log("Failed to switch to camera: \(cameraDeviceID) ")
+            }
+
+        } else {
+            Logger.shared.log("Invalid Device ID provided")
+        }
+    }
+
+    /// Provides a human-readable error message for a given `ZMVideoSDKErrors` code.
+    /// - Parameter error: The error code.
+    /// - Returns: A string describing the error.
     private func errorMessage(for error: ZMVideoSDKErrors) -> String {
         switch error {
             case ZMVideoSDKErrors_Success:
@@ -210,12 +336,10 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
                 return "Error: Failed to load a module"
             case ZMVideoSDKErrors_UnLoad_Module_Error:
                 return "Error: Failed to unload a module"
-                // Add additional cases for other specific errors...
             case ZMVideoSDKErrors_Auth_Error:
                 return "Error: Authentication failed"
             case ZMVideoSDKErrors_JoinSession_NoSessionName:
                 return "Error: No session name provided for joining session"
-                // Ensure all specific errors are handled.
             case ZMVideoSDKErrors_Wrong_Usage:
                 return "Error: Wrong Usage"
             case ZMVideoSDKErrors_Internal_Error:
@@ -245,17 +369,19 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
         }
     }
 
+    /// Updates the list of participants in the session.
     func updateParticipants() {
-
         let session = ZMVideoSDK.shared().getSessionInfo()
         let allUsers = session.getRemoteUsers() ?? []
-        participants = allUsers.map { user in
-            let name = user.getName() ?? "Unknown"
-            let id = user.getID()?.description
-            let canvas = user.getVideoCanvas()
-            return Participant(id: id ?? UUID().uuidString, name: name, videoCanvas: canvas)
-        }
 
-        print("SessionViewModel - Update participants. Count: \(participants.count)")
+        DispatchQueue.main.async {
+            self.participants = allUsers.map { user in
+                let name = user.getName() ?? "Unknown"
+                let id = user.getID()?.description ?? UUID().uuidString
+                let canvas = user.getVideoCanvas()
+                return Participant(id: id, name: name, videoCanvas: canvas)
+            }
+            Logger.shared.log("SessionViewModel - Update participants. Count: \(self.participants.count)")
+        }
     }
 }

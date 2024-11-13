@@ -7,11 +7,14 @@
 
 import Foundation
 
+
+/// Represents the response when attempting to switch cameras.
 struct SwitchCameraResponse: Codable {
     var success: Bool
     var message: String?
 }
 
+/// Enum representing different payloads that can be sent in a zoom command.
 enum Payload: Codable {
     case empty
     case cameraList([Camera])
@@ -34,6 +37,7 @@ enum Payload: Codable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
+        // Attempt to decode each possible payload type
         if let str = try? container.decode(String.self), str == "empty" {
             self = .empty
         } else if let cameras = try? container.decode([Camera].self) {
@@ -43,12 +47,14 @@ enum Payload: Codable {
         } else if let response = try? container.decode(SwitchCameraResponse.self) {
             self = .switchCameraResponse(response)
         } else {
+            Logger.shared.log("Payload - Failed to decode payload")
             throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Data cannot be decoded"))
         }
     }
 }
 
-// Command struct for sending and receiving command data
+
+/// Command struct for sending and receiving command data over the zoom command channel.
 struct Command: Codable {
     enum CommandType: String, Codable {
         case requestCameraList

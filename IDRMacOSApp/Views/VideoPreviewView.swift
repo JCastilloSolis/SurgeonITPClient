@@ -36,7 +36,7 @@ struct VideoPreviewView: NSViewRepresentable {
                 let sdkReturnStatus = myUserVideoCanvas.subscribe(with: nsView, aspectMode: ZMVideoSDKVideoAspect_LetterBox, resolution: ZMVideoSDKResolution_360P)
 
                 // Subscribe to the video canvas
-                print("- VideoCanvasView - Subscribe to the video canvas : \(errorMessage(for: sdkReturnStatus))")
+                Logger.shared.log("- VideoCanvasView - Subscribe to the video canvas : \(errorMessage(for: sdkReturnStatus))")
             }
 
         }
@@ -58,12 +58,10 @@ struct VideoPreviewView: NSViewRepresentable {
                 return "Error: Failed to load a module"
             case ZMVideoSDKErrors_UnLoad_Module_Error:
                 return "Error: Failed to unload a module"
-                // Add additional cases for other specific errors...
             case ZMVideoSDKErrors_Auth_Error:
                 return "Error: Authentication failed"
             case ZMVideoSDKErrors_JoinSession_NoSessionName:
                 return "Error: No session name provided for joining session"
-                // Ensure all specific errors are handled.
             case ZMVideoSDKErrors_Wrong_Usage:
                 return "Error: Wrong Usage"
             case ZMVideoSDKErrors_Internal_Error:

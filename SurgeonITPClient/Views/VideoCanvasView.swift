@@ -41,7 +41,7 @@ struct VideoCanvasView: UIViewRepresentable {
 
         if let videoCanvas = user?.getVideoCanvas() {
             videoCanvas.subscribe(with: view, aspectMode: .original, andResolution: ._Auto)
-            print("- VideoCanvasView - Subscribe to video canvas for user \(user?.getName() ?? "unknown")")
+            Logger.shared.log("- VideoCanvasView - Subscribe to video canvas for user \(user?.getName() ?? "unknown")")
         }
     }
 }

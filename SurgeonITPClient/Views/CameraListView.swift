@@ -22,7 +22,7 @@ struct CameraListView: View {
                 Menu {
                     ForEach(viewModel.cameraList, id: \.id) { camera in
                         Button(camera.name) {
-                            print("Select Camera \(camera.name)")
+                            Logger.shared.log("Select Camera \(camera.name)")
                             viewModel.requestSwitchCamera(toDeviceID: camera.id)
                         }
                     }

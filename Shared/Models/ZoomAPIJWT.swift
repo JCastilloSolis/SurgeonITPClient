@@ -37,10 +37,10 @@ struct ZoomAPIJWT {
         do {
             var jwt = JWT(header: Header(typ: "JWT"), claims: claims)
             let token = try jwt.sign(using: .hs256(key: apiSecret.data(using: .utf8)!))
-            print("JWT Token generated successfully.")
+            Logger.shared.log("JWT Token generated successfully.")
             return token
         } catch {
-            print("Failed to generate JWT: \(error)")
+            Logger.shared.log("Failed to generate JWT: \(error)")
             return ""
         }
     }
