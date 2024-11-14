@@ -54,6 +54,7 @@ enum Payload: Codable {
 }
 
 
+//TODO: Rename to include zoom relationship 
 /// Command struct for sending and receiving command data over the zoom command channel.
 struct Command: Codable {
     enum CommandType: String, Codable {

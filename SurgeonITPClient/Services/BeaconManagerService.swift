@@ -13,19 +13,23 @@ import UserNotifications
 @MainActor
 class BeaconManagerService: NSObject, ObservableObject {
     @Published var proximity: CLProximity = .unknown
+    //TODO: Create a published var that represents if the device is inside a beacon region.
     private var locationManager: CLLocationManager?
-    private let beaconUUID = UUID(uuidString: "E2C56DB5-DFFB-48D2-B060-D0F5A71096F9")!
+    private let beaconUUID: UUID
     private let beaconIdentifier = "com.example.myBeacon"
     private var beaconConstraint: CLBeaconIdentityConstraint?
     private var notificationCenter: UNUserNotificationCenter
 
-
     override init() {
-        Logger.shared.log("BeaconManager initialized.")
+        guard let uuid = UUID(uuidString: "E2C56DB5-DFFB-48D2-B060-D0F5A71096F9") else {
+            fatalError("Invalid Beacon UUID")
+        }
+        self.beaconUUID = uuid
         //TODO: Move notification code somewhere else
         self.notificationCenter = UNUserNotificationCenter.current()
         super.init()
         requestNotificationAuthorization()
+        Logger.shared.log("BeaconManager initialized.")
     }
 
     /// Requests user authorization for notifications.
@@ -74,12 +78,15 @@ class BeaconManagerService: NSObject, ObservableObject {
 
     /// Creates and schedules a local notification.
     private func createNotification(title: String, body: String) {
-        //TODO: Keep track of the last time a notification was created
-        /// Have a time gap between each local push notification to be at least x amounts of minutes
-        /// For Testing 5 minutes, For demos 20 minutes
-        ///
-        ///
-        // TODO: Save data into user defauls or coreData along with the beaconId
+        let minimumTimeGap: TimeInterval = 5 * 60  // 5 minutes for testing
+        let lastNotificationDate = UserDefaults.standard.object(forKey: "LastNotificationDate") as? Date ?? Date.distantPast
+        let timeSinceLastNotification = Date().timeIntervalSince(lastNotificationDate)
+
+        guard timeSinceLastNotification >= minimumTimeGap else {
+            Logger.shared.log("Notification suppressed to prevent spamming.")
+            return
+        }
+
         Logger.shared.log("Creating notification: \(title) - \(body)")
         let content = UNMutableNotificationContent()
         content.title = title
@@ -87,11 +94,12 @@ class BeaconManagerService: NSObject, ObservableObject {
         content.sound = .default
 
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
-        notificationCenter.add(request) { error in
+        notificationCenter.add(request) { [weak self] error in
             if let error = error {
                 Logger.shared.log("Failed to schedule notification: \(error.localizedDescription)")
             } else {
                 Logger.shared.log("Notification scheduled successfully.")
+                UserDefaults.standard.set(Date(), forKey: "LastNotificationDate")
             }
         }
     }

@@ -22,6 +22,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     @Published var sessionState: MCSessionState = .notConnected
 
 
+    private let serviceType = "example-service"
     private var peerID: MCPeerID
     private var mcSession: MCSession
     private var advertiser: MCNearbyServiceAdvertiser?
@@ -30,10 +31,6 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     private var heartbeatTimer: Timer?
     private var selectedServerPeerID: MCPeerID?
     private var savedClientPeerID: MCPeerID?
-
-    func log(_ message: String) {
-        Logger.shared.log(message)
-    }
 
     //TODO: Refactor this to take in a server or client role
     override init() {
@@ -52,53 +49,78 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         super.init()
         self.mcSession.delegate = self
 
-        log("PeerManager initialized with PeerID: \(peerID.displayName)")
+
+        //TODO: Create load data method based on the target
+        // iOS should save/load the latest saved server
+        // macOS should save/load the latest saved client
 
         // Load saved client peerID from UserDefaults
         if let savedClientName = UserDefaults.standard.string(forKey: "savedClientName") {
+            Logger.shared.log("Found saved client peerID: \(savedClientName)")
             self.savedClientPeerID = MCPeerID(displayName: savedClientName)
         }
 
         // Determine the role based on the current platform
+        setupRoleBasedServices()
+
+        Logger.shared.log("PeerManager initialized with PeerID: \(peerID.displayName)")
+    }
+
+    private func setupRoleBasedServices() {
 #if os(iOS)
-        log("Setting up as Browser (Client)")
+        Logger.shared.log("Setting up as Browser (Client)")
         setupBrowser()
 #elseif os(macOS)
-        log("Setting up as Advertiser (Server)")
+        Logger.shared.log("Setting up as Advertiser (Server)")
         setupAdvertiser()
 #endif
     }
 
     private func setupAdvertiser() {
-        self.advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: "example-service")
-        self.advertiser?.delegate = self
+        advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
+        advertiser?.delegate = self
         startAdvertising()
     }
 
     private func setupBrowser() {
-        self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: "example-service")
-        self.browser?.delegate = self
-        //startBrowsing()
+        browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
+        browser?.delegate = self
     }
 
     func startAdvertising() {
-        advertiser?.startAdvertisingPeer()
-        log("Started advertising...")
+        guard let advertiser = advertiser else {
+            Logger.shared.log("Cannot start advertising: Advertiser is nil")
+            return
+        }
+        advertiser.startAdvertisingPeer()
+        Logger.shared.log("Started advertising...")
     }
 
     func stopAdvertising() {
-        advertiser?.stopAdvertisingPeer()
-        log("Stopped advertising...")
+        guard let advertiser = advertiser else {
+            Logger.shared.log("Cannot stop advertising: Advertiser is nil")
+            return
+        }
+        advertiser.stopAdvertisingPeer()
+        Logger.shared.log("Stopped advertising...")
     }
 
     func startBrowsing() {
-        browser?.startBrowsingForPeers()
-        log("Started browsing for peers...")
+        guard let browser = browser else {
+            Logger.shared.log("Cannot start browsing: Browser is nil")
+            return
+        }
+        browser.startBrowsingForPeers()
+        Logger.shared.log("Started browsing for peers...")
     }
 
     func stopBrowsing() {
-        browser?.stopBrowsingForPeers()
-        log("Stopped browsing for peers...")
+        guard let browser = browser else {
+            Logger.shared.log("Cannot stop browsing: Browser is nil")
+            return
+        }
+        browser.stopBrowsingForPeers()
+        Logger.shared.log("Stopped browsing for peers...")
     }
 
     func selectPeerForConnection(peerID: MCPeerID) {
@@ -108,22 +130,26 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     }
 
     private func connectToPeer(peerID: MCPeerID) {
-        log("Invited \(peerID.displayName) to join the session")
-        browser?.invitePeer(peerID, to: mcSession, withContext: nil, timeout: 10)
+        guard let browser = browser else {
+            Logger.shared.log("Cannot connect to peer: Browser is nil")
+            return
+        }
+        Logger.shared.log("Inviting \(peerID.displayName) to join the session")
+        browser.invitePeer(peerID, to: mcSession, withContext: nil, timeout: 10)
     }
 
     func send(_ message: String, type: MessageType) {
         let fullMessage = "\(type.prefix)\(message)"
-        log("Will attempt to send message \(fullMessage)")
+        //log("Attempting to send message: \(fullMessage)")
         guard let data = fullMessage.data(using: .utf8) else {
-            log("Failed to send message")
+            Logger.shared.log("Failed to encode message to data")
             return
         }
         do {
             try mcSession.send(data, toPeers: mcSession.connectedPeers, with: .reliable)
-            log("Sending \(type): \(message)")
+            Logger.shared.log("Sent \(type.rawValue): \(message)")
         } catch {
-            log("Error sending \(type): \(error.localizedDescription)")
+            Logger.shared.log("Error sending \(type.rawValue): \(error.localizedDescription)")
         }
     }
 
@@ -133,7 +159,9 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         dateFormatter.dateFormat = "HH:mm:ss"
         let timeString = dateFormatter.string(from: Date())
         let message = "Heartbeat \(messageCounter): \(timeString)"
-        messageCounter += 1
+        DispatchQueue.main.async {
+            self.messageCounter += 1
+        }
         send(message, type: .heartbeat)
     }
 
@@ -141,6 +169,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         heartbeatTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
             self?.sendHeartbeat()
         }
+        RunLoop.main.add(heartbeatTimer!, forMode: .common)
     }
 
     func stopHeartbeat() {
@@ -149,8 +178,8 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     }
 
     func leaveSession() {
-        log("Leave Session")
-        stopHeartbeat()
+        Logger.shared.log("Leaving session")
+        //stopHeartbeat()
         mcSession.disconnect()
 #if os(macOS)
         startAdvertising()  // Resume advertising if the session is left
@@ -158,25 +187,28 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     }
 
     func forgetClient() {
-        log("Forget Client")
+        Logger.shared.log("Forgetting client")
         UserDefaults.standard.removeObject(forKey: "savedClientName")
         savedClientPeerID = nil
     }
 
 
     private func processCommand(_ command: String) {
-        switch command {
-            case "start":
-                isSendingHeartbeat = true
-                startHeartbeat()
-            case "stop":
-                isSendingHeartbeat = false
-                stopHeartbeat()
-            case "status":
-                let status = isSendingHeartbeat ? "Sending heartbeats" : "Idle"
-                send("Server status: \(status)", type: .response)
-            default:
-                send("Unrecognized command: \(command)", type: .response)
+        Logger.shared.log("Processing command: \(command)")
+        DispatchQueue.main.async {
+            switch command {
+                case "start":
+                    self.isSendingHeartbeat = true
+                    self.startHeartbeat()
+                case "stop":
+                    self.isSendingHeartbeat = false
+                    self.stopHeartbeat()
+                case "status":
+                    let status = self.isSendingHeartbeat ? "Sending heartbeats" : "Idle"
+                    self.send("Server status: \(status)", type: .response)
+                default:
+                    self.send("Unrecognized command: \(command)", type: .response)
+            }
         }
     }
 
@@ -185,119 +217,128 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         DispatchQueue.main.async {
             self.sessionState = state
-            if state == .connected {
-                self.log("Connected to \(peerID.displayName)")
-                if !self.connectedDevices.contains(peerID.displayName) {
-                    self.connectedDevices.append(peerID.displayName)
-                }
-
-                //TODO: Stop browsing once connected
-
-#if os(macOS)
-                if self.savedClientPeerID == nil {
-                    self.savedClientPeerID = peerID
-                    UserDefaults.standard.set(peerID.displayName, forKey: "savedClientName")
-                    self.log("Saved client: \(peerID.displayName)")
-                }
-                self.stopAdvertising()  // Stop advertising when connected
-#endif
-            } else if state == .notConnected {
-                self.log("Disconnected from \(peerID.displayName), stopping heartbeat.")
-                self.stopHeartbeat()
-                self.connectedDevices.removeAll { $0 == peerID.displayName }
-                session.disconnect()
-#if os(macOS)
-                self.startAdvertising()  // Resume advertising when disconnected
-#endif
-            } else if state == .connecting {
-                self.log("Connecting to \(peerID.displayName)")
+            switch state {
+                case .connected:
+                    self.handleConnectedState(peerID: peerID)
+                case .notConnected:
+                    self.handleNotConnectedState(peerID: peerID)
+                case .connecting:
+                    Logger.shared.log("Connecting to \(peerID.displayName)")
+                @unknown default:
+                    Logger.shared.log("Unknown state for peer \(peerID.displayName)")
             }
         }
     }
 
+    private func handleConnectedState(peerID: MCPeerID) {
+        Logger.shared.log("Connected to \(peerID.displayName)")
+        if !connectedDevices.contains(peerID.displayName) {
+            connectedDevices.append(peerID.displayName)
+        }
+
+        // Stop browsing once connected
+        stopBrowsing()
+
+#if os(macOS)
+        if savedClientPeerID == nil {
+            savedClientPeerID = peerID
+            UserDefaults.standard.set(peerID.displayName, forKey: "savedClientName")
+            Logger.shared.log("Saved client: \(peerID.displayName)")
+        }
+        stopAdvertising()  // Stop advertising when connected
+#endif
+    }
+
+    private func handleNotConnectedState(peerID: MCPeerID) {
+        Logger.shared.log("Disconnected from \(peerID.displayName)")
+        //stopHeartbeat()
+        connectedDevices.removeAll { $0 == peerID.displayName }
+        mcSession.disconnect()
+#if os(macOS)
+        startAdvertising()  // Resume advertising when disconnected
+#endif
+    }
+
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        guard let message = String(data: data, encoding: .utf8) else { return }
-        if let messageType = MessageType.determineType(from: message) {
-            let cleanMessage = String(message.dropFirst(messageType.prefix.count))
-            log("Clean message \(cleanMessage), prefix \(messageType.rawValue)")
-            DispatchQueue.main.async {
-                switch messageType {
-                    case .command:
-                        self.log("A command was received for macOS")
-                        self.receivedMessages.append(cleanMessage)
-                        self.processCommand(cleanMessage)
-                        // Responses and heartbeats not processed as commands
-                    case .response:
-                        self.log("A response was received for iOS")
-                        self.receivedMessages.append(cleanMessage)
-                    case .heartbeat:
-                        self.log("A heartbeat status was received for iOS")
-                        self.receivedMessages.append(cleanMessage)
-                }
+        guard let message = String(data: data, encoding: .utf8) else {
+            Logger.shared.log("Failed to decode message from \(peerID.displayName)")
+            return
+        }
+        guard let messageType = MessageType.determineType(from: message) else {
+            Logger.shared.log("Unrecognized message type from \(peerID.displayName): \(message)")
+            return
+        }
+        let cleanMessage = String(message.dropFirst(messageType.prefix.count))
+        Logger.shared.log("Received \(messageType.rawValue) from \(peerID.displayName): \(cleanMessage)")
+        DispatchQueue.main.async {
+            switch messageType {
+                case .command:
+                    self.receivedMessages.append(cleanMessage)
+                    self.processCommand(cleanMessage)
+                case .response, .heartbeat:
+                    self.receivedMessages.append(cleanMessage)
+                default:
+                    Logger.shared.log("Received unknown message type")
             }
         }
     }
 
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
-        log("Received stream: \(streamName) from \(peerID.displayName)")
+        Logger.shared.log("Received stream: \(streamName) from \(peerID.displayName)")
         // Handle received stream
     }
 
     func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {
-        log("Started receiving resource: \(resourceName) from \(peerID.displayName)")
+        Logger.shared.log("Started receiving resource: \(resourceName) from \(peerID.displayName)")
         // Handle resource reception
     }
 
     func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {
-        log("Finished receiving resource: \(resourceName) from \(peerID.displayName), error: \(String(describing: error))")
+        Logger.shared.log("Finished receiving resource: \(resourceName) from \(peerID.displayName), error: \(String(describing: error))")
         // Handle completed reception
     }
 
     // MARK: - MCNearbyServiceBrowserDelegate Methods
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
-
         DispatchQueue.main.async {
             if !self.discoveredPeers.contains(peerID) {
-                self.log("Found peer: \(peerID.displayName)")
+                Logger.shared.log("Found peer: \(peerID.displayName)")
                 self.discoveredPeers.append(peerID)
             }
         }
     }
 
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
-        log("Lost peer: \(peerID.displayName)")
-        // Handle lost peer
+        Logger.shared.log("Lost peer: \(peerID.displayName)")
         DispatchQueue.main.async {
-            if self.discoveredPeers.contains(peerID) {
-                self.discoveredPeers.removeAll(where: { peer in
-                    peer.displayName == peerID.displayName
-                })
-                self.log("Remove peer: \(peerID.displayName)")
-            }
+            self.discoveredPeers.removeAll { $0 == peerID }
+            Logger.shared.log("Removed peer: \(peerID.displayName)")
         }
     }
 
     // MARK: - MCNearbyServiceAdvertiserDelegate Methods
+
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
 
-        log("Received invitation from \(peerID.displayName). ConnectedPeers = \(mcSession.connectedPeers.count)")
+        Logger.shared.log("Received invitation from \(peerID.displayName). ConnectedPeers = \(mcSession.connectedPeers.count)")
         // Automatically accept the invitation only if not already connected
-        if mcSession.connectedPeers.count == 0 {
-            if let savedClientPeerID = self.savedClientPeerID {
-                if peerID.displayName == savedClientPeerID.displayName {
-                    invitationHandler(true, mcSession)
-                    log("Accepted invitation from \(peerID.displayName)")
-                } else {
-                    log("Rejected invitation from \(peerID.displayName) because it's not the saved client")
-                    invitationHandler(false, nil)
-                }
-            } else {
+        guard mcSession.connectedPeers.isEmpty else {
+            Logger.shared.log("Rejected invitation from \(peerID.displayName) because already connected to another peer")
+            invitationHandler(false, nil)
+            return
+        }
+
+        if let savedClientPeerID = savedClientPeerID {
+            if peerID.displayName == savedClientPeerID.displayName {
                 invitationHandler(true, mcSession)
-                log("Accepted invitation from \(peerID.displayName)")
+                Logger.shared.log("Accepted invitation from \(peerID.displayName)")
+            } else {
+                Logger.shared.log("Rejected invitation from \(peerID.displayName) because it's not the saved client")
+                invitationHandler(false, nil)
             }
         } else {
-            log("Rejected invitation from \(peerID.displayName) because already connected to another peer")
-            invitationHandler(false, nil)
+            invitationHandler(true, mcSession)
+            Logger.shared.log("Accepted invitation from \(peerID.displayName)")
         }
     }
 }

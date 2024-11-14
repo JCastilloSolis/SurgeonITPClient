@@ -13,6 +13,7 @@ struct SurgeonITPClientApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
 
+    //TODO: Move somewhere else
     init() {
         setupSDK()
     }
@@ -23,10 +24,10 @@ struct SurgeonITPClientApp: App {
         let sdkInitReturnStatus = ZoomVideoSDK.shareInstance()?.initialize(initParams)
         switch sdkInitReturnStatus {
             case .Errors_Success:
-                Logger.shared.log("- ITP_DemoApp - SDK initialized successfully")
+                Logger.shared.log("ZoomVideoSDK initialized successfully")
             default:
                 if let error = sdkInitReturnStatus {
-                    Logger.shared.log("- ITP_DemoApp - SDK failed to initialize: \(error)")
+                    Logger.shared.log("ZoomVideoSDK failed to initialize: \(error)")
                     return
                 }
         }
@@ -34,8 +35,8 @@ struct SurgeonITPClientApp: App {
 
     var body: some Scene {
         WindowGroup {
-            //ContentView()
-            SessionView()
+            ContentView()
+            //SessionView()
         }
     }
 }

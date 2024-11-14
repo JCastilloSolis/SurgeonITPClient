@@ -17,7 +17,7 @@ struct CameraListView: View {
     var body: some View {
         HStack {
 
-            //TODO: Expand check to only show this when an IDR is part of the call
+            //TODO: Expand check to only show this when a macOS server is part of the call
             if (viewModel.pinnedParticipantID != nil) {
                 Menu {
                     ForEach(viewModel.cameraList, id: \.id) { camera in

@@ -10,7 +10,7 @@ import SwiftUI
 import ZoomVideoSDK
 
 /// The `SessionViewModel` manages the Zoom session, handles user interactions,
-/// and communicates with the `ZoomSessionCoordinator` to respond to Zoom SDK events.
+/// and communicates with the `ZoomSessionCoordinator` to respond to ZoomVideoSDK events.
 class SessionViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var isVideoOn = true
@@ -37,7 +37,7 @@ class SessionViewModel: ObservableObject {
     // MARK: - Initialization
     init() {
         coordinator = ZoomSessionCoordinator(viewModel: self)
-        setupSession()
+        //setupSession()
     }
 
     func setupSession() {
@@ -224,9 +224,9 @@ class SessionViewModel: ObservableObject {
             case .Errors_Wrong_Usage:
                 return "Error: Wrong usage of the SDK"
             case .Errors_Internal_Error:
-                return "Error: Internal SDK error"
+                return "Error: Internal ZoomVideoSDK error"
             case .Errors_Uninitialize:
-                return "Error: SDK not initialized"
+                return "Error: ZoomVideoSDK not initialized"
             case .Errors_Memory_Error:
                 return "Error: Memory issues encountered"
             case .Errors_Load_Module_Error:

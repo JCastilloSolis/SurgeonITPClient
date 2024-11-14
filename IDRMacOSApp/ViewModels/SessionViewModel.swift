@@ -16,7 +16,7 @@ struct Participant {
     var videoCanvas: ZMVideoSDKVideoCanvas?
 }
 
-// Manages the Zoom session, handling user interactions and SDK communications.
+// Manages the Zoom session, handling user interactions and ZoomVideoSDK communications.
 class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
     // MARK: - Published Properties
     @Published var sessionName: String = "demoSession2"
@@ -35,7 +35,7 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
 
     // MARK: - Initialization and Setup
 
-    /// Initializes the SessionViewModel by setting up the SDK and joining a session.
+    /// Initializes the SessionViewModel by setting up the ZoomVideoSDK and joining a session.
     override init() {
         super.init()
         initializeSDK()
@@ -44,7 +44,7 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
         commandChannel = ZMVideoSDK.shared().getCmdChannel()
     }
 
-    /// Initializes the Zoom SDK with the required parameters.
+    /// Initializes the ZoomVideoSDK with the required parameters.
     func initializeSDK() {
         let initParams = ZMVideoSDKInitParams()
         initParams.domain = "https://zoom.us"
@@ -61,12 +61,12 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
             Logger.shared.log("Failed to initialize ZoomSessionCoordinator")
         }
 
-        // Initialize the SDK and log the status
+        // Initialize the ZoomVideoSDK and log the status
         let sdkInitReturnStatus = ZMVideoSDK.shared().initialize(initParams)
-        Logger.shared.log("SDK Initialization: \(errorMessage(for: sdkInitReturnStatus))")
+        Logger.shared.log("ZoomVideoSDK Initialization: \(errorMessage(for: sdkInitReturnStatus))")
 
         if sdkInitReturnStatus != ZMVideoSDKErrors_Success {
-            Logger.shared.log("SDK failed to initialize with error: \(errorMessage(for: sdkInitReturnStatus))")
+            Logger.shared.log("ZoomVideoSDK failed to initialize with error: \(errorMessage(for: sdkInitReturnStatus))")
             DispatchQueue.main.async {
                 self.showError = true
             }
@@ -327,9 +327,9 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
             case ZMVideoSDKErrors_Wrong_Usage:
                 return "Error: Wrong usage of the SDK"
             case ZMVideoSDKErrors_Internal_Error:
-                return "Error: Internal SDK error"
+                return "Error: Internal ZoomVideoSDK error"
             case ZMVideoSDKErrors_Uninitialize:
-                return "Error: SDK not initialized"
+                return "Error: ZoomVideoSDK not initialized"
             case ZMVideoSDKErrors_Memory_Error:
                 return "Error: Memory issues encountered"
             case ZMVideoSDKErrors_Load_Module_Error:

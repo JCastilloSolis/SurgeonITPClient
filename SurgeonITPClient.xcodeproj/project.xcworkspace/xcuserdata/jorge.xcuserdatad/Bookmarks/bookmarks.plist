@@ -12,96 +12,6 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>82</string>
-					<key>StartingColumnNumber</key>
-					<string>0</string>
-					<key>StartingLineNumber</key>
-					<string>81</string>
-					<key>Timestamp</key>
-					<string>752803686.449695</string>
-				</dict>
-				<key>rebasable-url</key>
-				<dict>
-					<key>base</key>
-					<string>workspace</string>
-					<key>payload</key>
-					<dict>
-						<key>relative-path</key>
-						<string>SurgeonITPClient/Services/BeaconManagerService.swift</string>
-					</dict>
-				</dict>
-			</dict>
-			<key>text-context</key>
-			<dict>
-				<key>focused</key>
-				<string>        // TODO: Save data into user defauls or coreData along with the beaconId
-</string>
-				<key>leading</key>
-				<string>        ///
-        ///
-</string>
-				<key>trailing</key>
-				<string>        Logger.shared.log("Creating notification: \(title) - \(body)")
-        let content = UNMutableNotificationContent()
-        content.title = title
-</string>
-			</dict>
-			<key>type</key>
-			<string>bookmark</string>
-		</dict>
-		<dict>
-			<key>destination</key>
-			<dict>
-				<key>location-parameters</key>
-				<dict>
-					<key>EndingColumnNumber</key>
-					<string>0</string>
-					<key>EndingLineNumber</key>
-					<string>77</string>
-					<key>StartingColumnNumber</key>
-					<string>0</string>
-					<key>StartingLineNumber</key>
-					<string>76</string>
-					<key>Timestamp</key>
-					<string>752803686.450083</string>
-				</dict>
-				<key>rebasable-url</key>
-				<dict>
-					<key>base</key>
-					<string>workspace</string>
-					<key>payload</key>
-					<dict>
-						<key>relative-path</key>
-						<string>SurgeonITPClient/Services/BeaconManagerService.swift</string>
-					</dict>
-				</dict>
-			</dict>
-			<key>text-context</key>
-			<dict>
-				<key>focused</key>
-				<string>        //TODO: Keep track of the last time a notification was created
-</string>
-				<key>leading</key>
-				<string>    /// Creates and schedules a local notification.
-    private func createNotification(title: String, body: String) {
-</string>
-				<key>trailing</key>
-				<string>        /// Have a time gap between each local push notification to be at least x amounts of minutes
-        /// For Testing 5 minutes, For demos 20 minutes
-        ///
-</string>
-			</dict>
-			<key>type</key>
-			<string>bookmark</string>
-		</dict>
-		<dict>
-			<key>destination</key>
-			<dict>
-				<key>location-parameters</key>
-				<dict>
-					<key>EndingColumnNumber</key>
-					<string>0</string>
-					<key>EndingLineNumber</key>
 					<string>93</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
@@ -233,15 +143,15 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 				<key>location-parameters</key>
 				<dict>
 					<key>EndingColumnNumber</key>
-					<string>7</string>
+					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>24</string>
+					<string>28</string>
 					<key>StartingColumnNumber</key>
-					<string>7</string>
+					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>24</string>
+					<string>27</string>
 					<key>Timestamp</key>
-					<string>752803697.695055</string>
+					<string>753244412.573945</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -257,149 +167,61 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string></string>
-				<key>leading</key>
-				<string>    override init() {
-        Logger.shared.log("BeaconManager initialized.")
-       </string>
-				<key>trailing</key>
-				<string> //TODO: Move notification code somewhere else
-        self.notificationCenter = UNUserNotificationCenter.current()
-        super.init()
-</string>
-			</dict>
-			<key>type</key>
-			<string>bookmark</string>
-		</dict>
-		<dict>
-			<key>destination</key>
-			<dict>
-				<key>location-parameters</key>
-				<dict>
-					<key>EndingColumnNumber</key>
-					<string>0</string>
-					<key>EndingLineNumber</key>
-					<string>194</string>
-					<key>StartingColumnNumber</key>
-					<string>0</string>
-					<key>StartingLineNumber</key>
-					<string>193</string>
-					<key>Timestamp</key>
-					<string>752803940.505792</string>
-				</dict>
-				<key>rebasable-url</key>
-				<dict>
-					<key>base</key>
-					<string>workspace</string>
-					<key>payload</key>
-					<dict>
-						<key>relative-path</key>
-						<string>Shared/Services/PeerManagerService.swift</string>
-					</dict>
-				</dict>
-			</dict>
-			<key>text-context</key>
-			<dict>
-				<key>focused</key>
-				<string>                //TODO: Stop browsing once connected
+				<string>        //TODO: Move notification code somewhere else
 </string>
 				<key>leading</key>
-				<string>                }
-
-</string>
-				<key>trailing</key>
-				<string>
-#if os(macOS)
-                if self.savedClientPeerID == nil {
-</string>
-			</dict>
-			<key>type</key>
-			<string>bookmark</string>
-		</dict>
-		<dict>
-			<key>destination</key>
-			<dict>
-				<key>location-parameters</key>
-				<dict>
-					<key>EndingColumnNumber</key>
-					<string>8</string>
-					<key>EndingLineNumber</key>
-					<string>37</string>
-					<key>StartingColumnNumber</key>
-					<string>8</string>
-					<key>StartingLineNumber</key>
-					<string>37</string>
-					<key>Timestamp</key>
-					<string>752803963.985382</string>
-				</dict>
-				<key>rebasable-url</key>
-				<dict>
-					<key>base</key>
-					<string>workspace</string>
-					<key>payload</key>
-					<dict>
-						<key>relative-path</key>
-						<string>Shared/Services/PeerManagerService.swift</string>
-					</dict>
-				</dict>
-			</dict>
-			<key>text-context</key>
-			<dict>
-				<key>focused</key>
-				<string></string>
-				<key>leading</key>
-				<string>    }
-
-    //TO</string>
-				<key>trailing</key>
-				<string>DO: Refactor this to take in a server or client role
-    override init() {
-        // Define the displayName for peerID based on platform
-</string>
-			</dict>
-			<key>type</key>
-			<string>bookmark</string>
-		</dict>
-		<dict>
-			<key>destination</key>
-			<dict>
-				<key>location-parameters</key>
-				<dict>
-					<key>EndingColumnNumber</key>
-					<string>0</string>
-					<key>EndingLineNumber</key>
-					<string>418</string>
-					<key>StartingColumnNumber</key>
-					<string>0</string>
-					<key>StartingLineNumber</key>
-					<string>417</string>
-					<key>Timestamp</key>
-					<string>753151447.190655</string>
-				</dict>
-				<key>rebasable-url</key>
-				<dict>
-					<key>base</key>
-					<string>workspace</string>
-					<key>payload</key>
-					<dict>
-						<key>relative-path</key>
-						<string>SurgeonITPClient/ViewModels/SessionViewModel.swift</string>
-					</dict>
-				</dict>
-			</dict>
-			<key>text-context</key>
-			<dict>
-				<key>focused</key>
 				<string>        }
-</string>
-				<key>leading</key>
-				<string>            Logger.shared.log("SessionViewModel - Remote control helper is not available")
-            return
+        self.beaconUUID = uuid
 </string>
 				<key>trailing</key>
-				<string>        //TODO: try to get camera name
-        let result = remoteControlHelper.turnLeft(range)
-        if result == .Errors_Success {
+				<string>        self.notificationCenter = UNUserNotificationCenter.current()
+        super.init()
+        requestNotificationAuthorization()
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>35</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>34</string>
+					<key>Timestamp</key>
+					<string>753244401.27297</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>Shared/Services/PeerManagerService.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>    //TODO: Refactor this to take in a server or client role
+</string>
+				<key>leading</key>
+				<string>    private var savedClientPeerID: MCPeerID?
+
+</string>
+				<key>trailing</key>
+				<string>    override init() {
+        // Define the displayName for peerID based on platform
+        let displayName: String = {
 </string>
 			</dict>
 			<key>type</key>
@@ -419,7 +241,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>StartingLineNumber</key>
 					<string>378</string>
 					<key>Timestamp</key>
-					<string>753151447.1906461</string>
+					<string>753229980.5103281</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -464,7 +286,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>StartingLineNumber</key>
 					<string>68</string>
 					<key>Timestamp</key>
-					<string>753151447.190589</string>
+					<string>753229980.510293</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -490,6 +312,228 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 				<string>        let zoomJWT = ZoomAPIJWT(apiKey: "vWORwGngSfyZ4PIio6bqCg", apiSecret: "i3II29cNHHnL98vc0qGtVbp3SrVC3yYv2vIT")
         //let zoomJWT = ZoomAPIJWT(apiKey: "apikey", apiSecret: "secret")
         let roleType = 0  // 1 for host, 0 for participant
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>38</string>
+					<key>EndingLineNumber</key>
+					<string>418</string>
+					<key>StartingColumnNumber</key>
+					<string>38</string>
+					<key>StartingLineNumber</key>
+					<string>418</string>
+					<key>Timestamp</key>
+					<string>753233331.487206</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>SurgeonITPClient/ViewModels/SessionViewModel.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string></string>
+				<key>leading</key>
+				<string>            return
+        }
+        //TODO: try to get camera name</string>
+				<key>trailing</key>
+				<string>
+        let result = remoteControlHelper.turnLeft(range)
+        if result == .Errors_Success {
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>5</string>
+					<key>EndingLineNumber</key>
+					<string>15</string>
+					<key>StartingColumnNumber</key>
+					<string>5</string>
+					<key>StartingLineNumber</key>
+					<string>15</string>
+					<key>Timestamp</key>
+					<string>753241602.163358</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>SurgeonITPClient/Services/BeaconManagerService.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string></string>
+				<key>leading</key>
+				<string>class BeaconManagerService: NSObject, ObservableObject {
+    @Published var proximity: CLProximity = .unknown
+    /</string>
+				<key>trailing</key>
+				<string>/TODO: Create a published var that represents if the device is inside a beacon region.
+    private var locationManager: CLLocationManager?
+    private let beaconUUID: UUID
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>119</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>118</string>
+					<key>Timestamp</key>
+					<string>753243541.863561</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>SurgeonITPClient/ViewModels/ClientViewModel.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>        //TODO: Disable beacon ranging once an MPC session is confirmed, only enable it again once the mpc session has been lost and not able to reconnect
+</string>
+				<key>leading</key>
+				<string>
+
+</string>
+				<key>trailing</key>
+				<string>        // Handle proximity changes
+        beaconManager.$proximity
+            .sink { [weak self] proximity in
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>3</string>
+					<key>EndingLineNumber</key>
+					<string>15</string>
+					<key>StartingColumnNumber</key>
+					<string>3</string>
+					<key>StartingLineNumber</key>
+					<string>15</string>
+					<key>Timestamp</key>
+					<string>753243415.770974</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>SurgeonITPClient/SurgeonITPClientApp.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string></string>
+				<key>leading</key>
+				<string>
+
+   </string>
+				<key>trailing</key>
+				<string> //TODO: Move somewhere else
+    init() {
+        setupSDK()
+</string>
+			</dict>
+			<key>type</key>
+			<string>bookmark</string>
+		</dict>
+		<dict>
+			<key>destination</key>
+			<dict>
+				<key>location-parameters</key>
+				<dict>
+					<key>EndingColumnNumber</key>
+					<string>0</string>
+					<key>EndingLineNumber</key>
+					<string>53</string>
+					<key>StartingColumnNumber</key>
+					<string>0</string>
+					<key>StartingLineNumber</key>
+					<string>52</string>
+					<key>Timestamp</key>
+					<string>753244298.947139</string>
+				</dict>
+				<key>rebasable-url</key>
+				<dict>
+					<key>base</key>
+					<string>workspace</string>
+					<key>payload</key>
+					<dict>
+						<key>relative-path</key>
+						<string>Shared/Services/PeerManagerService.swift</string>
+					</dict>
+				</dict>
+			</dict>
+			<key>text-context</key>
+			<dict>
+				<key>focused</key>
+				<string>        //TODO: Create load data method based on the target
+</string>
+				<key>leading</key>
+				<string>
+
+</string>
+				<key>trailing</key>
+				<string>        // iOS should save/load the latest saved server
+        // macOS should save/load the latest saved client
+
 </string>
 			</dict>
 			<key>type</key>

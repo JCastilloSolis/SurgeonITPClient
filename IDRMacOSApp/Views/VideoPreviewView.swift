@@ -45,13 +45,13 @@ struct VideoPreviewView: NSViewRepresentable {
     private func errorMessage(for error: ZMVideoSDKErrors) -> String {
         switch error {
             case ZMVideoSDKErrors_Success:
-                return "SDK initialized successfully"
+                return "ZoomVideoSDK initialized successfully"
             case ZMVideoSDKErrors_Wrong_Usage:
-                return "Error: Wrong usage of the SDK"
+                return "Error: Wrong usage of the ZoomVideoSDK"
             case ZMVideoSDKErrors_Internal_Error:
-                return "Error: Internal SDK error"
+                return "Error: Internal ZoomVideoSDK error"
             case ZMVideoSDKErrors_Uninitialize:
-                return "Error: SDK not initialized"
+                return "Error: ZoomVideoSDK not initialized"
             case ZMVideoSDKErrors_Memory_Error:
                 return "Error: Memory issues encountered"
             case ZMVideoSDKErrors_Load_Module_Error:

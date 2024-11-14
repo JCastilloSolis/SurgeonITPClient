@@ -24,18 +24,26 @@ class ClientViewModel: ObservableObject {
     @Published var previouslyPairedServer: String = "server to connect"
     @Published var showProgressView: Bool = false
     @Published var proximity: CLProximity = .unknown
-    var previousProximity: CLProximity = .unknown
+
+    // MARK: - Private Properties
+    private var previousProximity: CLProximity = .unknown
+    private var cancellables: Set<AnyCancellable> = []
 
     // MARK: - Managers
-    var peerManager: PeerManager
-    var beaconManager: BeaconManagerService
-    private var cancellables: Set<AnyCancellable> = []
+    let peerManager: PeerManager
+    let beaconManager: BeaconManagerService
+
 
     // MARK: - Initialization
     init() {
         self.peerManager = PeerManager()
         self.beaconManager = BeaconManagerService()
+        setupBindings()
+        Logger.shared.log("initialization complete")
+    }
 
+
+    private func setupBindings() {
         // Bindings from PeerManager
         peerManager.$connectedDevices
             .assign(to: \.connectedPeers, on: self)
@@ -67,7 +75,8 @@ class ClientViewModel: ObservableObject {
                         return ("Connecting", .blue)
                     case .notConnected:
                         self.showProgressView = self.previouslyPaired
-                        self.attemptReconnection()
+                        //TODO: Check if user is within the range before attempt a reconnection
+                        //self.attemptReconnection()
                         return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
                     @unknown default:
                         return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
@@ -89,7 +98,14 @@ class ClientViewModel: ObservableObject {
         peerManager.$discoveredPeers
             .receive(on: RunLoop.main)
             .sink { [weak self] peers in
-                self?.log("New peers discovered \(peers)")
+
+                Logger.shared.log("New value for discoveredPeers : \(peers)")
+
+                guard !peers.isEmpty else {
+                    return
+                }
+
+                Logger.shared.log("New peers discovered \(peers)")
                 self?.attemptReconnection()
             }
             .store(in: &cancellables)
@@ -99,6 +115,8 @@ class ClientViewModel: ObservableObject {
             .assign(to: \.proximity, on: self)
             .store(in: &cancellables)
 
+
+        //TODO: Disable beacon ranging once an MPC session is confirmed, only enable it again once the mpc session has been lost and not able to reconnect
         // Handle proximity changes
         beaconManager.$proximity
             .sink { [weak self] proximity in
@@ -109,30 +127,25 @@ class ClientViewModel: ObservableObject {
     }
 
     // MARK: - Methods
-
     func sendCommand(_ command: String) {
         peerManager.send(command, type: .command)
-        log("Command sent: \(command)")
-    }
-
-    func log(_ message: String) {
-        Logger.shared.log(message)
+        Logger.shared.log("Command sent: \(command)")
     }
 
     private func attemptReconnection() {
-        log("Will start Attempt for Reconnection")
+        Logger.shared.log("Attempting reconnection")
         if let savedServerName = UserDefaults.standard.string(forKey: "savedServerName"),
            let serverPeer = peerManager.discoveredPeers.first(where: { $0.displayName == savedServerName }) {
-            log("Will try to connect to \(savedServerName)")
+            Logger.shared.log("Trying to connect to \(savedServerName)")
             previouslyPaired = true
             peerManager.selectPeerForConnection(peerID: serverPeer)
         } else {
-            log("There was no available server to attempt to connect to.")
+            Logger.shared.log("No available server found for reconnection.")
         }
     }
 
     func clearSavedServer() {
-        log("Clear Saved Server info")
+        Logger.shared.log("Clear Saved Server info")
         UserDefaults.standard.removeObject(forKey: "savedServerName")
         connectionStatus = "Not Connected"
         previouslyPaired = false
@@ -155,17 +168,18 @@ class ClientViewModel: ObservableObject {
     }
 
     private func handleProximityChange(_ proximity: CLProximity) {
+        //log("Proximity changed to \(proximity.rawValue). Previous Value: \(previousProximity.rawValue).")
+
         if proximity != .unknown && previousProximity == .unknown {
             // Just started detecting the beacon; start MPC browsing
-            //createNotification(title: "Beacon Detected", body: "You are near the beacon.")
+            Logger.shared.log("Beacon found. Start MPC Browsing.")
             startMPCBrowsing()
-            //stopBeaconScanning()
         } else if proximity == .unknown && previousProximity != .unknown {
             // Beacon was lost; stop MPC browsing
-            Logger.shared.log("Beacon lost. Stopping MPC browsing.")
+            Logger.shared.log("Beacon lost. Stopping MPC Browsing.")
             stopMPCBrowsing()
-            //startBeaconScanning()
         }
+        previousProximity = proximity
     }
 
     /// Starts MultipeerConnectivity browsing.
