@@ -76,7 +76,9 @@ class ClientViewModel: ObservableObject {
                     case .notConnected:
                         self.showProgressView = self.previouslyPaired
                         //TODO: Check if user is within the range before attempt a reconnection
-                        //self.attemptReconnection()
+                        if self.proximity != .unknown {
+                            self.attemptReconnection()
+                        }
                         return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
                     @unknown default:
                         return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
@@ -127,9 +129,14 @@ class ClientViewModel: ObservableObject {
     }
 
     // MARK: - Methods
-    func sendCommand(_ command: String) {
-        peerManager.send(command, type: .command)
-        Logger.shared.log("Command sent: \(command)")
+    func startZoomCall() {
+        peerManager.sendStartZoomCallCommand()
+        Logger.shared.log("Start zoom call command sent")
+    }
+
+    func stopZoomCall() {
+        peerManager.sendEndZoomCallCommand()
+        Logger.shared.log("End zoom call command sent")
     }
 
     private func attemptReconnection() {

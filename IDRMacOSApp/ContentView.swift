@@ -12,7 +12,7 @@ struct ContentView: View {
         HStack {
             ServerView(viewModel: PeerViewModel())
 
-            SessionView(viewModel: SessionViewModel())
+           // SessionView(viewModel: SessionViewModel())
         }
 
     }

@@ -8,6 +8,7 @@
 
 import Foundation
 import MultipeerConnectivity
+import Combine
 
 
 
@@ -15,13 +16,19 @@ import MultipeerConnectivity
 //: Space out the invites to be every 5 seconds, and only try for 30 seconds until the user press the retry button
 class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate {
 
+    // MARK: Published properties
     @Published var connectedDevices = [String]()
     @Published var discoveredPeers = [MCPeerID]()
     @Published var receivedMessages: [String] = []
     @Published var messageCounter = 0
     @Published var sessionState: MCSessionState = .notConnected
 
+    // MARK: - Publishers
+    let startZoomCallPublisher = PassthroughSubject<Void, Never>()
+    let endZoomCallPublisher = PassthroughSubject<Void, Never>()
 
+
+    // MARK: Private vars
     private let serviceType = "example-service"
     private var peerID: MCPeerID
     private var mcSession: MCSession
@@ -138,23 +145,15 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         browser.invitePeer(peerID, to: mcSession, withContext: nil, timeout: 10)
     }
 
-    func send(_ message: String, type: MessageType) {
-        let fullMessage = "\(type.prefix)\(message)"
-        //log("Attempting to send message: \(fullMessage)")
-        guard let data = fullMessage.data(using: .utf8) else {
-            Logger.shared.log("Failed to encode message to data")
+    func sendHeartbeat() {
+        guard
+            connectedDevices.count > 0
+        else {
+            //Logger.shared.log("Cannot send heartbeat: No connected devices")
             return
         }
-        do {
-            try mcSession.send(data, toPeers: mcSession.connectedPeers, with: .reliable)
-            Logger.shared.log("Sent \(type.rawValue): \(message)")
-        } catch {
-            Logger.shared.log("Error sending \(type.rawValue): \(error.localizedDescription)")
-        }
-    }
 
-    func sendHeartbeat() {
-        guard isSendingHeartbeat else { return }
+
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH:mm:ss"
         let timeString = dateFormatter.string(from: Date())
@@ -162,7 +161,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         DispatchQueue.main.async {
             self.messageCounter += 1
         }
-        send(message, type: .heartbeat)
+        //send(message, type: .heartbeat)
     }
 
     func startHeartbeat() {
@@ -191,27 +190,6 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         UserDefaults.standard.removeObject(forKey: "savedClientName")
         savedClientPeerID = nil
     }
-
-
-    private func processCommand(_ command: String) {
-        Logger.shared.log("Processing command: \(command)")
-        DispatchQueue.main.async {
-            switch command {
-                case "start":
-                    self.isSendingHeartbeat = true
-                    self.startHeartbeat()
-                case "stop":
-                    self.isSendingHeartbeat = false
-                    self.stopHeartbeat()
-                case "status":
-                    let status = self.isSendingHeartbeat ? "Sending heartbeats" : "Idle"
-                    self.send("Server status: \(status)", type: .response)
-                default:
-                    self.send("Unrecognized command: \(command)", type: .response)
-            }
-        }
-    }
-
 
     // MARK: - MCSessionDelegate Methods
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
@@ -260,26 +238,11 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        guard let message = String(data: data, encoding: .utf8) else {
-            Logger.shared.log("Failed to decode message from \(peerID.displayName)")
-            return
-        }
-        guard let messageType = MessageType.determineType(from: message) else {
-            Logger.shared.log("Unrecognized message type from \(peerID.displayName): \(message)")
-            return
-        }
-        let cleanMessage = String(message.dropFirst(messageType.prefix.count))
-        Logger.shared.log("Received \(messageType.rawValue) from \(peerID.displayName): \(cleanMessage)")
-        DispatchQueue.main.async {
-            switch messageType {
-                case .command:
-                    self.receivedMessages.append(cleanMessage)
-                    self.processCommand(cleanMessage)
-                case .response, .heartbeat:
-                    self.receivedMessages.append(cleanMessage)
-                default:
-                    Logger.shared.log("Received unknown message type")
-            }
+        do {
+            let message = try decodeMPCMessage(data)
+            handleMessage(message, fromPeer: peerID)
+        } catch {
+            Logger.shared.log("Error decoding message from \(peerID.displayName): \(error.localizedDescription)")
         }
     }
 
@@ -339,6 +302,120 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         } else {
             invitationHandler(true, mcSession)
             Logger.shared.log("Accepted invitation from \(peerID.displayName)")
+        }
+    }
+}
+
+
+//MARK: MPC Communication protocol
+extension PeerManager {
+    /// Encodes an MPCMessage into Data for transmission.
+    func encodeMPCMessage(_ message: MPCMessage) throws -> Data {
+        let encoder = JSONEncoder()
+        return try encoder.encode(message)
+    }
+
+    /// Decodes Data into an MPCMessage after reception.
+    func decodeMPCMessage(_ data: Data) throws -> MPCMessage {
+        let decoder = JSONDecoder()
+        return try decoder.decode(MPCMessage.self, from: data)
+    }
+
+    func sendStartZoomCallCommand() {
+        let commandData = MPCStartZoomCallCommand()
+        let payload = MPCPayload.command(.startZoomCall, commandData)
+        let message = MPCMessage(messageType: .command, payload: payload)
+
+        do {
+            let data = try encodeMPCMessage(message)
+            try mcSession.send(data, toPeers: mcSession.connectedPeers, with: .reliable)
+            Logger.shared.log("Sent Start Zoom Call command")
+        } catch {
+            Logger.shared.log("Error sending Start Zoom Call command: \(error.localizedDescription)")
+        }
+    }
+
+    func sendEndZoomCallCommand() {
+        let commandData = MPCEndZoomCallCommand()
+        let payload = MPCPayload.command(.endZoomCall, commandData)
+        let message = MPCMessage(messageType: .command, payload: payload)
+
+        do {
+            let data = try encodeMPCMessage(message)
+            try mcSession.send(data, toPeers: mcSession.connectedPeers, with: .reliable)
+            Logger.shared.log("Sent End Zoom Call command")
+        } catch {
+            Logger.shared.log("Error sending End Zoom Call command: \(error.localizedDescription)")
+        }
+    }
+
+    func handleMessage(_ message: MPCMessage, fromPeer peerID: MCPeerID) {
+        switch message.payload {
+            case .command(let commandType, let data):
+                handleCommand(commandType, data, fromPeer: peerID)
+            case .response(let commandType, let status, let data):
+                handleResponse(commandType, status, data, fromPeer: peerID)
+        }
+    }
+
+    func handleResponse(_ commandType: MPCCommandType, _ status: MPCResponseStatus, _ data: MPCResponseData?, fromPeer peerID: MCPeerID) {
+        switch commandType {
+            case .startZoomCall:
+                if status == .success, let responseData = data as? MPCStartZoomCallResponse {
+                    // Handle successful start of Zoom call
+                    let sessionName = responseData.sessionName
+                    Logger.shared.log("Zoom call started with session name: \(sessionName)")
+                } else if status == .failure, let errorData = data as? MPCErrorResponse {
+                    // Handle error
+                    Logger.shared.log("Failed to start Zoom call: \(errorData.errorMessage)")
+                }
+            case .endZoomCall:
+                if status == .success, let responseData = data as? MPCEndZoomCallResponse {
+                    // Handle successful end of Zoom call
+                    Logger.shared.log(responseData.message ?? "Zoom call ended.")
+                } else if status == .failure, let errorData = data as? MPCErrorResponse {
+                    // Handle error
+                    Logger.shared.log("Failed to end Zoom call: \(errorData.errorMessage)")
+                }
+        }
+    }
+
+    func handleCommand(_ commandType: MPCCommandType, _ data: MPCCommandData, fromPeer peerID: MCPeerID) {
+        switch commandType {
+            case .startZoomCall:
+                // Cast data to the specific command data type
+                if let _ = data as? MPCStartZoomCallCommand {
+
+                    // Publish startZoomCall event
+                    startZoomCallPublisher.send()
+
+                    // Start Zoom call logic
+                    let sessionName = "Session_12345" // Assume this is obtained after starting the call
+                    let responseData = MPCStartZoomCallResponse(sessionName: sessionName)
+                    sendResponse(commandType: .startZoomCall, status: .success, data: responseData, toPeer: peerID)
+                }
+            case .endZoomCall:
+                if let _ = data as? MPCEndZoomCallCommand {
+                    // Publish endZoomCall event
+                    endZoomCallPublisher.send()
+                    
+                    // Assume the call was ended successfully
+                    let responseData = MPCEndZoomCallResponse(message: "Zoom call ended successfully.")
+                    sendResponse(commandType: .endZoomCall, status: .success, data: responseData, toPeer: peerID)
+                }
+        }
+    }
+
+    func sendResponse(commandType: MPCCommandType, status: MPCResponseStatus, data: MPCResponseData?, toPeer peerID: MCPeerID) {
+        let payload = MPCPayload.response(commandType, status, data)
+        let message = MPCMessage(messageType: .response, payload: payload)
+
+        do {
+            let data = try encodeMPCMessage(message)
+            try mcSession.send(data, toPeers: [peerID], with: .reliable)
+            Logger.shared.log("Sent response for \(commandType.rawValue) with status: \(status.rawValue)")
+        } catch {
+            Logger.shared.log("Error sending response: \(error.localizedDescription)")
         }
     }
 }

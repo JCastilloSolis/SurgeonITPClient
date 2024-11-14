@@ -9,8 +9,40 @@ import SwiftUI
 
 struct ServerView: View {
     @ObservedObject var viewModel: PeerViewModel
+    @State private var isZoomSessionActive = false
+    @StateObject private var sessionViewModel = SessionViewModel()
 
     var body: some View {
+        VStack {
+            if isZoomSessionActive {
+                SessionView(viewModel: sessionViewModel)
+            } else {
+                serverContent
+            }
+        }
+        .onReceive(viewModel.$shouldStartZoomCall) { shouldStart in
+            if shouldStart {
+                isZoomSessionActive = true
+                sessionViewModel.startSession()  // Start the session here
+                viewModel.shouldStartZoomCall = false
+            }
+        }
+        .onReceive(viewModel.$shouldEndZoomCall) { shouldEnd in
+            if shouldEnd {
+                // Tell SessionViewModel to leave the session
+                sessionViewModel.leaveSession()
+                viewModel.shouldEndZoomCall = false
+            }
+        }
+        .onReceive(sessionViewModel.$sessionIsActive) { isActive in
+            if !isActive {
+                isZoomSessionActive = false
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    var serverContent: some View {
         VStack {
             HStack {
                 Text(viewModel.connectionStatus)
@@ -22,47 +54,23 @@ struct ServerView: View {
             }
             .padding()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(viewModel.receivedMessages, id: \.self) { message in
-                        Text("Received: \(message)")
-                            .padding(.vertical, 2)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(5)
-                    }
+            if viewModel.previouslyPaired {
+                Button("Forget Client Device") {
+                    viewModel.clearSavedClient()
                 }
-                .padding(.horizontal)
-            }
-
-            Text("Message Count: \(viewModel.messageCounter)")
                 .padding()
-
-            HStack {
-                Button("Clear Log") {
-                    viewModel.receivedMessages.removeAll()
-                }
+                .foregroundColor(.red)
                 .buttonStyle(.bordered)
-
-                Button("Refresh Status") {
-                    viewModel.sendCommand("status")
-                }
-                .buttonStyle(.bordered)
-
-                if viewModel.previouslyPaired {
-                    Button("Forget Client Device") {
-                        viewModel.clearSavedClient()
-                    }
-                    .padding()
-                    .foregroundColor(.red)
-                    .buttonStyle(.bordered)
-                }
             }
-            .padding()
+
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
+
+
+
+
+
 
 #Preview {
     ServerView(viewModel: PeerViewModel())

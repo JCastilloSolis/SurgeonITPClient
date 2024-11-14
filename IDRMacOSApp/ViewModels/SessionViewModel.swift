@@ -25,7 +25,7 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
     @Published var isVideoOn: Bool = false
     @Published var showError: Bool = false
     @Published var participants = [Participant]()
-    @Published var sessionIsActive = false
+    @Published var sessionIsActive = true
     @Published var commandsActive = false
     @Published var cameraList: [Camera] = []
 
@@ -33,15 +33,13 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
     private var coordinator: ZoomSessionCoordinator?
     private var commandChannel: ZMVideoSDKCmdChannel?
 
+
     // MARK: - Initialization and Setup
 
     /// Initializes the SessionViewModel by setting up the ZoomVideoSDK and joining a session.
     override init() {
         super.init()
         initializeSDK()
-        let token = getJWTToken()
-        createAndJoinSession(token: token)
-        commandChannel = ZMVideoSDK.shared().getCmdChannel()
     }
 
     /// Initializes the ZoomVideoSDK with the required parameters.
@@ -71,6 +69,8 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
                 self.showError = true
             }
         }
+
+        commandChannel = ZMVideoSDK.shared().getCmdChannel()
     }
 
 
@@ -94,6 +94,12 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
         }
 
         return jwtToken
+    }
+
+    func startSession() {
+        let token = getJWTToken()
+        createAndJoinSession(token: token)
+        //commandChannel = ZMVideoSDK.shared().getCmdChannel()
     }
 
     /// Creates and attempts to join a Zoom session with the provided token.

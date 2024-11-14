@@ -24,6 +24,8 @@ class PeerViewModel: ObservableObject {
     @Published var previouslyPaired: Bool = false
     @Published var previouslyPairedServer: String = "server to connect"
     @Published var showProgressView: Bool = false
+    @Published var shouldStartZoomCall: Bool = false
+    @Published var shouldEndZoomCall: Bool = false
 
     var peerManager: PeerManager
     private var cancellables: Set<AnyCancellable> = []
@@ -47,6 +49,21 @@ class PeerViewModel: ObservableObject {
             .assign(to: \.messageCounter, on: self)
             .store(in: &cancellables)
 
+
+        peerManager.startZoomCallPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.shouldStartZoomCall = true
+            }
+            .store(in: &cancellables)
+
+        peerManager.endZoomCallPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.shouldEndZoomCall = true
+            }
+            .store(in: &cancellables)
+
         peerManager.$sessionState
             .receive(on: RunLoop.main)
             .map { state -> (String, Color) in
@@ -56,26 +73,13 @@ class PeerViewModel: ObservableObject {
                         self.previouslyPaired = true
                         return ("Connected to \(self.peerManager.connectedDevices.joined(separator: ", "))", .green)
                     case .connecting:
-                        #if os(iOS)
-                        self.showProgressView = self.previouslyPaired
-                        #else
                         self.showProgressView = true
-                        #endif
                         return ("Connecting", .blue)
                     case .notConnected:
                         self.showProgressView = self.previouslyPaired
-                        #if os(iOS)
-                        self.attemptReconnection()
-                        return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
-                        #else
                         return ("Not Connected", .red)
-                        #endif
                     @unknown default:
-                        #if os(iOS)
-                        return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
-                        #else
                         return ("Not Connected", .red)
-                        #endif
                 }
             }
             .sink { [weak self] status, color in
@@ -84,61 +88,10 @@ class PeerViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-#if os(iOS)
-        if let savedServerName = UserDefaults.standard.string(forKey: "savedServerName") {
-            previouslyPaired = true
-            previouslyPairedServer = savedServerName
-        }
-
-
-
-        peerManager.$discoveredPeers
-            .receive(on: RunLoop.main)
-            .map {$0}
-            .sink { peer  in
-                Logger.shared.log("New peer discovered \(peer)")
-                //TODO: Move this to a timer so that the device tries every certain time
-                self.attemptReconnection()
-            }
-            .store(in: &cancellables)
-#endif
-
-#if os(macOS)
         if let savedClientName = UserDefaults.standard.string(forKey: "savedClientName") {
             previouslyPaired = true
             previouslyPairedServer = savedClientName
         }
-#endif
-
-
-    }
-
-    func sendCommand(_ command: String) {
-        peerManager.send(command, type: .command)
-        Logger.shared.log("Command sent: \(command)")
-    }
-
-    private func attemptReconnection() {
-        Logger.shared.log("Will start Attempt for Reconnection")
-        if let savedServerName = UserDefaults.standard.string(forKey: "savedServerName"),
-           let serverPeer = peerManager.discoveredPeers.first(where: { $0.displayName == savedServerName }) {
-            Logger.shared.log("Will try to connect to \(savedServerName)")
-            previouslyPaired = true
-            peerManager.selectPeerForConnection(peerID: serverPeer)
-        } else {
-            Logger.shared.log("There was not available server to attempt to connect to.")
-        }
-    }
-
-    func clearSavedServer() {
-        Logger.shared.log("Clear Saved Server info")
-        UserDefaults.standard.removeObject(forKey: "savedServerName")
-        connectionStatus = "Not Connected"
-        previouslyPaired = false
-        showProgressView = false
-        previouslyPairedServer = "server to connect"
-        peerManager.leaveSession() // Ensure to stop the heartbeat if it was running
-        // Attempt to reconnect or handle further logic post clearing
     }
 
     func clearSavedClient() {
@@ -152,8 +105,9 @@ class PeerViewModel: ObservableObject {
         // Attempt to reconnect or handle further logic post clearing
     }
 
-    func selectServer(peerID: MCPeerID) {
-        peerManager.selectPeerForConnection(peerID: peerID)
-        previouslyPaired = true
+    func handleStartZoomCallCommand() {
+        DispatchQueue.main.async {
+            self.shouldStartZoomCall = true
+        }
     }
 }

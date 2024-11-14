@@ -66,14 +66,12 @@ struct ClientView: View {
         }
 
         HStack {
-            Button("Start") {
-                viewModel.sendCommand("start")
+            Button("Start Zoom Call") {
+                viewModel.startZoomCall()
             }
-            Button("Stop") {
-                viewModel.sendCommand("stop")
-            }
-            Button("Status") {
-                viewModel.sendCommand("status")
+
+            Button("Stop Zoom Call") {
+                viewModel.stopZoomCall()
             }
         }
         .buttonStyle(.bordered)

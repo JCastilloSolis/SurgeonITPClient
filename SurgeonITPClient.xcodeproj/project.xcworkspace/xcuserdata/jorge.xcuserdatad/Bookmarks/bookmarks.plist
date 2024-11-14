@@ -57,13 +57,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>13</string>
+					<string>15</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>13</string>
+					<string>14</string>
 					<key>Timestamp</key>
-					<string>752797971.030082</string>
+					<string>753305230.274101</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -79,15 +79,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string></string>
+				<string>//TODO: Figure out scenarios for when 2 client devices are paired to the same server, how to show on the client side that the server needs to be cleared if they want to connect.
+</string>
 				<key>leading</key>
 				<string>
 
 </string>
 				<key>trailing</key>
-				<string>//TODO: Figure out scenarios for when 2 client devices are paired to the same server, how to show on the client side that the server needs to be cleared if they want to connect.
-//: Space out the invites to be every 5 seconds, and only try for 30 seconds until the user press the retry button
+				<string>//: Space out the invites to be every 5 seconds, and only try for 30 seconds until the user press the retry button
 class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate {
+
 </string>
 			</dict>
 			<key>type</key>
@@ -101,13 +102,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>14</string>
+					<string>16</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>14</string>
+					<string>15</string>
 					<key>Timestamp</key>
-					<string>752797977.112606</string>
+					<string>753305230.274116</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -123,15 +124,16 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string></string>
+				<string>//: Space out the invites to be every 5 seconds, and only try for 30 seconds until the user press the retry button
+</string>
 				<key>leading</key>
 				<string>
 //TODO: Figure out scenarios for when 2 client devices are paired to the same server, how to show on the client side that the server needs to be cleared if they want to connect.
 </string>
 				<key>trailing</key>
-				<string>//: Space out the invites to be every 5 seconds, and only try for 30 seconds until the user press the retry button
-class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate {
+				<string>class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate {
 
+    // MARK: Published properties
 </string>
 			</dict>
 			<key>type</key>
@@ -190,13 +192,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>35</string>
+					<string>42</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>34</string>
+					<string>41</string>
 					<key>Timestamp</key>
-					<string>753244401.27297</string>
+					<string>753305252.530107</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -413,13 +415,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>119</string>
+					<string>121</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>118</string>
+					<string>120</string>
 					<key>Timestamp</key>
-					<string>753243541.863561</string>
+					<string>753307659.790719</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -502,13 +504,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>53</string>
+					<string>60</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>52</string>
+					<string>59</string>
 					<key>Timestamp</key>
-					<string>753244298.947139</string>
+					<string>753305252.530127</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
