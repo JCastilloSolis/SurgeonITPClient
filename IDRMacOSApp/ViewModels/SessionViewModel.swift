@@ -8,6 +8,7 @@
 import Foundation
 import ZMVideoSDK
 import SwiftUI
+import Combine
 
 /// Represents a participant in the Zoom session.
 struct Participant {
@@ -17,7 +18,7 @@ struct Participant {
 }
 
 // Manages the Zoom session, handling user interactions and ZoomVideoSDK communications.
-class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
+class SessionViewModel : NSObject, ObservableObject {
     // MARK: - Published Properties
     @Published var sessionName: String = "demoSession2"
     @Published var userDisplayName: String = "Mac2"
@@ -32,6 +33,11 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
     // MARK: - Private Properties
     private var coordinator: ZoomSessionCoordinator?
     private var commandChannel: ZMVideoSDKCmdChannel?
+
+    //MARK: Publishers
+    let sessionStartedPublisher = PassthroughSubject<String, Never>() // Publishes the session name
+    let sessionEndedPublisher = PassthroughSubject<Void, Never>() // Publishes when the session ends
+
 
 
     // MARK: - Initialization and Setup
@@ -99,7 +105,6 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
     func startSession() {
         let token = getJWTToken()
         createAndJoinSession(token: token)
-        //commandChannel = ZMVideoSDK.shared().getCmdChannel()
     }
 
     /// Creates and attempts to join a Zoom session with the provided token.
@@ -128,6 +133,7 @@ class SessionViewModel : NSObject, ObservableObject, ZMVideoSDKDelegate {
             Logger.shared.log("Session joined successfully")
             DispatchQueue.main.async {
                 self.sessionIsActive = true
+                self.sessionStartedPublisher.send(self.sessionName)
             }
         } else {
             // Failed to join the session

@@ -29,8 +29,6 @@ class ZoomSessionCoordinator: NSObject, ZMVideoSDKDelegate {
            let myUserVideoCanvas = myUser.getVideoCanvas() {
             DispatchQueue.main.async {
                 self.viewModel.sessionIsActive = true
-                // TODO: check if its still needed
-                // myUserVideoCanvas.subscribe(with: self.canvasView, aspectMode: .panAndScan, andResolution: ._Auto)
             }
         } else {
             Logger.shared.log("ZoomSessionCoordinator - Failed to get user or video canvas")
@@ -42,6 +40,7 @@ class ZoomSessionCoordinator: NSObject, ZMVideoSDKDelegate {
         Logger.shared.log("ZoomSessionCoordinator - Session left")
         DispatchQueue.main.async {
             self.viewModel.sessionIsActive = false
+            self.viewModel.sessionEndedPublisher.send()
         }
     }
 

@@ -29,6 +29,7 @@ class PeerViewModel: ObservableObject {
 
     var peerManager: PeerManager
     private var cancellables: Set<AnyCancellable> = []
+    private var currentCommandPeerID: MCPeerID?
 
     init() {
         self.peerManager = PeerManager()
@@ -49,20 +50,22 @@ class PeerViewModel: ObservableObject {
             .assign(to: \.messageCounter, on: self)
             .store(in: &cancellables)
 
-
         peerManager.startZoomCallPublisher
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
+            .sink { [weak self] peerID in
+                self?.currentCommandPeerID = peerID
                 self?.shouldStartZoomCall = true
             }
             .store(in: &cancellables)
 
         peerManager.endZoomCallPublisher
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
+            .sink { [weak self] peerID in
+                self?.currentCommandPeerID = peerID
                 self?.shouldEndZoomCall = true
             }
             .store(in: &cancellables)
+
 
         peerManager.$sessionState
             .receive(on: RunLoop.main)
@@ -108,6 +111,36 @@ class PeerViewModel: ObservableObject {
     func handleStartZoomCallCommand() {
         DispatchQueue.main.async {
             self.shouldStartZoomCall = true
+        }
+    }
+
+    /// Called when the Zoom session has started successfully.
+    /// Sends a response back to the client with the actual session name.
+    /// - Parameter sessionName: The name of the Zoom session.
+    func sessionDidStart(sessionName: String) {
+        if let peerID = self.currentCommandPeerID {
+            // Prepare response data
+            let responseData = MPCStartZoomCallResponse(sessionName: sessionName)
+            // Send response via peerManager
+            self.peerManager.sendResponse(commandType: .startZoomCall, status: .success, data: responseData, toPeer: peerID)
+            // Clear the stored peerID
+            self.currentCommandPeerID = nil
+        }
+    }
+
+    /// Called when the Zoom session has ended successfully.
+    /// Sends a response back to the client indicating success.
+    func sessionDidEnd() {
+        if let peerID = self.currentCommandPeerID {
+            // Prepare response data
+            let responseData = MPCEndZoomCallResponse(message: "Zoom call ended successfully.")
+            // Send response via peerManager
+            self.peerManager.sendResponse(commandType: .endZoomCall, status: .success, data: responseData, toPeer: peerID)
+            // Clear the stored peerID
+            self.currentCommandPeerID = nil
+            Logger.shared.log("Sent success response for endZoomCall to \(peerID.displayName)")
+        } else {
+            Logger.shared.log("No peerID stored; cannot send session end response.")
         }
     }
 }

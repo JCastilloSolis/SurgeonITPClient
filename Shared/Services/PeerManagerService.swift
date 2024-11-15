@@ -24,8 +24,8 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     @Published var sessionState: MCSessionState = .notConnected
 
     // MARK: - Publishers
-    let startZoomCallPublisher = PassthroughSubject<Void, Never>()
-    let endZoomCallPublisher = PassthroughSubject<Void, Never>()
+    let startZoomCallPublisher = PassthroughSubject<MCPeerID, Never>()
+    let endZoomCallPublisher = PassthroughSubject<MCPeerID, Never>()
 
 
     // MARK: Private vars
@@ -385,23 +385,13 @@ extension PeerManager {
             case .startZoomCall:
                 // Cast data to the specific command data type
                 if let _ = data as? MPCStartZoomCallCommand {
-
                     // Publish startZoomCall event
-                    startZoomCallPublisher.send()
-
-                    // Start Zoom call logic
-                    let sessionName = "Session_12345" // Assume this is obtained after starting the call
-                    let responseData = MPCStartZoomCallResponse(sessionName: sessionName)
-                    sendResponse(commandType: .startZoomCall, status: .success, data: responseData, toPeer: peerID)
+                    startZoomCallPublisher.send(peerID)
                 }
             case .endZoomCall:
                 if let _ = data as? MPCEndZoomCallCommand {
                     // Publish endZoomCall event
-                    endZoomCallPublisher.send()
-                    
-                    // Assume the call was ended successfully
-                    let responseData = MPCEndZoomCallResponse(message: "Zoom call ended successfully.")
-                    sendResponse(commandType: .endZoomCall, status: .success, data: responseData, toPeer: peerID)
+                    endZoomCallPublisher.send(peerID)
                 }
         }
     }

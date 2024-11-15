@@ -141,6 +141,7 @@ class ClientViewModel: ObservableObject {
 
     private func attemptReconnection() {
         Logger.shared.log("Attempting reconnection")
+        //TODO: Add some logic to try all discovered peers with the same name in case that the first one fails
         if let savedServerName = UserDefaults.standard.string(forKey: "savedServerName"),
            let serverPeer = peerManager.discoveredPeers.first(where: { $0.displayName == savedServerName }) {
             Logger.shared.log("Trying to connect to \(savedServerName)")

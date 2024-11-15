@@ -22,22 +22,25 @@ struct ServerView: View {
         }
         .onReceive(viewModel.$shouldStartZoomCall) { shouldStart in
             if shouldStart {
-                isZoomSessionActive = true
-                sessionViewModel.startSession()  // Start the session here
                 viewModel.shouldStartZoomCall = false
+                sessionViewModel.startSession()  // Start the session here
             }
         }
         .onReceive(viewModel.$shouldEndZoomCall) { shouldEnd in
             if shouldEnd {
-                // Tell SessionViewModel to leave the session
-                sessionViewModel.leaveSession()
                 viewModel.shouldEndZoomCall = false
+                sessionViewModel.leaveSession()  // End the session here
             }
         }
-        .onReceive(sessionViewModel.$sessionIsActive) { isActive in
-            if !isActive {
-                isZoomSessionActive = false
-            }
+        .onReceive(sessionViewModel.sessionEndedPublisher) {
+            // Inform PeerViewModel that session has ended
+            viewModel.sessionDidEnd()
+            isZoomSessionActive = false
+        }
+        .onReceive(sessionViewModel.sessionStartedPublisher) { sessionName in
+            // Inform PeerViewModel that session has started
+            viewModel.sessionDidStart(sessionName: sessionName)
+            isZoomSessionActive = true
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
