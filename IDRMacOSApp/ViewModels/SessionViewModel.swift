@@ -20,8 +20,8 @@ struct Participant {
 // Manages the Zoom session, handling user interactions and ZoomVideoSDK communications.
 class SessionViewModel : NSObject, ObservableObject {
     // MARK: - Published Properties
-    @Published var sessionName: String = "demoSession2"
-    @Published var userDisplayName: String = "Mac2"
+    @Published var sessionName: String = ""
+    @Published var userDisplayName: String = Host.current().localizedName ?? "Mac"
     @Published var isAudioMuted: Bool = false
     @Published var isVideoOn: Bool = false
     @Published var showError: Bool = false
@@ -103,6 +103,7 @@ class SessionViewModel : NSObject, ObservableObject {
     }
 
     func startSession() {
+        self.sessionName = UUID().uuidString
         let token = getJWTToken()
         createAndJoinSession(token: token)
     }
@@ -131,10 +132,6 @@ class SessionViewModel : NSObject, ObservableObject {
         if ZMVideoSDK.shared().joinSession(sessionContext) != nil {
             // Session joined successfully
             Logger.shared.log("Session joined successfully")
-            DispatchQueue.main.async {
-                self.sessionIsActive = true
-                self.sessionStartedPublisher.send(self.sessionName)
-            }
         } else {
             // Failed to join the session
             Logger.shared.log("Failed to join the session")

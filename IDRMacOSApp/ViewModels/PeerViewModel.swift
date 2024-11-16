@@ -13,8 +13,9 @@ import Combine
 import MultipeerConnectivity
 
 
-
+/// Manages peer connections, handles received commands, and coordinates with SessionViewModel for Zoom call management.
 class PeerViewModel: ObservableObject {
+    // MARK: - Published Properties
     @Published var connectedPeers: [String] = []
     @Published var receivedMessages: [String] = []
     @Published var discoveredPeers: [MCPeerID] = []
@@ -27,9 +28,13 @@ class PeerViewModel: ObservableObject {
     @Published var shouldStartZoomCall: Bool = false
     @Published var shouldEndZoomCall: Bool = false
 
-    var peerManager: PeerManager
+    // MARK: - Private Properties
     private var cancellables: Set<AnyCancellable> = []
     private var currentCommandPeerID: MCPeerID?
+
+    var peerManager: PeerManager
+
+    // MARK: - Initialization
 
     init() {
         self.peerManager = PeerManager()
@@ -53,6 +58,7 @@ class PeerViewModel: ObservableObject {
         peerManager.startZoomCallPublisher
             .receive(on: RunLoop.main)
             .sink { [weak self] peerID in
+                Logger.shared.log("PeerViewModel - Received startZoomCall command from \(peerID.displayName)")
                 self?.currentCommandPeerID = peerID
                 self?.shouldStartZoomCall = true
             }
@@ -61,12 +67,13 @@ class PeerViewModel: ObservableObject {
         peerManager.endZoomCallPublisher
             .receive(on: RunLoop.main)
             .sink { [weak self] peerID in
+                Logger.shared.log("PeerViewModel - Received endZoomCall command from \(peerID.displayName)")
                 self?.currentCommandPeerID = peerID
                 self?.shouldEndZoomCall = true
             }
             .store(in: &cancellables)
 
-
+        // Observe session state changes to update UI
         peerManager.$sessionState
             .receive(on: RunLoop.main)
             .map { state -> (String, Color) in
@@ -91,12 +98,16 @@ class PeerViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
+        // Check if previously paired
         if let savedClientName = UserDefaults.standard.string(forKey: "savedClientName") {
             previouslyPaired = true
             previouslyPairedServer = savedClientName
         }
     }
 
+    // MARK: - Methods
+
+    /// Clears the saved client information and resets connection states.
     func clearSavedClient() {
         Logger.shared.log("Clear Saved Client info")
         UserDefaults.standard.removeObject(forKey: "savedClientName")
@@ -105,18 +116,11 @@ class PeerViewModel: ObservableObject {
         previouslyPairedServer = "client to connect"
         showProgressView = false
         peerManager.forgetClient() // Clear the saved client in peer manager
-        // Attempt to reconnect or handle further logic post clearing
     }
 
-    func handleStartZoomCallCommand() {
-        DispatchQueue.main.async {
-            self.shouldStartZoomCall = true
-        }
-    }
-
-    /// Called when the Zoom session has started successfully.
-    /// Sends a response back to the client with the actual session name.
-    /// - Parameter sessionName: The name of the Zoom session.
+    /// Handles the event when a Zoom session has started successfully.
+    /// Sends a response back to the requesting peer with the session name.
+    /// - Parameter sessionName: The name of the started Zoom session.
     func sessionDidStart(sessionName: String) {
         if let peerID = self.currentCommandPeerID {
             // Prepare response data
@@ -125,11 +129,13 @@ class PeerViewModel: ObservableObject {
             self.peerManager.sendResponse(commandType: .startZoomCall, status: .success, data: responseData, toPeer: peerID)
             // Clear the stored peerID
             self.currentCommandPeerID = nil
+        } else {
+            Logger.shared.log("No peerID stored; cannot send session start response.")
         }
     }
 
-    /// Called when the Zoom session has ended successfully.
-    /// Sends a response back to the client indicating success.
+    /// Handles the event when a Zoom session has ended successfully.
+    /// Sends a response back to the requesting peer indicating success.
     func sessionDidEnd() {
         if let peerID = self.currentCommandPeerID {
             // Prepare response data

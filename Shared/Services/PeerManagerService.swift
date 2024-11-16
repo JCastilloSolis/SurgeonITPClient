@@ -39,6 +39,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     private var selectedServerPeerID: MCPeerID?
     private var savedClientPeerID: MCPeerID?
 
+    // Reconnection Logic
+    private var reconnectionPeersQueue: [MCPeerID] = []
+    private var isReconnecting: Bool = false
+    private var currentAttemptPeerID: MCPeerID?
+
+    // MARK: - Initialization
+
     //TODO: Refactor this to take in a server or client role
     override init() {
         // Define the displayName for peerID based on platform
@@ -73,6 +80,9 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         Logger.shared.log("PeerManager initialized with PeerID: \(peerID.displayName)")
     }
 
+    // MARK: - Setup Methods
+
+    /// Sets up the role-based services (Advertiser for macOS, Browser for iOS).
     private func setupRoleBasedServices() {
 #if os(iOS)
         Logger.shared.log("Setting up as Browser (Client)")
@@ -83,17 +93,22 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 #endif
     }
 
+    /// Configures and starts advertising peers (macOS server).
     private func setupAdvertiser() {
         advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
         advertiser?.delegate = self
         startAdvertising()
     }
 
+    /// Configures and starts browsing for peers (iOS client).
     private func setupBrowser() {
         browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
         browser?.delegate = self
     }
 
+    // MARK: - Advertising Methods (macOS Server)
+
+    /// Starts advertising the peer to nearby devices.
     func startAdvertising() {
         guard let advertiser = advertiser else {
             Logger.shared.log("Cannot start advertising: Advertiser is nil")
@@ -103,6 +118,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         Logger.shared.log("Started advertising...")
     }
 
+    /// Stops advertising the peer.
     func stopAdvertising() {
         guard let advertiser = advertiser else {
             Logger.shared.log("Cannot stop advertising: Advertiser is nil")
@@ -112,6 +128,9 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         Logger.shared.log("Stopped advertising...")
     }
 
+    // MARK: - Browsing Methods (iOS Client)
+
+    /// Starts browsing for nearby peers.
     func startBrowsing() {
         guard let browser = browser else {
             Logger.shared.log("Cannot start browsing: Browser is nil")
@@ -121,6 +140,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         Logger.shared.log("Started browsing for peers...")
     }
 
+    /// Stops browsing for nearby peers.
     func stopBrowsing() {
         guard let browser = browser else {
             Logger.shared.log("Cannot stop browsing: Browser is nil")
@@ -130,12 +150,18 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         Logger.shared.log("Stopped browsing for peers...")
     }
 
+    // MARK: - Connection Methods
+
+    /// Selects a peer for connection and initiates the invitation. Stores the peerID
+    /// - Parameter peerID: The `MCPeerID` of the peer to connect to.
     func selectPeerForConnection(peerID: MCPeerID) {
         selectedServerPeerID = peerID
         UserDefaults.standard.set(peerID.displayName, forKey: "savedServerName")
         connectToPeer(peerID: peerID)
     }
 
+    /// Invites a specific peer to join the session.
+    /// - Parameter peerID: The `MCPeerID` of the peer to invite.
     private func connectToPeer(peerID: MCPeerID) {
         guard let browser = browser else {
             Logger.shared.log("Cannot connect to peer: Browser is nil")
@@ -145,37 +171,51 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         browser.invitePeer(peerID, to: mcSession, withContext: nil, timeout: 10)
     }
 
-    func sendHeartbeat() {
-        guard
-            connectedDevices.count > 0
-        else {
-            //Logger.shared.log("Cannot send heartbeat: No connected devices")
+    // MARK: - Reconnection Logic
+
+    /// Attempts to reconnect to the saved server by trying all discovered peers with the saved display name.
+    func attemptReconnection() {
+        Logger.shared.log("Attempting reconnection")
+
+        guard let savedServerName = UserDefaults.standard.string(forKey: "savedServerName") else {
+            Logger.shared.log("No saved server name found for reconnection.")
             return
         }
 
+        // Gather all peers with the saved displayName
+        let peersToAttempt = discoveredPeers.filter { $0.displayName == savedServerName }
 
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "HH:mm:ss"
-        let timeString = dateFormatter.string(from: Date())
-        let message = "Heartbeat \(messageCounter): \(timeString)"
-        DispatchQueue.main.async {
-            self.messageCounter += 1
+        if peersToAttempt.isEmpty {
+            Logger.shared.log("No peers with displayName \(savedServerName) found for reconnection.")
+            return
         }
-        //send(message, type: .heartbeat)
+
+        // Initialize the reconnection queue
+        reconnectionPeersQueue = peersToAttempt
+        isReconnecting = true
+
+        Logger.shared.log("Will attempt to reconnect to \(peersToAttempt.count) peers with name \(savedServerName).")
+
+        // Start attempting to connect to the first peer
+        attemptNextPeerInQueue()
     }
 
-    func startHeartbeat() {
-        heartbeatTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
-            self?.sendHeartbeat()
+    /// Attempts to connect to the next peer in the reconnection queue.
+    private func attemptNextPeerInQueue() {
+        guard isReconnecting, let nextPeer = reconnectionPeersQueue.first else {
+            Logger.shared.log("Reconnection attempts completed.")
+            isReconnecting = false
+            return
         }
-        RunLoop.main.add(heartbeatTimer!, forMode: .common)
+
+        Logger.shared.log("Trying to connect to \(nextPeer.displayName)")
+        //previouslyPaired = true
+        selectPeerForConnection(peerID: nextPeer)
+        currentAttemptPeerID = nextPeer
     }
 
-    func stopHeartbeat() {
-        heartbeatTimer?.invalidate()
-        heartbeatTimer = nil
-    }
-
+    //MARK: - Session management
+    /// Disconnects device from the current `MCSession` . On macOS it will start advertising
     func leaveSession() {
         Logger.shared.log("Leaving session")
         //stopHeartbeat()
@@ -185,6 +225,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 #endif
     }
 
+    /// Deletes the stored value for the client device
     func forgetClient() {
         Logger.shared.log("Forgetting client")
         UserDefaults.standard.removeObject(forKey: "savedClientName")
@@ -192,6 +233,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     }
 
     // MARK: - MCSessionDelegate Methods
+
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         DispatchQueue.main.async {
             self.sessionState = state
@@ -208,6 +250,8 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         }
     }
 
+    /// Handles the connected state for a peer.
+    /// - Parameter peerID: The `MCPeerID` of the connected peer.
     private func handleConnectedState(peerID: MCPeerID) {
         Logger.shared.log("Connected to \(peerID.displayName)")
         if !connectedDevices.contains(peerID.displayName) {
@@ -225,16 +269,36 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         }
         stopAdvertising()  // Stop advertising when connected
 #endif
+
+        // If we were attempting reconnection and connected to the current attempt peer
+        if isReconnecting && peerID == currentAttemptPeerID {
+            Logger.shared.log("Reconnection successful with \(peerID.displayName)")
+            // Clear the reconnection queue and flags
+            reconnectionPeersQueue.removeAll(where: { $0 == peerID })
+            isReconnecting = false
+        }
     }
 
+    /// Handles the not connected state for a peer.
+    /// - Parameter peerID: The `MCPeerID` of the disconnected peer.
     private func handleNotConnectedState(peerID: MCPeerID) {
         Logger.shared.log("Disconnected from \(peerID.displayName)")
-        //stopHeartbeat()
         connectedDevices.removeAll { $0 == peerID.displayName }
         mcSession.disconnect()
 #if os(macOS)
         startAdvertising()  // Resume advertising when disconnected
 #endif
+
+        // If we were attempting reconnection and this was the current peer
+        if isReconnecting && peerID == currentAttemptPeerID {
+            Logger.shared.log("Failed to connect to \(peerID.displayName). Trying next peer.")
+            // Remove the failed peer from the queue
+            reconnectionPeersQueue.removeFirst()
+            // Clear the current attempt
+            currentAttemptPeerID = nil
+            // Attempt to connect to the next peer
+            attemptNextPeerInQueue()
+        }
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
@@ -309,18 +373,26 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 
 //MARK: MPC Communication protocol
 extension PeerManager {
-    /// Encodes an MPCMessage into Data for transmission.
+
+    /// Encodes an `MPCMessage` into `Data` for transmission.
+    /// - Parameter message: The `MPCMessage` to encode.
+    /// - Throws: An error if encoding fails.
+    /// - Returns: Encoded `Data`.
     func encodeMPCMessage(_ message: MPCMessage) throws -> Data {
         let encoder = JSONEncoder()
         return try encoder.encode(message)
     }
 
-    /// Decodes Data into an MPCMessage after reception.
+    /// Decodes `Data` into an `MPCMessage` after reception.
+    /// - Parameter data: The received `Data`.
+    /// - Throws: An error if decoding fails.
+    /// - Returns: Decoded `MPCMessage`.
     func decodeMPCMessage(_ data: Data) throws -> MPCMessage {
         let decoder = JSONDecoder()
         return try decoder.decode(MPCMessage.self, from: data)
     }
 
+    /// Sends a start Zoom call command to all connected peers.
     func sendStartZoomCallCommand() {
         let commandData = MPCStartZoomCallCommand()
         let payload = MPCPayload.command(.startZoomCall, commandData)
@@ -335,6 +407,7 @@ extension PeerManager {
         }
     }
 
+    /// Sends an end Zoom call command to all connected peers.
     func sendEndZoomCallCommand() {
         let commandData = MPCEndZoomCallCommand()
         let payload = MPCPayload.command(.endZoomCall, commandData)
@@ -349,6 +422,10 @@ extension PeerManager {
         }
     }
 
+    /// Handles incoming `MPCMessage` from peers.
+    /// - Parameters:
+    ///   - message: The received `MPCMessage`.
+    ///   - peerID: The `MCPeerID` of the peer who sent the message.
     func handleMessage(_ message: MPCMessage, fromPeer peerID: MCPeerID) {
         switch message.payload {
             case .command(let commandType, let data):
@@ -358,6 +435,12 @@ extension PeerManager {
         }
     }
 
+    /// Handles responses received from peers.
+    /// - Parameters:
+    ///   - commandType: The type of the command.
+    ///   - status: The status of the response.
+    ///   - data: Additional data associated with the response.
+    ///   - peerID: The `MCPeerID` of the peer who sent the response.
     func handleResponse(_ commandType: MPCCommandType, _ status: MPCResponseStatus, _ data: MPCResponseData?, fromPeer peerID: MCPeerID) {
         switch commandType {
             case .startZoomCall:
@@ -380,6 +463,11 @@ extension PeerManager {
         }
     }
 
+    /// Handles incoming commands from peers.
+    /// - Parameters:
+    ///   - commandType: The type of the command.
+    ///   - data: Additional data associated with the command.
+    ///   - peerID: The `MCPeerID` of the peer who sent the command.
     func handleCommand(_ commandType: MPCCommandType, _ data: MPCCommandData, fromPeer peerID: MCPeerID) {
         switch commandType {
             case .startZoomCall:
@@ -396,6 +484,12 @@ extension PeerManager {
         }
     }
 
+    /// Sends a response back to a specific peer.
+    /// - Parameters:
+    ///   - commandType: The type of the command being responded to.
+    ///   - status: The status of the response (`success` or `failure`).
+    ///   - data: Additional data associated with the response.
+    ///   - peerID: The `MCPeerID` of the peer to send the response to.
     func sendResponse(commandType: MPCCommandType, status: MPCResponseStatus, data: MPCResponseData?, toPeer peerID: MCPeerID) {
         let payload = MPCPayload.response(commandType, status, data)
         let message = MPCMessage(messageType: .response, payload: payload)

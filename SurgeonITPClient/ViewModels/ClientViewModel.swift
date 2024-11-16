@@ -77,7 +77,7 @@ class ClientViewModel: ObservableObject {
                         self.showProgressView = self.previouslyPaired
                         //TODO: Check if user is within the range before attempt a reconnection
                         if self.proximity != .unknown {
-                            self.attemptReconnection()
+                            self.peerManager.attemptReconnection()
                         }
                         return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
                     @unknown default:
@@ -108,7 +108,7 @@ class ClientViewModel: ObservableObject {
                 }
 
                 Logger.shared.log("New peers discovered \(peers)")
-                self?.attemptReconnection()
+                self?.peerManager.attemptReconnection()
             }
             .store(in: &cancellables)
 
@@ -137,19 +137,6 @@ class ClientViewModel: ObservableObject {
     func stopZoomCall() {
         peerManager.sendEndZoomCallCommand()
         Logger.shared.log("End zoom call command sent")
-    }
-
-    private func attemptReconnection() {
-        Logger.shared.log("Attempting reconnection")
-        //TODO: Add some logic to try all discovered peers with the same name in case that the first one fails
-        if let savedServerName = UserDefaults.standard.string(forKey: "savedServerName"),
-           let serverPeer = peerManager.discoveredPeers.first(where: { $0.displayName == savedServerName }) {
-            Logger.shared.log("Trying to connect to \(savedServerName)")
-            previouslyPaired = true
-            peerManager.selectPeerForConnection(peerID: serverPeer)
-        } else {
-            Logger.shared.log("No available server found for reconnection.")
-        }
     }
 
     func clearSavedServer() {

@@ -29,6 +29,7 @@ class ZoomSessionCoordinator: NSObject, ZMVideoSDKDelegate {
            let myUserVideoCanvas = myUser.getVideoCanvas() {
             DispatchQueue.main.async {
                 self.viewModel.sessionIsActive = true
+                self.viewModel.sessionStartedPublisher.send(self.viewModel.sessionName)
             }
         } else {
             Logger.shared.log("ZoomSessionCoordinator - Failed to get user or video canvas")

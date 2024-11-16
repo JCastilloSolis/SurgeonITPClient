@@ -192,13 +192,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>42</string>
+					<string>49</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>41</string>
+					<string>48</string>
 					<key>Timestamp</key>
-					<string>753305252.530107</string>
+					<string>753408398.734602</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -217,7 +217,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 				<string>    //TODO: Refactor this to take in a server or client role
 </string>
 				<key>leading</key>
-				<string>    private var savedClientPeerID: MCPeerID?
+				<string>    // MARK: - Initialization
 
 </string>
 				<key>trailing</key>
@@ -421,7 +421,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>StartingLineNumber</key>
 					<string>120</string>
 					<key>Timestamp</key>
-					<string>753307659.790719</string>
+					<string>753408337.215996</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -504,13 +504,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>60</string>
+					<string>67</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>59</string>
+					<string>66</string>
 					<key>Timestamp</key>
-					<string>753305252.530127</string>
+					<string>753408398.734409</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
