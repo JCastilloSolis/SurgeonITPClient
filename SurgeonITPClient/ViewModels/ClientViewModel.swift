@@ -15,7 +15,6 @@ import CoreLocation
 class ClientViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var connectedPeers: [String] = []
-    @Published var receivedMessages: [String] = []
     @Published var discoveredPeers: [MCPeerID] = []
     @Published var messageCounter: Int = 0
     @Published var connectionStatus: String = "Not Connected"
@@ -24,6 +23,7 @@ class ClientViewModel: ObservableObject {
     @Published var previouslyPairedServer: String = "server to connect"
     @Published var showProgressView: Bool = false
     @Published var proximity: CLProximity = .unknown
+    @Published var sessionViewModel: SessionViewModel = SessionViewModel()
 
     // MARK: - Private Properties
     private var previousProximity: CLProximity = .unknown
@@ -53,12 +53,15 @@ class ClientViewModel: ObservableObject {
             .assign(to: \.discoveredPeers, on: self)
             .store(in: &cancellables)
 
-        peerManager.$receivedMessages
-            .assign(to: \.receivedMessages, on: self)
-            .store(in: &cancellables)
-
         peerManager.$messageCounter
             .assign(to: \.messageCounter, on: self)
+            .store(in: &cancellables)
+
+        peerManager.zoomSessionStartedPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] sessionName in
+                self?.handleZoomSessionStarted(sessionName: sessionName)
+            }
             .store(in: &cancellables)
 
         peerManager.$sessionState
@@ -176,6 +179,16 @@ class ClientViewModel: ObservableObject {
         }
         previousProximity = proximity
     }
+
+    /// Handles the event when a Zoom session has started.
+    /// - Parameter sessionName: The name of the started Zoom session.
+    private func handleZoomSessionStarted(sessionName: String) {
+        Logger.shared.log("Handling Zoom session started with sessionName: \(sessionName)")
+
+        // Instruct SessionViewModel to join the Zoom session
+        sessionViewModel.joinSession(sessionName: sessionName)
+    }
+
 
     /// Starts MultipeerConnectivity browsing.
     private func startMPCBrowsing() {

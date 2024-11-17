@@ -17,7 +17,6 @@ import MultipeerConnectivity
 class PeerViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var connectedPeers: [String] = []
-    @Published var receivedMessages: [String] = []
     @Published var discoveredPeers: [MCPeerID] = []
     @Published var messageCounter: Int = 0
     @Published var connectionStatus: String = "Not Connected"
@@ -45,10 +44,6 @@ class PeerViewModel: ObservableObject {
 
         peerManager.$discoveredPeers
             .assign(to: \.discoveredPeers, on: self)
-            .store(in: &cancellables)
-
-        peerManager.$receivedMessages
-            .assign(to: \.receivedMessages, on: self)
             .store(in: &cancellables)
 
         peerManager.$messageCounter

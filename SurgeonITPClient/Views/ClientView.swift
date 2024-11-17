@@ -54,15 +54,10 @@ struct ClientView: View {
         }
         .padding()
 
-
-        List(viewModel.receivedMessages, id: \.self) { message in
-            HStack {
-                Text(message).padding(10)
-                Spacer()
-            }
-            .background(Color.blue.opacity(0.2))
-            .cornerRadius(10)
-            .padding(.horizontal)
+        // Embed SessionView conditionally
+        if viewModel.sessionViewModel.sessionIsActive {
+            SessionView(viewModel: viewModel.sessionViewModel)
+            //.transition(.slide)
         }
 
         HStack {

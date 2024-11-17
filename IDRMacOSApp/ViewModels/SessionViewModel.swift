@@ -51,7 +51,7 @@ class SessionViewModel : NSObject, ObservableObject {
     /// Initializes the ZoomVideoSDK with the required parameters.
     func initializeSDK() {
         let initParams = ZMVideoSDKInitParams()
-        initParams.domain = "https://zoom.us"
+        initParams.domain = Constants.zoomAPIDomain
         initParams.enableLog = true
         initParams.logFilePrefix = "ZoomSDK"
         initParams.videoRawDataMemoryMode = ZMVideoSDKRawDataMemoryMode_Heap
@@ -83,8 +83,7 @@ class SessionViewModel : NSObject, ObservableObject {
     /// Generates a JWT token required for joining the Zoom session.
     /// - Returns: A JWT token string if successful; otherwise, an empty string.
     func getJWTToken() -> String {
-        // Instantiate ZoomAPIJWT with your Zoom API credentials
-        let zoomJWT = ZoomAPIJWT(apiKey: "vWORwGngSfyZ4PIio6bqCg", apiSecret: "i3II29cNHHnL98vc0qGtVbp3SrVC3yYv2vIT")  // Replace with secure storage
+        let zoomJWT = ZoomAPIJWT(apiKey: Constants.zoomAPIKey, apiSecret: Constants.zoomAPISecret)  // Replace with secure storage
 
         // Generate the JWT token for the session
         let roleType = 1  // 1 for host, 0 for participant

@@ -23,24 +23,40 @@ class SessionViewModel: ObservableObject {
     @Published var pinnedParticipantID: String?
     @Published var cameraList: [Camera] = []
     @Published var canControlCamera = false
+    @Published var sessionName: String = ""
 
     // MARK: - Session Properties
-    let sessionName = "demoSession2"
     let userName = UIDevice.current.name
 
     // MARK: - Private Variables
-    private var coordinator: ZoomSessionCoordinator?
+    private var coordinator: ZoomClientSessionCoordinator?
     private var commandChannel: ZoomVideoSDKCmdChannel?
     private var remoteControlHelper: ZoomVideoSDKRemoteCameraControlHelper?
 
 
     // MARK: - Initialization
     init() {
-        coordinator = ZoomSessionCoordinator(viewModel: self)
-        //setupSession()
+        coordinator = ZoomClientSessionCoordinator(viewModel: self)
+    }
+
+    /// Joins a Zoom session with the provided sessionName.
+    /// - Parameter sessionName: The name of the Zoom session to join.
+    func joinSession(sessionName: String) {
+        self.sessionName = sessionName
+        setupSession()
     }
 
     func setupSession() {
+
+        guard !sessionName.isEmpty else {
+            Logger.shared.log("sessionName is empty. Cannot join session.")
+            DispatchQueue.main.async {
+                self.showAlert = true
+                self.alertMessage = "Session name is empty. Please provide a valid session name."
+            }
+            return
+        }
+
         let sessionContext = ZoomVideoSDKSessionContext()
 
         sessionContext.token = getJWTToken()
@@ -51,15 +67,15 @@ class SessionViewModel: ObservableObject {
 
         if let session = ZoomVideoSDK.shareInstance()?.joinSession(sessionContext) { // returns a ZoomVideoSDKSession
             // Session joined successfully
-            Logger.shared.log("SessionViewModel - Session joined successfully")
+            Logger.shared.log("Session '\(sessionName)' joined successfully")
             commandChannel = ZoomVideoSDK.shareInstance()?.getCmdChannel()
         } else {
             // Handle failure to join session
             DispatchQueue.main.async {
                 self.showAlert = true
-                self.alertMessage = "Failed to join session."
+                self.alertMessage = "Failed to join session '\(self.sessionName)'."
             }
-            Logger.shared.log("SessionViewModel - Failed to join session")
+            Logger.shared.log("Failed to join session '\(sessionName)'")
         }
     }
 
@@ -67,8 +83,7 @@ class SessionViewModel: ObservableObject {
     /// - Returns: A JWT token string if successful; otherwise, an empty string.
     func getJWTToken() -> String {
         //TODO: Save this into firebase or something and add some validation steps
-        let zoomJWT = ZoomAPIJWT(apiKey: "vWORwGngSfyZ4PIio6bqCg", apiSecret: "i3II29cNHHnL98vc0qGtVbp3SrVC3yYv2vIT")
-        //let zoomJWT = ZoomAPIJWT(apiKey: "apikey", apiSecret: "secret")
+        let zoomJWT = ZoomAPIJWT(apiKey: Constants.zoomAPIKey , apiSecret: Constants.zoomAPISecret)
         let roleType = 0  // 1 for host, 0 for participant
 
         let jwtToken = zoomJWT.generateToken(sessionName: sessionName, roleType: roleType)

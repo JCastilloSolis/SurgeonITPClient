@@ -20,7 +20,7 @@ struct SurgeonITPClientApp: App {
 
     private func setupSDK() {
         let initParams = ZoomVideoSDKInitParams()
-        initParams.domain = "zoom.us"
+        initParams.domain = Constants.zoomAPIDomain
         let sdkInitReturnStatus = ZoomVideoSDK.shareInstance()?.initialize(initParams)
         switch sdkInitReturnStatus {
             case .Errors_Success:

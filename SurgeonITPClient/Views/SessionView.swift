@@ -11,7 +11,7 @@ import SwiftUI
 import ZoomVideoSDK
 
 struct SessionView: View {
-    @StateObject private var viewModel = SessionViewModel()
+    @StateObject var viewModel: SessionViewModel
 
     let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: 10), count: 3) // Adjust the count based on your UI needs
 
@@ -119,5 +119,5 @@ struct BlurView: UIViewRepresentable {
 
 
 #Preview {
-    SessionView()
+    SessionView(viewModel: SessionViewModel())
 }

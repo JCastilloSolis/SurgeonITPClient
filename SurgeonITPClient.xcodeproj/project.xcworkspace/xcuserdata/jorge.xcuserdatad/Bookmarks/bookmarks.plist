@@ -198,7 +198,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>StartingLineNumber</key>
 					<string>48</string>
 					<key>Timestamp</key>
-					<string>753408398.734602</string>
+					<string>753553526.445214</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -237,13 +237,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>379</string>
+					<string>394</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>378</string>
+					<string>393</string>
 					<key>Timestamp</key>
-					<string>753229980.5103281</string>
+					<string>753552970.514284</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -282,13 +282,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>69</string>
+					<string>85</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>68</string>
+					<string>84</string>
 					<key>Timestamp</key>
-					<string>753229980.510293</string>
+					<string>753551732.2282079</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -311,9 +311,9 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     func getJWTToken() -&gt; String {
 </string>
 				<key>trailing</key>
-				<string>        let zoomJWT = ZoomAPIJWT(apiKey: "vWORwGngSfyZ4PIio6bqCg", apiSecret: "i3II29cNHHnL98vc0qGtVbp3SrVC3yYv2vIT")
-        //let zoomJWT = ZoomAPIJWT(apiKey: "apikey", apiSecret: "secret")
+				<string>        let zoomJWT = ZoomAPIJWT(apiKey: Constants.zoomAPIKey , apiSecret: Constants.zoomAPISecret)
         let roleType = 0  // 1 for host, 0 for participant
+
 </string>
 			</dict>
 			<key>type</key>
@@ -325,15 +325,15 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 				<key>location-parameters</key>
 				<dict>
 					<key>EndingColumnNumber</key>
-					<string>38</string>
+					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>418</string>
+					<string>434</string>
 					<key>StartingColumnNumber</key>
-					<string>38</string>
+					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>418</string>
+					<string>433</string>
 					<key>Timestamp</key>
-					<string>753233331.487206</string>
+					<string>753552970.5143009</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -349,15 +349,16 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string></string>
+				<string>        //TODO: try to get camera name
+</string>
 				<key>leading</key>
 				<string>            return
         }
-        //TODO: try to get camera name</string>
+</string>
 				<key>trailing</key>
-				<string>
-        let result = remoteControlHelper.turnLeft(range)
+				<string>        let result = remoteControlHelper.turnLeft(range)
         if result == .Errors_Success {
+            Logger.shared.log("SessionViewModel - Camera moved left successfully")
 </string>
 			</dict>
 			<key>type</key>
@@ -415,13 +416,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>121</string>
+					<string>124</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>120</string>
+					<string>123</string>
 					<key>Timestamp</key>
-					<string>753408337.215996</string>
+					<string>753553549.033435</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -510,7 +511,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>StartingLineNumber</key>
 					<string>66</string>
 					<key>Timestamp</key>
-					<string>753408398.734409</string>
+					<string>753553526.445197</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>

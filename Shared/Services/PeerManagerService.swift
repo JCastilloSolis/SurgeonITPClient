@@ -19,13 +19,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     // MARK: Published properties
     @Published var connectedDevices = [String]()
     @Published var discoveredPeers = [MCPeerID]()
-    @Published var receivedMessages: [String] = []
     @Published var messageCounter = 0
     @Published var sessionState: MCSessionState = .notConnected
 
     // MARK: - Publishers
     let startZoomCallPublisher = PassthroughSubject<MCPeerID, Never>()
     let endZoomCallPublisher = PassthroughSubject<MCPeerID, Never>()
+    let zoomSessionStartedPublisher = PassthroughSubject<String, Never>() // Emits sessionName
 
 
     // MARK: Private vars
@@ -448,6 +448,7 @@ extension PeerManager {
                     // Handle successful start of Zoom call
                     let sessionName = responseData.sessionName
                     Logger.shared.log("Zoom call started with session name: \(sessionName)")
+                    zoomSessionStartedPublisher.send(sessionName)
                 } else if status == .failure, let errorData = data as? MPCErrorResponse {
                     // Handle error
                     Logger.shared.log("Failed to start Zoom call: \(errorData.errorMessage)")
