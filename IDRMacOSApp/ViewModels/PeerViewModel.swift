@@ -32,11 +32,13 @@ class PeerViewModel: ObservableObject {
     private var currentCommandPeerID: MCPeerID?
 
     var peerManager: PeerManager
+    var beaconEmitter: BeaconEmitter?
 
     // MARK: - Initialization
 
     init() {
         self.peerManager = PeerManager()
+        self.beaconEmitter = .init()
 
         peerManager.$connectedDevices
             .assign(to: \.connectedPeers, on: self)

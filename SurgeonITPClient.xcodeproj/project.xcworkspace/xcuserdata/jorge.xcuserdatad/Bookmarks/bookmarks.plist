@@ -147,13 +147,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>28</string>
+					<string>30</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>27</string>
+					<string>29</string>
 					<key>Timestamp</key>
-					<string>753244412.573945</string>
+					<string>753593383.184352</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -169,16 +169,16 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        //TODO: Move notification code somewhere else
+				<string>        super.init()
 </string>
 				<key>leading</key>
-				<string>        }
-        self.beaconUUID = uuid
+				<string>        //TODO: Move notification code somewhere else
+        self.notificationCenter = UNUserNotificationCenter.current()
 </string>
 				<key>trailing</key>
-				<string>        self.notificationCenter = UNUserNotificationCenter.current()
-        super.init()
-        requestNotificationAuthorization()
+				<string>        requestNotificationAuthorization()
+        Logger.shared.log("BeaconManager initialized.")
+    }
 </string>
 			</dict>
 			<key>type</key>
