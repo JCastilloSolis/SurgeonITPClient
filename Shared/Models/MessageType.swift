@@ -5,6 +5,8 @@
 //  Created by Jorge Castillo on 11/8/24.
 //
 
+import Foundation
+
 /// Represents the type of message in the MPC communication protocol.
 enum MPCMessageType: String, Codable {
     case command
@@ -26,12 +28,15 @@ protocol MPCCommandData: Codable {}
 
 /// Payload for the Start Zoom Call command.
 struct MPCStartZoomCallCommand: MPCCommandData {
-    // No additional data required
 }
 
 /// Payload for the End Zoom Call command.
 struct MPCEndZoomCallCommand: MPCCommandData {
-    // No additional data required
+}
+
+/// Payload for a heartbeat command
+struct MPCHeartbeatCommand: MPCCommandData {
+    let timestamp: Date
 }
 
 //MARK: Responses
@@ -67,6 +72,7 @@ struct MPCErrorResponse: MPCResponseData {
 enum MPCPayload: Codable {
     case command(MPCCommandType, MPCCommandData)
     case response(MPCCommandType, MPCResponseStatus, MPCResponseData?)
+    case heartbeat(MPCHeartbeatCommand)
 
     enum CodingKeys: String, CodingKey {
         case type
@@ -89,6 +95,9 @@ enum MPCPayload: Codable {
                 let status = try container.decode(MPCResponseStatus.self, forKey: .status)
                 let data = try MPCPayload.decodeResponseData(commandType: commandType, decoder: decoder)
                 self = .response(commandType, status, data)
+            case MPCMessageType.heartbeat.rawValue:
+                let heartbeatCommand = try MPCHeartbeatCommand(from: decoder)
+                self = .heartbeat(heartbeatCommand)
             default:
                 throw DecodingError.dataCorruptedError(forKey: .type,
                                                        in: container,
@@ -129,6 +138,9 @@ enum MPCPayload: Codable {
                 if let data = data {
                     try data.encode(to: encoder)
                 }
+            case .heartbeat(let heartbeatCommand):
+                try container.encode(MPCMessageType.heartbeat.rawValue, forKey: .type)
+                try heartbeatCommand.encode(to: encoder)
         }
     }
 }

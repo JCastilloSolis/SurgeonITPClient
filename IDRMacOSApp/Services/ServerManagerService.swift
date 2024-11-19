@@ -12,7 +12,7 @@ import MultipeerConnectivity
 /// Manages the server-side MultipeerConnectivity session.
 class ServerManagerService: NSObject, ObservableObject {
     @Published var connectedPeers: [MCPeerID] = []
-    private let serviceType = "example-service"
+    private let serviceType = Constants.mpcServiceType
     private let myPeerId = MCPeerID(displayName: Host.current().localizedName ?? "MacServer")
     private let session: MCSession
     private let advertiser: MCNearbyServiceAdvertiser

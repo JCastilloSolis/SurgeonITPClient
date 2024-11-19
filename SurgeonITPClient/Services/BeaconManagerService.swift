@@ -125,7 +125,7 @@ extension BeaconManagerService: CLLocationManagerDelegate {
         guard let nearestBeacon = beacons.first else {
             // No beacons detected; stop browsing if necessary
             if proximity != .unknown {
-                Logger.shared.log("Beacon lost. Stopping MPC browsing.")
+                Logger.shared.log("LocationManager beacon proximity changed to unknown.")
                 proximity = .unknown
             }
             return

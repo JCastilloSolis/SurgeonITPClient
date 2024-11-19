@@ -38,7 +38,8 @@ class PeerViewModel: ObservableObject {
 
     init() {
         self.peerManager = PeerManager()
-        self.beaconEmitter = .init()
+        //This seems to cause interference with MPC, check after heartbeat 
+        //self.beaconEmitter = .init()
 
         peerManager.$connectedDevices
             .assign(to: \.connectedPeers, on: self)

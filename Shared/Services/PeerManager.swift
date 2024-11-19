@@ -1,5 +1,5 @@
 //
-//  PeerManagerService.swift
+//  PeerManager.swift
 //  SurgeonITPClient
 //
 //  Created by Jorge Castillo on 11/8/24.
@@ -29,13 +29,11 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 
 
     // MARK: Private vars
-    private let serviceType = "example-service"
+    private let serviceType = Constants.mpcServiceType
     private var peerID: MCPeerID
     private var mcSession: MCSession
     private var advertiser: MCNearbyServiceAdvertiser?
     private var browser: MCNearbyServiceBrowser?
-    private var isSendingHeartbeat = false
-    private var heartbeatTimer: Timer?
     private var selectedServerPeerID: MCPeerID?
     private var savedClientPeerID: MCPeerID?
 
@@ -43,6 +41,12 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     private var reconnectionPeersQueue: [MCPeerID] = []
     private var isReconnecting: Bool = false
     private var currentAttemptPeerID: MCPeerID?
+
+
+    // Heartbeat logic
+    private var heartbeatTimer: Timer?
+    private let heartbeatInterval: TimeInterval = 10 // seconds
+    private var isSendingHeartbeat = false
 
     // MARK: - Initialization
 
@@ -90,6 +94,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 #elseif os(macOS)
         Logger.shared.log("Setting up as Advertiser (Server)")
         setupAdvertiser()
+        startHeartbeat()
 #endif
     }
 
@@ -104,6 +109,19 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     private func setupBrowser() {
         browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
         browser?.delegate = self
+    }
+
+    /// Start sending heartbeats
+    func startHeartbeat() {
+        heartbeatTimer = Timer.scheduledTimer(withTimeInterval: heartbeatInterval, repeats: true) { [weak self] _ in
+            self?.sendHeartbeat()
+        }
+    }
+
+    /// Stop sending heartbeats
+    func stopHeartbeat() {
+        heartbeatTimer?.invalidate()
+        heartbeatTimer = nil
     }
 
     // MARK: - Advertising Methods (macOS Server)
@@ -175,6 +193,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 
     /// Attempts to reconnect to the saved server by trying all discovered peers with the saved display name.
     func attemptReconnection() {
+        //TODO: Investigare reconnection issues
         Logger.shared.log("Attempting reconnection")
 
         guard let savedServerName = UserDefaults.standard.string(forKey: "savedServerName") else {
@@ -218,7 +237,6 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     /// Disconnects device from the current `MCSession` . On macOS it will start advertising
     func leaveSession() {
         Logger.shared.log("Leaving session")
-        //stopHeartbeat()
         mcSession.disconnect()
 #if os(macOS)
         startAdvertising()  // Resume advertising if the session is left
@@ -258,10 +276,10 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
             connectedDevices.append(peerID.displayName)
         }
 
+#if os(iOS)
         // Stop browsing once connected
         stopBrowsing()
-
-#if os(macOS)
+#elseif os(macOS)
         if savedClientPeerID == nil {
             savedClientPeerID = peerID
             UserDefaults.standard.set(peerID.displayName, forKey: "savedClientName")
@@ -284,6 +302,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     private func handleNotConnectedState(peerID: MCPeerID) {
         Logger.shared.log("Disconnected from \(peerID.displayName)")
         connectedDevices.removeAll { $0 == peerID.displayName }
+        discoveredPeers.removeAll { $0 == peerID }
         mcSession.disconnect()
 #if os(macOS)
         startAdvertising()  // Resume advertising when disconnected
@@ -327,9 +346,10 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 
     // MARK: - MCNearbyServiceBrowserDelegate Methods
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
+        Logger.shared.log("Found peer withDiscoveryInfo : \(peerID.displayName)")
         DispatchQueue.main.async {
             if !self.discoveredPeers.contains(peerID) {
-                Logger.shared.log("Found peer: \(peerID.displayName)")
+                Logger.shared.log("added to discovered peers: \(peerID.displayName)")
                 self.discoveredPeers.append(peerID)
             }
         }
@@ -422,6 +442,25 @@ extension PeerManager {
         }
     }
 
+    /// Send heartbeat message
+    /// Sends a heartbeat message to all connected peers.
+    private func sendHeartbeat() {
+        let heartbeatCommand = MPCHeartbeatCommand(timestamp: Date())
+        let heartbeatPayload = MPCPayload.heartbeat(heartbeatCommand)
+        let heartbeatMessage = MPCMessage(messageType: .heartbeat, payload: heartbeatPayload)
+
+        guard !mcSession.connectedPeers.isEmpty else { return }
+
+        do {
+            let data = try encodeMPCMessage(heartbeatMessage)
+            // Assuming peerManager has a method to send data to all peers
+            try mcSession.send(data, toPeers: mcSession.connectedPeers, with: .reliable)
+            Logger.shared.log("Sent heartbeat at \(heartbeatCommand.timestamp)")
+        } catch {
+            Logger.shared.log("Failed to encode heartbeat message: \(error.localizedDescription)")
+        }
+    }
+
     /// Handles incoming `MPCMessage` from peers.
     /// - Parameters:
     ///   - message: The received `MPCMessage`.
@@ -432,6 +471,10 @@ extension PeerManager {
                 handleCommand(commandType, data, fromPeer: peerID)
             case .response(let commandType, let status, let data):
                 handleResponse(commandType, status, data, fromPeer: peerID)
+            case .heartbeat:
+                if case let .heartbeat(heartbeatCommand) = message.payload {
+                    Logger.shared.log("Received heartbeat at \(heartbeatCommand.timestamp)")
+                }
         }
     }
 
