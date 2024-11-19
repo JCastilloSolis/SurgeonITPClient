@@ -19,7 +19,7 @@ struct SessionView: View {
         ZStack {
             VideoCanvasView(participantID: viewModel.pinnedParticipantID)
                 .environmentObject(viewModel)
-                .edgesIgnoringSafeArea(.all)
+                //.edgesIgnoringSafeArea(.all)
 
             VStack {
                 topBar

@@ -15,37 +15,38 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $viewModel.selectedTab) {
             
-            SelectProcedureView(viewModel: viewModel.tab1ViewModel)
+            CaseCreationView(viewModel: clientViewModel)
                 .tabItem {
                     Image(systemName: "waveform.path.ecg.text.clipboard.fill")
                     Text("Case")
                 }
                 .tag(0)
 
+            // Embed SessionView conditionally
+            if clientViewModel.sessionViewModel.sessionIsActive {
+                SessionView(viewModel: clientViewModel.sessionViewModel)
+                    .tabItem {
+                        Image(systemName: "person.crop.square.badge.video.fill")
+                        Text("ITP Session")
+                    }
+                    .tag(1)
 
-            ClientView(viewModel: clientViewModel)
-                .tabItem {
-                    Image(systemName: "person.crop.square.badge.video.fill")
-                    Text("ITP Session")
-                }
-                .tag(1)
-
-
-            Tab3View(viewModel: viewModel.tab3ViewModel)
-                .tabItem {
-                    Image(systemName: "person.3.fill")
-                    Text("Participants")
-                }
-                .tag(2)
+                Tab3View(viewModel: viewModel.tab3ViewModel)
+                    .tabItem {
+                        Image(systemName: "person.3.fill")
+                        Text("Participants")
+                    }
+                    .tag(2)
+            }
+            
+        }
+        .onAppear {
+            Logger.shared.log("main tab view appeared. Starting beacon scanning.")
+            clientViewModel.startBeaconScanning()
         }
         .tint(.black)
         .navigationBarTitle("My Intuitive", displayMode: .inline)
         .toolbar {
-            //            ToolbarItem(placement: .navigationBarLeading) {
-            //                Button("Leave") {
-            //
-            //                }
-            //            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     isShowingSettings = true
@@ -150,6 +151,8 @@ class Tab3ViewModel: ObservableObject {
 
 struct MainTabView_Previews: PreviewProvider {
     static var previews: some View {
-        MainTabView()
+        NavigationStack {
+            MainTabView()
+        }
     }
 }

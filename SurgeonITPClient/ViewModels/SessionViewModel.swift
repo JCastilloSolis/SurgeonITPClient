@@ -13,7 +13,7 @@ import ZoomVideoSDK
 /// and communicates with the `ZoomSessionCoordinator` to respond to ZoomVideoSDK events.
 class SessionViewModel: ObservableObject {
     // MARK: - Published Properties
-    @Published var isVideoOn = true
+    @Published var isVideoOn = false
     @Published var isAudioMuted = false
     @Published var sessionIsActive = false
     @Published var commandsActive = false

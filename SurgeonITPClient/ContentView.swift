@@ -12,7 +12,9 @@ struct ContentView: View {
     @ObservedObject var appState = AppState.shared
 
     var body: some View {
-        Group {
+        NavigationStack {
+
+            //TODO: Update this to use navigation links
             switch appState.navigation {
                 case .login:
                     LoginView()

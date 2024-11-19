@@ -22,8 +22,8 @@ class SessionViewModel : NSObject, ObservableObject {
     // MARK: - Published Properties
     @Published var sessionName: String = ""
     @Published var userDisplayName: String = Host.current().localizedName ?? "Mac"
-    @Published var isAudioMuted: Bool = false
-    @Published var isVideoOn: Bool = false
+    @Published var isAudioMuted: Bool = true
+    @Published var isVideoOn: Bool = true
     @Published var showError: Bool = false
     @Published var participants = [Participant]()
     @Published var sessionIsActive = true
@@ -117,7 +117,7 @@ class SessionViewModel : NSObject, ObservableObject {
 
         // Configure video options
         let videoOption = ZMVideoSDKVideoOption()
-        videoOption.localVideoOn = !isVideoOn
+        videoOption.localVideoOn = isVideoOn
 
         // Set up the session context
         let sessionContext = ZMVideoSDKSessionContext()
