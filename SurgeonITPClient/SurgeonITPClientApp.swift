@@ -36,7 +36,6 @@ struct SurgeonITPClientApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-            //SessionView()
         }
     }
 }

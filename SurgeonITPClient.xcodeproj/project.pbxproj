@@ -915,8 +915,11 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SurgeonITPClient/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Bluetooth Peripheral Usage Description";
 				INFOPLIST_KEY_NSCameraUsageDescription = "required for video";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Securely retrieve information";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to nearby devices";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need your location to detect nearby beacons.";
 				INFOPLIST_KEY_NSLocationUsageDescription = "We need your location to detect nearby beacons.";
@@ -956,8 +959,11 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SurgeonITPClient/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Bluetooth Peripheral Usage Description";
 				INFOPLIST_KEY_NSCameraUsageDescription = "required for video";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Securely retrieve information";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Connect to nearby devices";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need your location to detect nearby beacons.";
 				INFOPLIST_KEY_NSLocationUsageDescription = "We need your location to detect nearby beacons.";

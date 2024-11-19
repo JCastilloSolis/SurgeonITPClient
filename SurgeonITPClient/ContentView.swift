@@ -9,10 +9,21 @@ import SwiftUI
 
 
 struct ContentView: View {
-    var body: some View {
-        ClientView(viewModel: .init())
-    }
+    @ObservedObject var appState = AppState.shared
+    @ObservedObject var clientViewModel = ClientViewModel()
 
+    var body: some View {
+        Group {
+            switch appState.navigation {
+                case .login:
+                    LoginView()
+                case .main:
+                    ClientView(viewModel: clientViewModel)
+            }
+        }
+        .animation(.easeInOut, value: appState.navigation)
+        .transition(.slide)
+    }
 }
 
 #Preview {
