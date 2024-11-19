@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @StateObject var viewModel = MainTabViewModel()
+    @ObservedObject var clientViewModel = ClientViewModel()
     @State private var isShowingSettings: Bool = false
     
     var body: some View {
@@ -16,22 +17,24 @@ struct MainTabView: View {
             
             SelectProcedureView(viewModel: viewModel.tab1ViewModel)
                 .tabItem {
-                    Image(systemName: "house.circle.fill")
-                    Text("Home")
+                    Image(systemName: "waveform.path.ecg.text.clipboard.fill")
+                    Text("Case")
                 }
                 .tag(0)
 
 
-            Tab2View(viewModel: viewModel.tab2ViewModel)
+            ClientView(viewModel: clientViewModel)
                 .tabItem {
-                    Image(systemName: "chart.bar.xaxis")
-                    Text("Reports")
+                    Image(systemName: "person.crop.square.badge.video.fill")
+                    Text("ITP Session")
                 }
                 .tag(1)
+
+
             Tab3View(viewModel: viewModel.tab3ViewModel)
                 .tabItem {
-                    Image(systemName: "graduationcap.circle.fill")
-                    Text("Learn")
+                    Image(systemName: "person.3.fill")
+                    Text("Participants")
                 }
                 .tag(2)
         }

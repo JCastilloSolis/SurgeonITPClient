@@ -10,7 +10,6 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var appState = AppState.shared
-    @ObservedObject var clientViewModel = ClientViewModel()
 
     var body: some View {
         Group {
@@ -18,7 +17,7 @@ struct ContentView: View {
                 case .login:
                     LoginView()
                 case .main:
-                    ClientView(viewModel: clientViewModel)
+                    MainTabView()
             }
         }
         .animation(.easeInOut, value: appState.navigation)
