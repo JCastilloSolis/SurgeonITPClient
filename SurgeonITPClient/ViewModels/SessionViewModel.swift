@@ -14,7 +14,7 @@ import ZoomVideoSDK
 class SessionViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var isVideoOn = false
-    @Published var isAudioMuted = false
+    @Published var isAudioMuted = true
     @Published var sessionIsActive = false
     @Published var commandsActive = false
     @Published var showAlert = false
@@ -32,6 +32,20 @@ class SessionViewModel: ObservableObject {
     private var coordinator: ZoomClientSessionCoordinator?
     private var commandChannel: ZoomVideoSDKCmdChannel?
     private var remoteControlHelper: ZoomVideoSDKRemoteCameraControlHelper?
+
+    // Computed property to get the first participant other than the local user
+    var firstRemoteParticipant: Participant? {
+        return participants.first { $0.id != selfUserID }
+    }
+
+    // Assuming you have a way to get the local user's ID
+    private var selfUserID: String {
+        guard let userID = ZoomVideoSDK.shareInstance()?.getSession()?.getMySelf()?.getID() else {
+            Logger.shared.log("Unable to retrieve local user ID.")
+            return ""
+        }
+        return String(userID)
+    }
 
 
     // MARK: - Initialization
@@ -62,6 +76,16 @@ class SessionViewModel: ObservableObject {
         sessionContext.token = getJWTToken()
         sessionContext.sessionName = sessionName
         sessionContext.userName = userName
+
+        // Set video and audio options to disable video and audio upon joining
+        let videoOptions = ZoomVideoSDKVideoOptions()
+        videoOptions.localVideoOn = false
+        sessionContext.videoOption = videoOptions
+
+        let audioOptions = ZoomVideoSDKAudioOptions()
+        audioOptions.connect = true
+        audioOptions.mute = true
+        sessionContext.audioOption = audioOptions
 
         ZoomVideoSDK.shareInstance()?.delegate = coordinator
 
@@ -375,8 +399,8 @@ class SessionViewModel: ObservableObject {
 
         // Determine the user to control
         let user: ZoomVideoSDKUser? = {
-            if let participantID = pinnedParticipantID,
-               let intValue = Int(participantID),
+            if let remoteParticipantID = firstRemoteParticipant?.id,
+               let intValue = Int(remoteParticipantID),
                let foundUser = users.first(where: { $0.getID() == intValue }) {
                 return foundUser
             }

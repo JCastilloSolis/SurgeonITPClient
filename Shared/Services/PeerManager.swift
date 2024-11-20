@@ -45,7 +45,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 
     // Heartbeat logic
     private var heartbeatTimer: Timer?
-    private let heartbeatInterval: TimeInterval = 10 // seconds
+    private let heartbeatInterval: TimeInterval = 60 // 1 minute
     private var isSendingHeartbeat = false
 
     // MARK: - Initialization

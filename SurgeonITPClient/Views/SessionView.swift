@@ -13,30 +13,36 @@ import ZoomVideoSDK
 struct SessionView: View {
     @StateObject var viewModel: SessionViewModel
 
-    let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: 10), count: 3) // Adjust the count based on your UI needs
-
+    let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: 10), count: 3)
     var body: some View {
-        ZStack {
-            VideoCanvasView(participantID: viewModel.pinnedParticipantID)
-                .environmentObject(viewModel)
-                //.edgesIgnoringSafeArea(.all)
 
-            VStack {
-                topBar
-                Spacer()
-                participantsGrid
-                Spacer()
+        if let firstRemoteParticipant = viewModel.firstRemoteParticipant {
+            VStack(spacing: 0) {
 
-                HStack {
+                VStack {
+                    topBar
+                    VideoCanvasView(participantID: firstRemoteParticipant.id)
+                        .environmentObject(viewModel)
+                        .background(Color.black)
+                        //.aspectRatio(16/9, contentMode: .fit)
+                        .frame(maxHeight: 350)
+                        .frame(maxWidth: .infinity)
+                }
+
+                VStack {
                     controlBar
                     CameraListView(viewModel: viewModel)
                 }
-                .padding()
+
             }
-            .padding()
-        }
-        .alert(isPresented: $viewModel.showAlert) {
-            Alert(title: Text("Alert"), message: Text(viewModel.alertMessage), dismissButton: .default(Text("OK")))
+            .alert(isPresented: $viewModel.showAlert) {
+                Alert(title: Text("Alert"), message: Text(viewModel.alertMessage), dismissButton: .default(Text("OK")))
+            }
+        } else {
+            Text("Waiting for participants...")
+                .foregroundColor(.gray)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black)
         }
     }
 

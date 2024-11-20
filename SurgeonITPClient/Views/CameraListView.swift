@@ -18,7 +18,7 @@ struct CameraListView: View {
         HStack {
 
             //TODO: Expand check to only show this when a macOS server is part of the call
-            if (viewModel.pinnedParticipantID != nil) {
+            if (viewModel.firstRemoteParticipant != nil) {
                 Menu {
                     ForEach(viewModel.cameraList, id: \.id) { camera in
                         Button(camera.name) {
@@ -47,7 +47,7 @@ struct CameraListView: View {
             }
 
         }
-        .background(BlurView(style: .systemThinMaterialDark))
+        //.background(BlurView(style: .systemThinMaterialDark))
         .cornerRadius(10)
         .padding()
 

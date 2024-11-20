@@ -87,6 +87,16 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     func createNotificationWith(title: String, body: String) {
+
+        let minimumTimeGap: TimeInterval = 5 * 60  // 5 minutes for testing
+        let lastNotificationDate = UserDefaults.standard.object(forKey: "LastNotificationDate") as? Date ?? Date.distantPast
+        let timeSinceLastNotification = Date().timeIntervalSince(lastNotificationDate)
+
+        guard timeSinceLastNotification >= minimumTimeGap else {
+            Logger.shared.log("Notification suppressed to prevent spamming.")
+            return
+        }
+
         Logger.shared.log("createNotificationWith title: \(title). Body: \(body)")
         let notificationContent = UNMutableNotificationContent()
         notificationContent.title = title
@@ -101,6 +111,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                 Logger.shared.log("Failed to schedule notification: \(error)")
             }
         }
+
+        UserDefaults.standard.set(Date(), forKey: "LastNotificationDate")
     }
 }
 

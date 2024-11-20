@@ -4,9 +4,6 @@
 //
 //  Created by Jorge Castillo on 11/11/24.
 //
-
-
-
 import SwiftUI
 import ZoomVideoSDK
 
@@ -14,34 +11,66 @@ struct VideoCanvasView: UIViewRepresentable {
     @EnvironmentObject var viewModel: SessionViewModel
     var participantID: String?
 
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
         view.backgroundColor = .black
-        subscribeVideoCanvas(to: view, participantID: participantID)
         return view
     }
 
     func updateUIView(_ uiView: UIView, context: Context) {
-        subscribeVideoCanvas(to: uiView, participantID: participantID)
+        context.coordinator.updateVideoCanvas(for: uiView, participantID: participantID)
     }
 
-    private func subscribeVideoCanvas(to view: UIView, participantID: String?) {
-        let session = ZoomVideoSDK.shareInstance()?.getSession()
-        let users = session?.getRemoteUsers()?.compactMap { $0 as ZoomVideoSDKUser } ?? []
+    static func dismantleUIView(_ uiView: UIView, coordinator: Coordinator) {
+        coordinator.unsubscribeVideoCanvas(from: uiView)
+    }
 
-        // Determine the user to subscribe to
-        let user: ZoomVideoSDKUser? = {
-            if let participantID = participantID,
-               let intValue: Int = Int(participantID),
-               let foundUser = users.first(where: { $0.getID() == intValue }) {
-                return foundUser
+    class Coordinator {
+        var lastVideoCanvas: ZoomVideoSDKVideoCanvas?
+
+        func updateVideoCanvas(for view: UIView, participantID: String?) {
+            // Unsubscribe from previous video canvas
+            if let lastCanvas = lastVideoCanvas {
+                lastCanvas.unSubscribe(with: view)
+                Logger.shared.log("- VideoCanvasView - Unsubscribed from previous video canvas")
             }
-            return session?.getMySelf() // Default to the local user if no participant is pinned
-        }()
 
-        if let videoCanvas = user?.getVideoCanvas() {
-            videoCanvas.subscribe(with: view, aspectMode: .original, andResolution: ._Auto)
-            Logger.shared.log("- VideoCanvasView - Subscribe to video canvas for user \(user?.getName() ?? "unknown")")
+            // Subscribe to the new participant's video canvas
+            guard let participantID = participantID,
+                  let intParticipantID = Int(participantID),
+                  let session = ZoomVideoSDK.shareInstance()?.getSession(),
+                  let user = session.getRemoteUsers()?.compactMap({ $0 as? ZoomVideoSDKUser }).first(where: { $0.getID() == intParticipantID }),
+                  let videoCanvas = user.getVideoCanvas(),
+                  ZoomVideoSDK.shareInstance()?.isInSession() == true
+            else {
+                Logger.shared.log("- VideoCanvasView - Participant not found or not in session")
+                lastVideoCanvas = nil
+                return
+            }
+
+            let sdkReturnStatus = videoCanvas.subscribe(
+                with: view,
+                aspectMode: .letterBox,
+                andResolution: ._360
+            )
+
+            if sdkReturnStatus == ZoomVideoSDKError.Errors_Success {
+                Logger.shared.log("- VideoCanvasView - Subscribed to video canvas for user \(user.getName())")
+                lastVideoCanvas = videoCanvas
+            } else {
+                Logger.shared.log("- VideoCanvasView - Subscription failed: \(sdkReturnStatus.rawValue)")
+            }
+        }
+
+        func unsubscribeVideoCanvas(from view: UIView) {
+            if let lastCanvas = lastVideoCanvas {
+                lastCanvas.unSubscribe(with: view)
+                Logger.shared.log("- VideoCanvasView - Unsubscribed in dismantleUIView")
+            }
         }
     }
 }

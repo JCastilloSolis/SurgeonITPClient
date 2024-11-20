@@ -77,32 +77,32 @@ class BeaconManagerService: NSObject, ObservableObject {
     }
 
     /// Creates and schedules a local notification.
-    private func createNotification(title: String, body: String) {
-        let minimumTimeGap: TimeInterval = 5 * 60  // 5 minutes for testing
-        let lastNotificationDate = UserDefaults.standard.object(forKey: "LastNotificationDate") as? Date ?? Date.distantPast
-        let timeSinceLastNotification = Date().timeIntervalSince(lastNotificationDate)
-
-        guard timeSinceLastNotification >= minimumTimeGap else {
-            Logger.shared.log("Notification suppressed to prevent spamming.")
-            return
-        }
-
-        Logger.shared.log("Creating notification: \(title) - \(body)")
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = body
-        content.sound = .default
-
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
-        notificationCenter.add(request) { [weak self] error in
-            if let error = error {
-                Logger.shared.log("Failed to schedule notification: \(error.localizedDescription)")
-            } else {
-                Logger.shared.log("Notification scheduled successfully.")
-                UserDefaults.standard.set(Date(), forKey: "LastNotificationDate")
-            }
-        }
-    }
+//    private func createNotification(title: String, body: String) {
+//        let minimumTimeGap: TimeInterval = 5 * 60  // 5 minutes for testing
+//        let lastNotificationDate = UserDefaults.standard.object(forKey: "LastNotificationDate") as? Date ?? Date.distantPast
+//        let timeSinceLastNotification = Date().timeIntervalSince(lastNotificationDate)
+//
+//        guard timeSinceLastNotification >= minimumTimeGap else {
+//            Logger.shared.log("Notification suppressed to prevent spamming.")
+//            return
+//        }
+//
+//        Logger.shared.log("Creating notification: \(title) - \(body)")
+//        let content = UNMutableNotificationContent()
+//        content.title = title
+//        content.body = body
+//        content.sound = .default
+//
+//        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+//        notificationCenter.add(request) { [weak self] error in
+//            if let error = error {
+//                Logger.shared.log("Failed to schedule notification: \(error.localizedDescription)")
+//            } else {
+//                Logger.shared.log("Notification scheduled successfully.")
+//                UserDefaults.standard.set(Date(), forKey: "LastNotificationDate")
+//            }
+//        }
+//    }
 
    
 
@@ -133,31 +133,20 @@ extension BeaconManagerService: CLLocationManagerDelegate {
 
         let previousProximity = proximity
         proximity = nearestBeacon.proximity
+    }
 
+
+//    /// Called when entering a beacon region.
+//    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+//        Logger.shared.log("Entered region: \(region.identifier)")
+//        createNotification(title: "Entered Region", body: "You have entered the beacon region.")
+//    }
 //
-//        Logger.shared.log("Beacon detected with proximity: \(proximityDescription(proximity)).")
-//
-//        if proximity != .unknown && previousProximity == .unknown {
-//            // Just started detecting the beacon; start MPC browsing
-//            createNotification(title: "Beacon Detected", body: "You are near the beacon.")
-//        } else if proximity == .unknown && previousProximity != .unknown {
-//            // Beacon was lost; stop MPC browsing
-//            Logger.shared.log("Beacon lost. Stopping MPC browsing.")
-//        }
-    }
-
-
-    /// Called when entering a beacon region.
-    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-        Logger.shared.log("Entered region: \(region.identifier)")
-        createNotification(title: "Entered Region", body: "You have entered the beacon region.")
-    }
-
-    /// Called when exiting a beacon region.
-    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
-        Logger.shared.log("Exited region: \(region.identifier)")
-        createNotification(title: "Exited Region", body: "You have exited the beacon region.")
-    }
+//    /// Called when exiting a beacon region.
+//    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+//        Logger.shared.log("Exited region: \(region.identifier)")
+//        createNotification(title: "Exited Region", body: "You have exited the beacon region.")
+//    }
 
     /// Helper method to convert CLProximity to a string description.
     private func proximityDescription(_ proximity: CLProximity) -> String {

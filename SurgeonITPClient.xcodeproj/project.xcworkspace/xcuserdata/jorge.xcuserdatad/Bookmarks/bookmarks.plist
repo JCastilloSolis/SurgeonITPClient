@@ -169,16 +169,16 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        super.init()
+				<string>        self.beaconUUID = uuid
 </string>
 				<key>leading</key>
-				<string>        }
-        self.beaconUUID = uuid
+				<string>            fatalError("Invalid Beacon UUID")
+        }
 </string>
 				<key>trailing</key>
-				<string>        Logger.shared.log("BeaconManager initialized.")
-    }
-
+				<string>        //TODO: Move notification code somewhere else
+        self.notificationCenter = UNUserNotificationCenter.current()
+        super.init()
 </string>
 			</dict>
 			<key>type</key>
@@ -237,58 +237,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>394</string>
+					<string>109</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>393</string>
+					<string>108</string>
 					<key>Timestamp</key>
-					<string>753679717.7729191</string>
-				</dict>
-				<key>rebasable-url</key>
-				<dict>
-					<key>base</key>
-					<string>workspace</string>
-					<key>payload</key>
-					<dict>
-						<key>relative-path</key>
-						<string>SurgeonITPClient/ViewModels/SessionViewModel.swift</string>
-					</dict>
-				</dict>
-			</dict>
-			<key>text-context</key>
-			<dict>
-				<key>focused</key>
-				<string>
-</string>
-				<key>leading</key>
-				<string>        self.remoteControlHelper = remoteControlHelper
-
-</string>
-				<key>trailing</key>
-				<string>        //TODO: Add more comments around this and the related scenarios
-        if canControlCamera {
-            let result = remoteControlHelper.giveUpControlRemoteCamera()
-</string>
-			</dict>
-			<key>type</key>
-			<string>bookmark</string>
-		</dict>
-		<dict>
-			<key>destination</key>
-			<dict>
-				<key>location-parameters</key>
-				<dict>
-					<key>EndingColumnNumber</key>
-					<string>0</string>
-					<key>EndingLineNumber</key>
-					<string>85</string>
-					<key>StartingColumnNumber</key>
-					<string>0</string>
-					<key>StartingLineNumber</key>
-					<string>84</string>
-					<key>Timestamp</key>
-					<string>753679717.772928</string>
+					<string>753746508.315619</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -314,51 +269,6 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 				<string>        let zoomJWT = ZoomAPIJWT(apiKey: Constants.zoomAPIKey , apiSecret: Constants.zoomAPISecret)
         let roleType = 0  // 1 for host, 0 for participant
 
-</string>
-			</dict>
-			<key>type</key>
-			<string>bookmark</string>
-		</dict>
-		<dict>
-			<key>destination</key>
-			<dict>
-				<key>location-parameters</key>
-				<dict>
-					<key>EndingColumnNumber</key>
-					<string>0</string>
-					<key>EndingLineNumber</key>
-					<string>434</string>
-					<key>StartingColumnNumber</key>
-					<string>0</string>
-					<key>StartingLineNumber</key>
-					<string>433</string>
-					<key>Timestamp</key>
-					<string>753679717.772898</string>
-				</dict>
-				<key>rebasable-url</key>
-				<dict>
-					<key>base</key>
-					<string>workspace</string>
-					<key>payload</key>
-					<dict>
-						<key>relative-path</key>
-						<string>SurgeonITPClient/ViewModels/SessionViewModel.swift</string>
-					</dict>
-				</dict>
-			</dict>
-			<key>text-context</key>
-			<dict>
-				<key>focused</key>
-				<string>        //TODO: try to get camera name
-</string>
-				<key>leading</key>
-				<string>            return
-        }
-</string>
-				<key>trailing</key>
-				<string>        let result = remoteControlHelper.turnLeft(range)
-        if result == .Errors_Success {
-            Logger.shared.log("SessionViewModel - Camera moved left successfully")
 </string>
 			</dict>
 			<key>type</key>
