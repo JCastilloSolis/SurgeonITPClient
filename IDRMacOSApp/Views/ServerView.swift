@@ -11,6 +11,7 @@ struct ServerView: View {
     @ObservedObject var viewModel: PeerViewModel
     @State private var isZoomSessionActive = false
     @StateObject private var sessionViewModel = SessionViewModel()
+    @State private var sessionName: String = UserDefaults.standard.string(forKey: "sessionName") ?? ""
 
     var body: some View {
         VStack {
@@ -23,7 +24,7 @@ struct ServerView: View {
         .onReceive(viewModel.$shouldStartZoomCall) { shouldStart in
             if shouldStart {
                 viewModel.shouldStartZoomCall = false
-                sessionViewModel.startSession()  // Start the session here
+                sessionViewModel.startSession(sessionName: sessionName)  // Start the session here
             }
         }
         .onReceive(viewModel.$shouldEndZoomCall) { shouldEnd in
@@ -56,6 +57,15 @@ struct ServerView: View {
                 }
             }
             .padding()
+
+            // Add the TextField for sessionName
+            TextField("Enter session name", text: $sessionName)
+                .padding()
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .onChange(of: sessionName) { newValue in
+                    UserDefaults.standard.set(newValue, forKey: "sessionName")
+                }
+
 
             if viewModel.previouslyPaired {
                 Button("Forget Client Device") {

@@ -101,8 +101,8 @@ class SessionViewModel : NSObject, ObservableObject {
         return jwtToken
     }
 
-    func startSession() {
-        self.sessionName = UUID().uuidString
+    func startSession(sessionName: String) {
+        self.sessionName = sessionName
         let token = getJWTToken()
         createAndJoinSession(token: token)
     }
@@ -110,6 +110,12 @@ class SessionViewModel : NSObject, ObservableObject {
     /// Creates and attempts to join a Zoom session with the provided token.
     /// - Parameter token: The JWT token for authentication.
     func createAndJoinSession(token: String) {
+
+        guard !sessionName.isEmpty else {
+            // Handle error: session name cannot be empty
+            return
+        }
+
         // Configure audio options
         let audioOption = ZMVideoSDKAudioOption()
         audioOption.connect = true
