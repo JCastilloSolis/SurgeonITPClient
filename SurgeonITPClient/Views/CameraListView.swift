@@ -15,41 +15,46 @@ struct CameraListView: View {
     @StateObject var viewModel: SessionViewModel
 
     var body: some View {
-        HStack {
+        VStack {
 
-            //TODO: Expand check to only show this when a macOS server is part of the call
-            if (viewModel.firstRemoteParticipant != nil) {
-                Menu {
-                    ForEach(viewModel.cameraList, id: \.id) { camera in
-                        Button(camera.name) {
-                            Logger.shared.log("Select Camera \(camera.name)")
-                            viewModel.requestSwitchCamera(toDeviceID: camera.id)
+
+            HStack {
+
+                //TODO: Expand check to only show this when a macOS server is part of the call
+                if (viewModel.firstRemoteParticipant != nil) {
+                    Menu {
+                        ForEach(viewModel.cameraList, id: \.id) { camera in
+                            Button(camera.name) {
+                                Logger.shared.log("Select Camera \(camera.name)")
+                                viewModel.requestSwitchCamera(toDeviceID: camera.id)
+                            }
                         }
+                    } label: {
+                        Label("Available Cameras", systemImage: "camera")
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.gray.opacity(0.8))
+                            .cornerRadius(8)
                     }
-                } label: {
-                    Label("Available Cameras", systemImage: "camera")
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.gray.opacity(0.8))
-                        .cornerRadius(8)
+
+                    Button(action: viewModel.requestCameraControl) {
+                        Image(systemName: "web.camera.fill")
+                            .iconStyle(viewModel.canControlCamera ? .red : .purple)
+                    }
                 }
 
-                Button(action: viewModel.requestCameraControl) {
-                    Image(systemName: "web.camera.fill")
-                        .iconStyle(viewModel.canControlCamera ? .red : .purple)
-                }
-
-                if viewModel.canControlCamera {
-                    cameraControlView
-                        .frame(height: 100)
-
-                }
             }
+            //.background(BlurView(style: .systemThinMaterialDark))
+            .cornerRadius(10)
 
+            if viewModel.canControlCamera {
+                cameraControlView
+                    .padding()
+
+            }
         }
-        //.background(BlurView(style: .systemThinMaterialDark))
-        .cornerRadius(10)
         .padding()
+
 
     }
 

@@ -19,6 +19,8 @@ struct SessionView: View {
         if let firstRemoteParticipant = viewModel.firstRemoteParticipant {
             VStack(spacing: 0) {
 
+                Spacer()
+                
                 VStack {
                     topBar
                     VideoCanvasView(participantID: firstRemoteParticipant.id)
@@ -28,7 +30,7 @@ struct SessionView: View {
                         .frame(maxHeight: 350)
                         .frame(maxWidth: .infinity)
                 }
-
+                Spacer()
                 VStack {
                     controlBar
                     CameraListView(viewModel: viewModel)
