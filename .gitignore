@@ -1,3 +1,6 @@
 SurgeonITPClient.xcodeproj/xcuserdata/jorge.xcuserdatad
 SurgeonITPClient.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 SurgeonITPClient.xcodeproj/project.xcworkspace/xcuserdata/jorge.xcuserdatad/IDEFindNavigatorScopes.plist
+Shared/.DS_Store
+*.DS_Store
+*.xcuserstate
