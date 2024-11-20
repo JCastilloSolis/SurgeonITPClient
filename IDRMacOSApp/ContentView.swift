@@ -11,8 +11,6 @@ struct ContentView: View {
     var body: some View {
         HStack {
             ServerView(viewModel: PeerViewModel())
-
-           // SessionView(viewModel: SessionViewModel())
         }
 
     }

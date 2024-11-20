@@ -21,6 +21,14 @@ struct SurgeonITPClientApp: App {
     private func setupSDK() {
         let initParams = ZoomVideoSDKInitParams()
         initParams.domain = Constants.zoomAPIDomain
+        
+        // Set audio memory mode to heap.
+        initParams.audioRawdataMemoryMode = .heap
+        // Set video memory mode to heap.
+        initParams.videoRawdataMemoryMode = .heap
+        // Set share memory mode to heap.
+        initParams.shareRawdataMemoryMode = .heap
+        
         let sdkInitReturnStatus = ZoomVideoSDK.shareInstance()?.initialize(initParams)
         switch sdkInitReturnStatus {
             case .Errors_Success:

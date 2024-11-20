@@ -65,6 +65,8 @@ struct ServerView: View {
                 .foregroundColor(.red)
                 .buttonStyle(.bordered)
             }
+            
+            
 
         }
     }

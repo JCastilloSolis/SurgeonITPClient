@@ -88,14 +88,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     func createNotificationWith(title: String, body: String) {
 
-        let minimumTimeGap: TimeInterval = 5 * 60  // 5 minutes for testing
-        let lastNotificationDate = UserDefaults.standard.object(forKey: "LastNotificationDate") as? Date ?? Date.distantPast
-        let timeSinceLastNotification = Date().timeIntervalSince(lastNotificationDate)
-
-        guard timeSinceLastNotification >= minimumTimeGap else {
-            Logger.shared.log("Notification suppressed to prevent spamming.")
-            return
-        }
+//        let minimumTimeGap: TimeInterval = 60  // 60 seconds for testing
+//        let lastNotificationDate = UserDefaults.standard.object(forKey: "LastNotificationDate") as? Date ?? Date.distantPast
+//        let timeSinceLastNotification = Date().timeIntervalSince(lastNotificationDate)
+//
+//        guard timeSinceLastNotification >= minimumTimeGap else {
+//            Logger.shared.log("Notification suppressed to prevent spamming.")
+//            return
+//        }
 
         Logger.shared.log("createNotificationWith title: \(title). Body: \(body)")
         let notificationContent = UNMutableNotificationContent()

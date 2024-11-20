@@ -73,6 +73,7 @@ class ClientViewModel: ObservableObject {
                         self.showProgressView = false
                         self.previouslyPaired = true
                         return ("Connected to \(self.peerManager.connectedDevices.joined(separator: ", "))", .green)
+                        self.stopMPCBrowsing()
                     case .connecting:
                         self.showProgressView = self.previouslyPaired
                         return ("Connecting", .blue)
@@ -80,6 +81,7 @@ class ClientViewModel: ObservableObject {
                         self.showProgressView = self.previouslyPaired
                         //TODO: Check if user is within the range before attempt a reconnection
                         if self.proximity != .unknown {
+                            self.startMPCBrowsing()
                             self.peerManager.attemptReconnection()
                         }
                         return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
