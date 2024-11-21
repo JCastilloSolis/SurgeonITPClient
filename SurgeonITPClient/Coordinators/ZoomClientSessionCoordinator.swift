@@ -38,28 +38,31 @@ class ZoomClientSessionCoordinator: NSObject, ZoomVideoSDKDelegate {
         }
     }
 
-    func onUserVideoStatusChanged(_ helper: ZoomVideoSDKVideoHelper?, user: ZoomVideoSDKUser?, videoStatus: ZoomVideoSDKVideoStatus?) {
-        guard let isVideoOn = videoStatus?.on else { return }
+    func onSessionLeave(_ reason: ZoomVideoSDKSessionLeaveReason) {
+        Logger.shared.log("Session left: \(reason)")
+    }
+
+    func onUserVideoStatusChanged(_ helper: ZoomVideoSDKVideoHelper?, user userArray: [ZoomVideoSDKUser]?) {
         DispatchQueue.main.async {
-            self.viewModel.isVideoOn = isVideoOn
-            if let userName = user?.getName() {
-                Logger.shared.log("\(userName)'s video status changed: \(isVideoOn)")
-            } else {
-                Logger.shared.log(" Video status changed: \(isVideoOn)")
-            }
+
+            Logger.shared.log("video status changed: onUserVideoStatusChanged")
+
+            self.viewModel.updateParticipants()
         }
     }
 
-    func onUserAudioStatusChanged(_ helper: ZoomVideoSDKAudioHelper?, user: ZoomVideoSDKUser?, audioStatus: ZoomVideoSDKAudioStatus?) {
-        guard let isAudioMuted = audioStatus?.isMuted else { return }
-        DispatchQueue.main.async {
-            self.viewModel.isAudioMuted = isAudioMuted
-            if let userName = user?.getName() {
-                Logger.shared.log(" \(userName)'s audio status changed: \(isAudioMuted ? "Muted" : "Unmuted")")
-            } else {
-                Logger.shared.log("Audio status changed: \(isAudioMuted ? "Muted" : "Unmuted")")
-            }
-        }
+    func onUserAudioStatusChanged(_ helper: ZoomVideoSDKAudioHelper?, user userArray: [ZoomVideoSDKUser]?) {
+        Logger.shared.log("Audio status changed: onUserAudioStatusChanged")
+
+        self.viewModel.updateParticipants()
+    }
+
+    func onVideoCanvasSubscribeFail(_ failReason: ZoomVideoSDKSubscribeFailReason, user: ZoomVideoSDKUser?, view: UIView?) {
+        Logger.shared.log("Video canvas subscribe failed: \(failReason) for \(user?.getName() ?? "unknown user")")
+    }
+
+    func onError(_ ErrorType: ZoomVideoSDKError, detail details: Int) {
+        Logger.shared.log("ZoomCoordinator Error: \(ErrorType)")
     }
 
     func onUserJoin(_ userHelper: ZoomVideoSDKUserHelper?, users: [ZoomVideoSDKUser]?) {

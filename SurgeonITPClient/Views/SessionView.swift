@@ -11,84 +11,86 @@ import SwiftUI
 import ZoomVideoSDK
 
 struct SessionView: View {
-    @StateObject var viewModel: SessionViewModel
+    @StateObject var viewModel: ClientViewModel
 
     let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: 10), count: 3)
+
     var body: some View {
+        VStack(spacing: 5) {
+            topBar
 
-        if let firstRemoteParticipant = viewModel.firstRemoteParticipant {
-            VStack(spacing: 0) {
+            controlBar
 
-                Spacer()
-                
-                VStack {
-                    topBar
-                    VideoCanvasView(participantID: firstRemoteParticipant.id)
-                        .environmentObject(viewModel)
-                        .background(Color.black)
-                        //.aspectRatio(16/9, contentMode: .fit)
-                        .frame(maxHeight: 350)
-                        .frame(maxWidth: .infinity)
-                }
-                Spacer()
-                VStack {
-                    controlBar
-                    CameraListView(viewModel: viewModel)
-                }
-
+            if viewModel.sessionViewModel.participants.isEmpty {
+                Text("Waiting for participants...")
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                participantList
             }
-            .alert(isPresented: $viewModel.showAlert) {
-                Alert(title: Text("Alert"), message: Text(viewModel.alertMessage), dismissButton: .default(Text("OK")))
+
+            if viewModel.peerManager.sessionState == .connected {
+                Button("End Zoom Session") {
+                    viewModel.stopZoomCall()
+                }
             }
-        } else {
-            Text("Waiting for participants...")
-                .foregroundColor(.gray)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.black)
+        }
+        .alert(isPresented: $viewModel.sessionViewModel.showAlert) {
+            Alert(
+                title: Text("Alert"),
+                message: Text(viewModel.sessionViewModel.alertMessage),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
 
     var topBar: some View {
         HStack {
-            Text("Session: \(viewModel.sessionName)")
+            Text("Session: \(viewModel.sessionViewModel.sessionName)")
                 .font(.headline)
                 .foregroundColor(.white)
             Spacer()
-            Button("Leave") {
-                viewModel.leaveSession()
+            Button("Leave Zoom Session") {
+                viewModel.sessionViewModel.leaveSession()
             }
             .foregroundColor(.red)
         }
         .padding()
         .background(Color.black.opacity(0.5))
-        .cornerRadius(10)
     }
 
-    var participantsGrid: some View {
-        ScrollView(.horizontal) {
-            LazyHGrid(rows: columns, spacing: 10) {
-                ForEach(viewModel.participants, id: \.id) { participant in
-                    ParticipantView(participant: participant)
-                        .onTapGesture {
-                            viewModel.pinParticipant(viewModel.pinnedParticipantID == participant.id ? nil : participant.id)
-                        }
-                        .frame(width: 80, height: 80)
-                        .border(Color.blue, width: viewModel.pinnedParticipantID == participant.id ? 3 : 0)
+
+    var participantList: some View {
+        List(viewModel.sessionViewModel.participants) { participant in
+            HStack {
+                Text(participant.name)
+                    .font(.body)
+                Spacer()
+                HStack(spacing: 16) {
+                    Image(systemName: participant.isVideoOn ? "video.fill" : "video.slash.fill")
+                        .foregroundColor(participant.isVideoOn ? .green : .red)
+                    Image(systemName: participant.isAudioOn ? "mic.fill" : "mic.slash.fill")
+                        .foregroundColor(participant.isAudioOn ? .green : .red)
                 }
+
+                ParticipantView(participant: participant)
+                    .frame(width: 80, height: 80)
+
             }
-            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
+        .listStyle(PlainListStyle())
     }
 
     var controlBar: some View {
         HStack {
-            Button(action: viewModel.toggleVideo) {
-                Image(systemName: viewModel.isVideoOn ? "video.fill" : "video.slash.fill")
+            Button(action: viewModel.sessionViewModel.toggleVideo) {
+                Image(systemName: viewModel.sessionViewModel.isVideoOn ? "video.fill" : "video.slash.fill")
                     .iconStyle(.blue)
             }
 
-            Button(action: viewModel.toggleAudio) {
-                Image(systemName: viewModel.isAudioMuted ? "mic.slash.fill" : "mic.fill")
+            Button(action: viewModel.sessionViewModel.toggleAudio) {
+                Image(systemName: viewModel.sessionViewModel.isAudioMuted ? "mic.slash.fill" : "mic.fill")
                     .iconStyle(.blue)
             }
         }
@@ -127,5 +129,5 @@ struct BlurView: UIViewRepresentable {
 
 
 #Preview {
-    SessionView(viewModel: SessionViewModel())
+    SessionView(viewModel: ClientViewModel())
 }

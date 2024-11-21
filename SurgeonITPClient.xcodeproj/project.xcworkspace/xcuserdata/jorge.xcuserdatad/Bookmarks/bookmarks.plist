@@ -326,13 +326,13 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>124</string>
+					<string>125</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>123</string>
+					<string>124</string>
 					<key>Timestamp</key>
-					<string>753553549.033435</string>
+					<string>753839735.914011</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -348,16 +348,16 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        //TODO: Disable beacon ranging once an MPC session is confirmed, only enable it again once the mpc session has been lost and not able to reconnect
+				<string>
 </string>
 				<key>leading</key>
-				<string>
-
+				<string>            .assign(to: \.proximity, on: self)
+            .store(in: &amp;cancellables)
 </string>
 				<key>trailing</key>
-				<string>        // Handle proximity changes
-        beaconManager.$proximity
-            .sink { [weak self] proximity in
+				<string>
+        //TODO: Disable beacon ranging once an MPC session is confirmed, only enable it again once the mpc session has been lost and not able to reconnect
+        // Handle proximity changes
 </string>
 			</dict>
 			<key>type</key>

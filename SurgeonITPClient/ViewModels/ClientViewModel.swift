@@ -23,7 +23,7 @@ class ClientViewModel: ObservableObject {
     @Published var previouslyPairedServer: String = "server to connect"
     @Published var showProgressView: Bool = false
     @Published var proximity: CLProximity = .unknown
-    @Published var sessionViewModel: SessionViewModel = SessionViewModel()
+    @Published var sessionViewModel: SessionViewModel
 
     // MARK: - Private Properties
     private var previousProximity: CLProximity = .unknown
@@ -38,6 +38,7 @@ class ClientViewModel: ObservableObject {
     init() {
         self.peerManager = PeerManager()
         self.beaconManager = BeaconManagerService()
+        self.sessionViewModel = SessionViewModel()
         setupBindings()
         Logger.shared.log("initialization complete")
     }

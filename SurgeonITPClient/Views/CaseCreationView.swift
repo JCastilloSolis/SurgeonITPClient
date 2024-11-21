@@ -56,10 +56,6 @@ struct CaseCreationView: View {
                     Button("Start Zoom Call") {
                         viewModel.startZoomCall()
                     }
-
-                    Button("Stop Zoom Call") {
-                        viewModel.stopZoomCall()
-                    }
                 }
                 .buttonStyle(.bordered)
                 .padding()

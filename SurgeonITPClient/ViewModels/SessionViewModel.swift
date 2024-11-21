@@ -306,8 +306,11 @@ class SessionViewModel: ObservableObject {
                 return nil
             }
             let id = user.getID().description
-            let canvas = user.getVideoCanvas()
-            return Participant(id: id, name: name, videoCanvas: canvas)
+            let videoStatus = user.getVideoCanvas()?.videoStatus()
+            let isVideoOn = videoStatus?.on ?? false
+            let isMuted = user.audioStatus()?.isMuted ?? true
+            let videoCanvas = user.getVideoCanvas()
+            return Participant(id: id, name: name, isVideoOn: isVideoOn, isAudioOn: !isMuted, videoCanvas: videoCanvas)
         }
         DispatchQueue.main.async {
             self.participants = updatedParticipants

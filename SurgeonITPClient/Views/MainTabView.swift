@@ -24,19 +24,12 @@ struct MainTabView: View {
 
             // Embed SessionView conditionally
             if clientViewModel.sessionViewModel.sessionIsActive {
-                SessionView(viewModel: clientViewModel.sessionViewModel)
+                SessionView(viewModel: clientViewModel)
                     .tabItem {
                         Image(systemName: "person.crop.square.badge.video.fill")
                         Text("ITP Session")
                     }
                     .tag(1)
-
-                Tab3View(viewModel: viewModel.tab3ViewModel)
-                    .tabItem {
-                        Image(systemName: "person.3.fill")
-                        Text("Participants")
-                    }
-                    .tag(2)
             }
             
         }
