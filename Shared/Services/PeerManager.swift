@@ -240,6 +240,8 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         mcSession.disconnect()
 #if os(macOS)
         startAdvertising()  // Resume advertising if the session is left
+#elseif os(iOS)
+        startBrowsing()
 #endif
     }
 

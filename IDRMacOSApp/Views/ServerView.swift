@@ -12,14 +12,13 @@ struct ServerView: View {
     @State private var isZoomSessionActive = false
     @StateObject private var sessionViewModel = SessionViewModel()
     @State private var sessionName: String = UserDefaults.standard.string(forKey: "sessionName") ?? ""
-
+    
     var body: some View {
         VStack {
             if isZoomSessionActive {
                 SessionView(viewModel: sessionViewModel)
-            } else {
-                serverContent
             }
+            serverContent
         }
         .onReceive(viewModel.$shouldStartZoomCall) { shouldStart in
             if shouldStart {
@@ -45,7 +44,7 @@ struct ServerView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
+    
     var serverContent: some View {
         VStack {
             HStack {
@@ -57,7 +56,7 @@ struct ServerView: View {
                 }
             }
             .padding()
-
+            
             // Add the TextField for sessionName
             TextField("Enter session name", text: $sessionName)
                 .padding()
@@ -65,8 +64,8 @@ struct ServerView: View {
                 .onChange(of: sessionName) { newValue in
                     UserDefaults.standard.set(newValue, forKey: "sessionName")
                 }
-
-
+            
+            
             if viewModel.previouslyPaired {
                 Button("Forget Client Device") {
                     viewModel.clearSavedClient()
@@ -75,9 +74,6 @@ struct ServerView: View {
                 .foregroundColor(.red)
                 .buttonStyle(.bordered)
             }
-            
-            
-
         }
     }
 }
