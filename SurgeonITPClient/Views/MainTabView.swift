@@ -49,9 +49,9 @@ struct MainTabView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationViewStyle(.stack)
-//        .sheet(isPresented: $isShowingSettings) {
-//            SettingsView(viewModel: SettingsViewModel())
-//        }
+        .sheet(isPresented: $isShowingSettings) {
+            SettingsView(viewModel: clientViewModel)
+        }
     }
 }
 

@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SetClinicalProcedureCharacteristicsView: View {
     var body: some View {
-        ScrollView {
+        //ScrollView {
             VStack {
 
                 ProcedureCharacteristicCategoryView(tags: PrimarySurgeon.allCases.map{$0.rawValue}, categoryName: PreopCaseCharacteristics.primarySurgeon.rawValue, selectedTags: [] )
@@ -19,11 +19,11 @@ struct SetClinicalProcedureCharacteristicsView: View {
 
                 ProcedureCharacteristicCategoryView(tags: Emergent.allCases.map{$0.rawValue}, categoryName: PreopCaseCharacteristics.emergent.rawValue, selectedTags: [] )
                 
-                ProcedureCharacteristicCategoryView(tags: BMI.allCases.map{$0.rawValue}, categoryName: PreopCaseCharacteristics.bmi.rawValue, selectedTags: [] )
+                //ProcedureCharacteristicCategoryView(tags: BMI.allCases.map{$0.rawValue}, categoryName: PreopCaseCharacteristics.bmi.rawValue, selectedTags: [] )
                 
                 ProcedureCharacteristicCategoryView(tags: Malignancy.allCases.map{$0.rawValue}, categoryName: PreopCaseCharacteristics.malignancy.rawValue, selectedTags: [] )
             }
-        }
+      //  }
     }
 }
 

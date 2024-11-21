@@ -19,13 +19,21 @@ struct SessionView: View {
         VStack(spacing: 5) {
             topBar
 
-            controlBar
-
+            HStack {
+                controlBar
+                
+                if viewModel.sessionViewModel.cameraList.count > 1 {
+                    CameraListView(viewModel: viewModel.sessionViewModel)
+                }
+            }
+            
             if viewModel.sessionViewModel.participants.isEmpty {
                 Text("Waiting for participants...")
                     .foregroundColor(.gray)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
+                Text("Active participants : ")
+                    .padding()
                 participantList
             }
 
@@ -77,8 +85,8 @@ struct SessionView: View {
                         .foregroundColor(participant.isAudioOn ? .green : .red)
                 }
 
-                ParticipantView(participant: participant)
-                    .frame(width: 80, height: 80)
+               // ParticipantView(participant: participant)
+                 //   .frame(width: 80, height: 80)
 
             }
             .padding(.vertical, 8)

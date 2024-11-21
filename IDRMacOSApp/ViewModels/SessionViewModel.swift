@@ -316,19 +316,27 @@ class SessionViewModel : NSObject, ObservableObject {
     /// - Parameter deviceID: The identifier of the camera device to switch to.
     func switchCamera(to deviceID: String?) {
         let videoHelper = ZMVideoSDK.shared().getVideoHelper()
-
-        if let cameraDeviceID = deviceID {
-            let result = videoHelper.selectCamera(cameraDeviceID)
-
-            if result {
-                Logger.shared.log("Camera switched successfully to device ID: \(cameraDeviceID)")
-            } else {
-                Logger.shared.log("Failed to switch to camera: \(cameraDeviceID) ")
-            }
-
+        
+        let result = videoHelper.switchCamera()
+        
+        if result {
+            Logger.shared.log("Camera switched successfully")
         } else {
-            Logger.shared.log("Invalid Device ID provided")
+            Logger.shared.log("Failed to switch to camera ")
         }
+
+//        if let cameraDeviceID = deviceID {
+//            let result = videoHelper.selectCamera(cameraDeviceID)
+//
+//            if result {
+//                Logger.shared.log("Camera switched successfully to device ID: \(cameraDeviceID)")
+//            } else {
+//                Logger.shared.log("Failed to switch to camera: \(cameraDeviceID) ")
+//            }
+//
+//        } else {
+//            Logger.shared.log("Invalid Device ID provided")
+//        }
     }
 
     /// Provides a human-readable error message for a given `ZMVideoSDKErrors` code.
