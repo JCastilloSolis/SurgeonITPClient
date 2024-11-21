@@ -10,15 +10,8 @@ import CoreLocation
 
 struct CaseCreationView: View {
     @ObservedObject var viewModel: ClientViewModel
-    @StateObject var tabViewModel = MainTabViewModel()
     var body: some View {
         VStack {
-            VStack {
-                Text("Beacon Proximity: \(proximityDescription(viewModel.proximity))")
-                    .padding()
-            }
-            
-
             if viewModel.proximity != .unknown {
                 VStack {
                     HStack {
@@ -27,6 +20,15 @@ struct CaseCreationView: View {
                         if viewModel.showProgressView {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle())
+                        }
+
+                        if viewModel.previouslyPaired {
+                            Button("Clear Saved Server") {
+                                viewModel.clearSavedServer()
+                            }
+                            .padding()
+                            .foregroundColor(.red)
+                            .buttonStyle(.bordered)
                         }
                     }
                     .padding()
@@ -41,16 +43,44 @@ struct CaseCreationView: View {
                         .padding()
                     }
 
-                    if viewModel.previouslyPaired {
-                        Button("Clear Saved Server") {
-                            viewModel.clearSavedServer()
-                        }
-                        .padding()
-                        .foregroundColor(.red)
-                        .buttonStyle(.bordered)
-                    }
+
                 }
                 .padding()
+
+            }
+
+            SelectProcedureView(viewModel: viewModel)
+        }
+
+
+    }
+}
+
+struct SelectProcedureView: View {
+    @StateObject var viewModel: ClientViewModel
+    @State var selection: ProcedureType = .notSet
+
+    var body: some View {
+
+        VStack {
+            Picker("Procedure Type", selection: $selection) {
+                ForEach(ProcedureType.allCases, id: \.self) { value in
+                    Text(value.rawValue)
+                        .tag(value.rawValue)
+                }
+            }
+            .onChange(of: selection) { procedureType in
+                UserDefaults.standard.set(procedureType.rawValue, forKey: ProcedureType.userDefaultsKey)
+            }
+            .frame(maxHeight: 100)
+            .padding(.top, -5)
+
+            Spacer()
+
+            if selection != .notSet && selection !=  .TR100 {
+
+                SetClinicalProcedureCharacteristicsView()
+
 
                 HStack {
                     Button("Start Zoom Call") {
@@ -61,12 +91,9 @@ struct CaseCreationView: View {
                 .padding()
                 .disabled(viewModel.peerManager.sessionState != .connected)
                 .isHidden(viewModel.peerManager.sessionState != .connected)
-
             }
-
-            SelectProcedureView(viewModel: tabViewModel.tab1ViewModel)
+            Spacer()
         }
-
 
     }
 }

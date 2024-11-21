@@ -8,13 +8,12 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @StateObject var viewModel = MainTabViewModel()
-    @ObservedObject var clientViewModel = ClientViewModel()
+    @StateObject var clientViewModel = ClientViewModel()
     @State private var isShowingSettings: Bool = false
     
     var body: some View {
-        TabView(selection: $viewModel.selectedTab) {
-            
+        TabView(selection: $clientViewModel.selectedTab) {
+
             CaseCreationView(viewModel: clientViewModel)
                 .tabItem {
                     Image(systemName: "waveform.path.ecg.text.clipboard.fill")
@@ -53,92 +52,6 @@ struct MainTabView: View {
 //        .sheet(isPresented: $isShowingSettings) {
 //            SettingsView(viewModel: SettingsViewModel())
 //        }
-    }
-}
-
-struct SelectProcedureView: View {
-    @StateObject var viewModel: Tab1ViewModel
-    @State var selection: ProcedureType = .notSet
-    
-    var body: some View {
-        
-        VStack {
-            Spacer()
-            Form {
-                Picker("Procedure Type", selection: $selection) {
-                    ForEach(ProcedureType.allCases, id: \.self) { value in
-                        Text(value.rawValue)
-                            .tag(value.rawValue)
-                    }
-                }
-                .onChange(of: selection) { procedureType in
-                    UserDefaults.standard.set(procedureType.rawValue, forKey: ProcedureType.userDefaultsKey)
-                }
-                
-            }
-            .frame(maxHeight: 100)
-            .padding(.top, -5)
-            
-            Spacer()
-            
-//            if selection != .notSet && selection !=  .TR100 {
-//                SetClinicalProcedureCharacteristicsView()
-//            } else if selection == .TR100 {
-//                SetTrainingAssesmentCharacteristicsView()
-//            }
-//            
-//            
-//            Spacer()
-        }
-        
-    }
-}
-
-struct Tab2View: View {
-    @ObservedObject var viewModel: Tab2ViewModel
-    
-    var body: some View {
-        Text(viewModel.tabName)
-    }
-}
-
-struct Tab3View: View {
-    @ObservedObject var viewModel: Tab3ViewModel
-    
-    var body: some View {
-        Text(viewModel.tabName)
-    }
-}
-
-class MainTabViewModel: ObservableObject {
-    @Published var selectedTab = 0
-    
-    let tab1ViewModel = Tab1ViewModel(tabName: "Tab 1")
-    let tab2ViewModel = Tab2ViewModel(tabName: "Tab 2")
-    let tab3ViewModel = Tab3ViewModel(tabName: "Tab 3")
-}
-
-class Tab1ViewModel: ObservableObject {
-    @Published var tabName: String
-    
-    init(tabName: String) {
-        self.tabName = tabName
-    }
-}
-
-class Tab2ViewModel: ObservableObject {
-    @Published var tabName: String
-    
-    init(tabName: String) {
-        self.tabName = tabName
-    }
-}
-
-class Tab3ViewModel: ObservableObject {
-    @Published var tabName: String
-    
-    init(tabName: String) {
-        self.tabName = tabName
     }
 }
 

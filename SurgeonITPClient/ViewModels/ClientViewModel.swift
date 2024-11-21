@@ -24,6 +24,7 @@ class ClientViewModel: ObservableObject {
     @Published var showProgressView: Bool = false
     @Published var proximity: CLProximity = .unknown
     @Published var sessionViewModel: SessionViewModel
+    @Published var selectedTab = 0
 
     // MARK: - Private Properties
     private var previousProximity: CLProximity = .unknown

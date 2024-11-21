@@ -55,7 +55,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         // Define the displayName for peerID based on platform
         let displayName: String = {
 #if os(iOS)
-            return UIDevice.current.name
+            return "Dr. Castillo"
 #elseif os(macOS)
             return Host.current().localizedName ?? "Mac"
 #endif

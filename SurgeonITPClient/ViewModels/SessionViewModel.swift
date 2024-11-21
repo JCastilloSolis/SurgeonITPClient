@@ -310,6 +310,11 @@ class SessionViewModel: ObservableObject {
             let isVideoOn = videoStatus?.on ?? false
             let isMuted = user.audioStatus()?.isMuted ?? true
             let videoCanvas = user.getVideoCanvas()
+
+            if videoCanvas == nil {
+                Logger.shared.log("User \(id) is missing its video canvas")
+            }
+
             return Participant(id: id, name: name, isVideoOn: isVideoOn, isAudioOn: !isMuted, videoCanvas: videoCanvas)
         }
         DispatchQueue.main.async {

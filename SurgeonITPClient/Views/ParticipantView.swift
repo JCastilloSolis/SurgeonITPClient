@@ -17,8 +17,12 @@ struct ParticipantView: UIViewRepresentable {
         let view = UIView()
         view.backgroundColor = .gray  // Default background if no video
         if let canvas = participant.videoCanvas {
-            canvas.subscribe(with: view, aspectMode: .original, andResolution: ._Auto)
+            canvas.subscribe(with: view, aspectMode: .original, andResolution: ._180)
+            Logger.shared.log("subscribing to \(participant.id) video canvas")
+        } else {
+            Logger.shared.log("Not able to render video for \(participant.id)")
         }
+
         return view
     }
 

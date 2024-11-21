@@ -32,7 +32,11 @@ struct SessionView: View {
             if viewModel.peerManager.sessionState == .connected {
                 Button("End Zoom Session") {
                     viewModel.stopZoomCall()
+                    
                 }
+                .padding()
+                .foregroundColor(.red)
+                .buttonStyle(.bordered)
             }
         }
         .alert(isPresented: $viewModel.sessionViewModel.showAlert) {
