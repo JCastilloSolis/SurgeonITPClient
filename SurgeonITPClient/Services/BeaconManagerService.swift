@@ -21,7 +21,7 @@ class BeaconManagerService: NSObject, ObservableObject {
     private var notificationCenter: UNUserNotificationCenter
 
     override init() {
-        guard let uuid = UUID(uuidString: Constants.iBeaconUUID) else {
+        guard let uuid = UUID(uuidString: Constants.iBeaconUUID1) else {
             fatalError("Invalid Beacon UUID")
         }
         self.beaconUUID = uuid

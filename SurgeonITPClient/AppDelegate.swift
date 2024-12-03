@@ -14,7 +14,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     var notificationCenter: UNUserNotificationCenter!
     private var monitor: CLMonitor?
     private var authSession: CLServiceSession?
-    private let beaconUUID = UUID(uuidString: Constants.iBeaconUUID)!
+    private let beaconUUIDs = [
+        UUID(uuidString: Constants.iBeaconUUID1)!,
+        UUID(uuidString: Constants.iBeaconUUID2)!
+    ]
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         Logger.shared.log("AppDelegate: Application did finish launching.")
@@ -47,8 +50,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             monitor = await CLMonitor("MonitorID")
         }
 
-        let beaconCondition =  CLMonitor.BeaconIdentityCondition(uuid: beaconUUID)
-        await monitor?.add(beaconCondition, identifier: "IDR_Device", assuming: .unknown)
+        for beaconUUID in beaconUUIDs {
+            let beaconCondition =  CLMonitor.BeaconIdentityCondition(uuid: beaconUUID)
+            await monitor?.add(beaconCondition, identifier: "IDR_Device_\(beaconUUID)", assuming: .unknown)
+        }
+
 
         Task {
             guard let monitor else { return }
@@ -57,21 +63,18 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                 Logger.shared.log("New event received: \(event.identifier)  \(event.state)   \(event.date)")
                 switch event.state {
                     case .satisfied:
-                        switch event.identifier {
-                            case "IDR_Device" :
-                                Logger.shared.log("IDR_Device  found")
-                                createNotificationWith(title: "Great news!", body: "You found an IDR_Device")
-                            default:
-                                Logger.shared.log("User satisfied event \(event.identifier)")
-
+                        if event.identifier.contains("IDR_Device") {
+                            Logger.shared.log(" \(event.identifier) found")
+                            createNotificationWith(title: "Great news!", body: "You found \(event.identifier)")
+                        } else {
+                            Logger.shared.log("User satisfied event \(event.identifier)")
                         }
                     case .unsatisfied:
-                        switch event.identifier {
-                            case "IDR_Device" :
-                                Logger.shared.log("IDR_Device  lost")
-                                createNotificationWith(title: "Connection lost", body: "Get closer to the IDR_Device")
-                            default:
-                                Logger.shared.log("User unsatisfied event \(event.identifier)")
+                        if event.identifier.contains("IDR_Device") {
+                            Logger.shared.log(" \(event.identifier) lost")
+                            createNotificationWith(title: "Connection lost", body: "Get closer to \(event.identifier)")
+                        } else {
+                            Logger.shared.log("User unsatisfied event \(event.identifier)")
                         }
                     case .unknown: // here you will receive the callback when user leaves in the region
                         Logger.shared.log("unkown state for monitored event \(event.identifier)")
@@ -88,14 +91,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     func createNotificationWith(title: String, body: String) {
 
-//        let minimumTimeGap: TimeInterval = 60  // 60 seconds for testing
-//        let lastNotificationDate = UserDefaults.standard.object(forKey: "LastNotificationDate") as? Date ?? Date.distantPast
-//        let timeSinceLastNotification = Date().timeIntervalSince(lastNotificationDate)
-//
-//        guard timeSinceLastNotification >= minimumTimeGap else {
-//            Logger.shared.log("Notification suppressed to prevent spamming.")
-//            return
-//        }
+        //        let minimumTimeGap: TimeInterval = 60  // 60 seconds for testing
+        //        let lastNotificationDate = UserDefaults.standard.object(forKey: "LastNotificationDate") as? Date ?? Date.distantPast
+        //        let timeSinceLastNotification = Date().timeIntervalSince(lastNotificationDate)
+        //
+        //        guard timeSinceLastNotification >= minimumTimeGap else {
+        //            Logger.shared.log("Notification suppressed to prevent spamming.")
+        //            return
+        //        }
 
         Logger.shared.log("createNotificationWith title: \(title). Body: \(body)")
         let notificationContent = UNMutableNotificationContent()
