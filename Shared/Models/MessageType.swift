@@ -12,7 +12,7 @@ enum MPCMessageType: String, Codable {
     case command
     case response
     case heartbeat
-    // Add other message types as needed
+    case stateUpdate
 }
 
 // MARK: Commands
@@ -73,6 +73,7 @@ enum MPCPayload: Codable {
     case command(MPCCommandType, MPCCommandData)
     case response(MPCCommandType, MPCResponseStatus, MPCResponseData?)
     case heartbeat(MPCHeartbeatCommand)
+    case stateUpdate(MPCStateUpdate)
 
     enum CodingKeys: String, CodingKey {
         case type
@@ -98,6 +99,9 @@ enum MPCPayload: Codable {
             case MPCMessageType.heartbeat.rawValue:
                 let heartbeatCommand = try MPCHeartbeatCommand(from: decoder)
                 self = .heartbeat(heartbeatCommand)
+            case MPCMessageType.stateUpdate.rawValue:
+                let stateUpdate = try MPCStateUpdate(from: decoder)
+                self = .stateUpdate(stateUpdate)
             default:
                 throw DecodingError.dataCorruptedError(forKey: .type,
                                                        in: container,
@@ -141,8 +145,16 @@ enum MPCPayload: Codable {
             case .heartbeat(let heartbeatCommand):
                 try container.encode(MPCMessageType.heartbeat.rawValue, forKey: .type)
                 try heartbeatCommand.encode(to: encoder)
+            case .stateUpdate(let stateUpdate):
+                try container.encode(MPCMessageType.stateUpdate.rawValue, forKey: .type)
+                try stateUpdate.encode(to: encoder)
         }
     }
+}
+
+/// Payload for the ServerState update.
+struct MPCStateUpdate: Codable {
+    let serverState: ServerState
 }
 
 

@@ -13,7 +13,7 @@ struct ServerView: View {
 
     var body: some View {
         VStack {
-            if  viewModel.serverState.isInZoomCall {
+            if  viewModel.serverState.serverStatus == .inZoomCall {
                 SessionView(viewModel: viewModel.sessionViewModel)
             }
             serverContent

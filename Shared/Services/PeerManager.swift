@@ -21,6 +21,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     @Published var discoveredPeers = [MCPeerID]()
     @Published var messageCounter = 0
     @Published var sessionState: MCSessionState = .notConnected
+    @Published var receivedServerState: ServerState?
 
     // MARK: - Publishers
     let startZoomCallPublisher = PassthroughSubject<MCPeerID, Never>()
@@ -414,6 +415,22 @@ extension PeerManager {
         return try decoder.decode(MPCMessage.self, from: data)
     }
 
+    /// Sends the current ServerState to all connected peers.
+    func sendServerState(_ serverState: ServerState) {
+        let stateUpdate = MPCStateUpdate(serverState: serverState)
+        let payload = MPCPayload.stateUpdate(stateUpdate)
+        let message = MPCMessage(messageType: .stateUpdate, payload: payload)
+
+        do {
+            let data = try encodeMPCMessage(message)
+            try mcSession.send(data, toPeers: mcSession.connectedPeers, with: .reliable)
+            Logger.shared.log("Sent ServerState to peers.")
+        } catch {
+            Logger.shared.log("Error sending ServerState: \(error.localizedDescription)")
+        }
+    }
+
+
     /// Sends a start Zoom call command to all connected peers.
     func sendStartZoomCallCommand() {
         let commandData = MPCStartZoomCallCommand()
@@ -476,6 +493,11 @@ extension PeerManager {
             case .heartbeat:
                 if case let .heartbeat(heartbeatCommand) = message.payload {
                     Logger.shared.log("Received heartbeat at \(heartbeatCommand.timestamp)")
+                }
+            case .stateUpdate(let stateUpdate): // New case for stateUpdate
+                DispatchQueue.main.async {
+                    self.receivedServerState = stateUpdate.serverState
+                    Logger.shared.log("Received ServerState from \(peerID.displayName): \(stateUpdate.serverState)")
                 }
         }
     }

@@ -28,14 +28,13 @@ class ServerViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var currentCommandPeerID: MCPeerID?
     var peerManager: PeerManager
+    let sessionName: String = UserDefaults.standard.string(forKey: "sessionName") ?? ""
 
     init() {
         self.peerManager = PeerManager()
         self.sessionViewModel = SessionViewModel()
         self.serverState = ServerState(
-            isInZoomCall: false,
             zoomSessionID: nil,
-            participantCount: 0,
             serverStatus: .idle
         )
 
@@ -58,19 +57,20 @@ class ServerViewModel: ObservableObject {
         peerManager.startZoomCallPublisher
             .receive(on: RunLoop.main)
             .sink { [weak self] peerID in
+                guard let self = self else { return }
                 Logger.shared.log("Received startZoomCall command from \(peerID.displayName)")
-                self?.currentCommandPeerID = peerID
-                let sessionName = UserDefaults.standard.string(forKey: "sessionName") ?? ""
-                self?.sessionViewModel.startSession(sessionName: sessionName)
+                self.currentCommandPeerID = peerID
+                self.sessionViewModel.startSession(sessionName: self.sessionName)
             }
             .store(in: &cancellables)
 
         peerManager.endZoomCallPublisher
             .receive(on: RunLoop.main)
             .sink { [weak self] peerID in
+                guard let self = self else { return }
                 Logger.shared.log("Received endZoomCall command from \(peerID.displayName)")
-                self?.currentCommandPeerID = peerID
-                self?.sessionViewModel.leaveSession()
+                self.currentCommandPeerID = peerID
+                self.sessionViewModel.leaveSession()
             }
             .store(in: &cancellables)
 
@@ -82,6 +82,8 @@ class ServerViewModel: ObservableObject {
                     case .connected:
                         self.showProgressView = false
                         self.previouslyPaired = true
+                        //TODO: Send current state to connected peer
+                        self.peerManager.sendServerState(self.serverState)
                         return ("Connected to \(self.peerManager.connectedDevices.joined(separator: ", "))", .green)
                     case .connecting:
                         self.showProgressView = true
@@ -110,8 +112,9 @@ class ServerViewModel: ObservableObject {
             .sink { [weak self] in
                 guard let self = self else { return }
                 self.sessionDidEnd()
-                self.serverState.isInZoomCall = false
                 self.serverState.serverStatus = .idle
+                self.serverState.zoomSessionID = nil
+                self.peerManager.sendServerState(self.serverState)
             }
             .store(in: &cancellables)
 
@@ -120,8 +123,9 @@ class ServerViewModel: ObservableObject {
             .sink { [weak self] sessionName in
                 guard let self = self else { return }
                 self.sessionDidStart(sessionName: sessionName)
-                self.serverState.isInZoomCall = true
                 self.serverState.serverStatus = .inZoomCall
+                self.serverState.zoomSessionID = sessionName
+                self.peerManager.sendServerState(self.serverState)
             }
             .store(in: &cancellables)
     }
