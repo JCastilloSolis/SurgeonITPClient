@@ -9,12 +9,12 @@
 import Combine
 import Foundation
 
+
+//TODO: Investigate why UI is not responding accordingly after the ServerViewModel creation
 class ServerViewModel: ObservableObject {
     @Published var peerViewModel: PeerViewModel
     @Published var sessionViewModel: SessionViewModel
     @Published var serverState: ServerState
-
-
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -47,6 +47,47 @@ class ServerViewModel: ObservableObject {
 //                self?.sendServerState()
 //            }
 //            .store(in: &cancellables)
+
+        // Observe shouldStartZoomCall and handle Zoom session initiation
+        peerViewModel.$shouldStartZoomCall
+            .filter { $0 }
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.peerViewModel.shouldStartZoomCall = false
+                let sessionName = UserDefaults.standard.string(forKey: "sessionName") ?? ""
+                self.sessionViewModel.startSession(sessionName: sessionName)
+            }
+            .store(in: &cancellables)
+
+        // Observe shouldEndZoomCall and handle Zoom session termination
+        peerViewModel.$shouldEndZoomCall
+            .filter { $0 }
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.peerViewModel.shouldEndZoomCall = false
+                self.sessionViewModel.leaveSession()
+            }
+            .store(in: &cancellables)
+
+        // Observe SessionViewModel's sessionEndedPublisher
+        sessionViewModel.sessionEndedPublisher
+            .sink { [weak self] in
+                guard let self = self else { return }
+                self.peerViewModel.sessionDidEnd()
+                self.serverState.isInZoomCall = false
+                self.serverState.serverStatus = .idle
+            }
+            .store(in: &cancellables)
+
+        // Observe SessionViewModel's sessionStartedPublisher
+        sessionViewModel.sessionStartedPublisher
+            .sink { [weak self] sessionName in
+                guard let self = self else { return }
+                self.peerViewModel.sessionDidStart(sessionName: sessionName)
+                self.serverState.isInZoomCall = true
+                self.serverState.serverStatus = .inZoomCall
+            }
+            .store(in: &cancellables)
     }
 
     // Method to send ServerState via MPC

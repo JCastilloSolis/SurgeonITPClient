@@ -18,30 +18,6 @@ struct ServerView: View {
             }
             serverContent
         }
-        .onReceive(viewModel.peerViewModel.$shouldStartZoomCall) { shouldStart in
-            if shouldStart {
-                viewModel.peerViewModel.shouldStartZoomCall = false
-                viewModel.sessionViewModel.startSession(sessionName: sessionName)
-            }
-        }
-        .onReceive(viewModel.peerViewModel.$shouldEndZoomCall) { shouldEnd in
-            if shouldEnd {
-                viewModel.peerViewModel.shouldEndZoomCall = false
-                viewModel.sessionViewModel.leaveSession() 
-            }
-        }
-        .onReceive(viewModel.sessionViewModel.sessionEndedPublisher) {
-            // Inform PeerViewModel that session has ended
-            viewModel.peerViewModel.sessionDidEnd()
-            viewModel.serverState.isInZoomCall = false
-            viewModel.serverState.serverStatus = .idle
-        }
-        .onReceive(viewModel.sessionViewModel.sessionStartedPublisher) { sessionName in
-            // Inform PeerViewModel that session has started
-            viewModel.peerViewModel.sessionDidStart(sessionName: sessionName)
-            viewModel.serverState.isInZoomCall = true
-            viewModel.serverState.serverStatus = .inZoomCall
-        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
