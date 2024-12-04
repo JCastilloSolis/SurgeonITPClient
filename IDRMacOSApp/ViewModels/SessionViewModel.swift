@@ -113,6 +113,7 @@ class SessionViewModel : NSObject, ObservableObject {
 
         guard !sessionName.isEmpty else {
             // Handle error: session name cannot be empty
+            Logger.shared.log("Missing session name")
             return
         }
 

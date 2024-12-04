@@ -8,39 +8,39 @@
 import SwiftUI
 
 struct ServerView: View {
-    @ObservedObject var viewModel: PeerViewModel
-    @State private var isZoomSessionActive = false
-    @StateObject private var sessionViewModel = SessionViewModel()
+    @ObservedObject var viewModel: ServerViewModel
     @State private var sessionName: String = UserDefaults.standard.string(forKey: "sessionName") ?? ""
-    
+
     var body: some View {
         VStack {
-            if isZoomSessionActive {
-                SessionView(viewModel: sessionViewModel)
+            if  viewModel.serverState.isInZoomCall {
+                SessionView(viewModel: viewModel.sessionViewModel)
             }
             serverContent
         }
-        .onReceive(viewModel.$shouldStartZoomCall) { shouldStart in
+        .onReceive(viewModel.peerViewModel.$shouldStartZoomCall) { shouldStart in
             if shouldStart {
-                viewModel.shouldStartZoomCall = false
-                sessionViewModel.startSession(sessionName: sessionName)  // Start the session here
+                viewModel.peerViewModel.shouldStartZoomCall = false
+                viewModel.sessionViewModel.startSession(sessionName: sessionName)
             }
         }
-        .onReceive(viewModel.$shouldEndZoomCall) { shouldEnd in
+        .onReceive(viewModel.peerViewModel.$shouldEndZoomCall) { shouldEnd in
             if shouldEnd {
-                viewModel.shouldEndZoomCall = false
-                sessionViewModel.leaveSession()  // End the session here
+                viewModel.peerViewModel.shouldEndZoomCall = false
+                viewModel.sessionViewModel.leaveSession() 
             }
         }
-        .onReceive(sessionViewModel.sessionEndedPublisher) {
+        .onReceive(viewModel.sessionViewModel.sessionEndedPublisher) {
             // Inform PeerViewModel that session has ended
-            viewModel.sessionDidEnd()
-            isZoomSessionActive = false
+            viewModel.peerViewModel.sessionDidEnd()
+            viewModel.serverState.isInZoomCall = false
+            viewModel.serverState.serverStatus = .idle
         }
-        .onReceive(sessionViewModel.sessionStartedPublisher) { sessionName in
+        .onReceive(viewModel.sessionViewModel.sessionStartedPublisher) { sessionName in
             // Inform PeerViewModel that session has started
-            viewModel.sessionDidStart(sessionName: sessionName)
-            isZoomSessionActive = true
+            viewModel.peerViewModel.sessionDidStart(sessionName: sessionName)
+            viewModel.serverState.isInZoomCall = true
+            viewModel.serverState.serverStatus = .inZoomCall
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -48,9 +48,9 @@ struct ServerView: View {
     var serverContent: some View {
         VStack {
             HStack {
-                Text(viewModel.connectionStatus)
-                    .foregroundColor(viewModel.connectionColor)
-                if viewModel.showProgressView {
+                Text(viewModel.peerViewModel.connectionStatus)
+                    .foregroundColor(viewModel.peerViewModel.connectionColor)
+                if viewModel.peerViewModel.showProgressView {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
                 }
@@ -66,9 +66,9 @@ struct ServerView: View {
                 }
             
             
-            if viewModel.previouslyPaired {
+            if viewModel.peerViewModel.previouslyPaired {
                 Button("Forget Client Device") {
-                    viewModel.clearSavedClient()
+                    viewModel.peerViewModel.clearSavedClient()
                 }
                 .padding()
                 .foregroundColor(.red)
@@ -84,5 +84,5 @@ struct ServerView: View {
 
 
 #Preview {
-    ServerView(viewModel: PeerViewModel())
+    ServerView(viewModel: ServerViewModel())
 }
