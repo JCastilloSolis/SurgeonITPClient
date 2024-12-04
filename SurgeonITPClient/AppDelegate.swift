@@ -14,9 +14,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     var notificationCenter: UNUserNotificationCenter!
     private var monitor: CLMonitor?
     private var authSession: CLServiceSession?
-    private let beaconUUIDs = [
-        UUID(uuidString: Constants.iBeaconUUID1)!,
-        UUID(uuidString: Constants.iBeaconUUID2)!
+    private let beacons: [BeaconData] = [
+        .init(major: 1, minor: 1),
+        .init(major: 1, minor: 2)
     ]
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -50,9 +50,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             monitor = await CLMonitor("MonitorID")
         }
 
-        for beaconUUID in beaconUUIDs {
-            let beaconCondition =  CLMonitor.BeaconIdentityCondition(uuid: beaconUUID)
-            await monitor?.add(beaconCondition, identifier: "IDR_Device_\(beaconUUID)", assuming: .unknown)
+        for beacon in beacons {
+            Logger.shared.log("monitoring \(beacon.description)")
+            let beaconCondition =  CLMonitor.BeaconIdentityCondition(uuid: beacon.uuid, major: beacon.major, minor: beacon.minor)
+            await monitor?.add(beaconCondition, identifier: "IDR_Device_\(beacon.uuid.uuidString)_\(beacon.major)_\(beacon.minor)", assuming: .unknown)
         }
 
 

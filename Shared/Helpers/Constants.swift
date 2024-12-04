@@ -14,8 +14,7 @@ class Constants {
     static let zoomAPIDomain = "https://zoom.us"
 
     // iBeacon
-    static let iBeaconUUID1 = "E2C56DB5-DFFB-48D2-B060-D0F5A71096F9"
-    static let iBeaconUUID2 = "E2C56DB5-DFFB-48D2-B060-D0F5A7109666"
+    static let iBeaconUUID = "E2C56DB5-DFFB-48D2-B060-D0F5A71096F9"
 
 
     // MPC

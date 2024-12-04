@@ -21,7 +21,7 @@ class BeaconManagerService: NSObject, ObservableObject {
     private var notificationCenter: UNUserNotificationCenter
 
     override init() {
-        guard let uuid = UUID(uuidString: Constants.iBeaconUUID1) else {
+        guard let uuid = UUID(uuidString: Constants.iBeaconUUID) else {
             fatalError("Invalid Beacon UUID")
         }
         self.beaconUUID = uuid
@@ -59,12 +59,6 @@ class BeaconManagerService: NSObject, ObservableObject {
     func startRangingBeacons() {
         Logger.shared.log("Starting to range and monitor beacons.")
         let constraint = CLBeaconIdentityConstraint(uuid: beaconUUID)
-        beaconConstraint = constraint
-        let beaconRegion = CLBeaconRegion(beaconIdentityConstraint: constraint, identifier: beaconIdentifier)
-        beaconRegion.notifyEntryStateOnDisplay = true
-        beaconRegion.notifyOnEntry = true
-        beaconRegion.notifyOnExit = true
-        locationManager?.startMonitoring(for: beaconRegion)
         locationManager?.startRangingBeacons(satisfying: constraint)
     }
 
