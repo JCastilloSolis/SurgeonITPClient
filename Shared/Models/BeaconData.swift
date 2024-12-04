@@ -7,7 +7,7 @@
 
 
 import CoreLocation
-struct BeaconData {
+struct BeaconData : Hashable {
     let uuid: UUID = UUID(uuidString: Constants.iBeaconUUID)!
     let major: UInt16
     let minor: UInt16

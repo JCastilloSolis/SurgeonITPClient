@@ -25,6 +25,9 @@ class ClientViewModel: ObservableObject {
     @Published var proximity: CLProximity = .unknown
     @Published var sessionViewModel: SessionViewModel
     @Published var selectedTab = 0
+    @Published var sortedBeacons: [CLBeacon] = []
+    @Published var nearestBeacon: CLBeacon?
+    @Published var nearestBeaconDisplayName: String?
 
     // MARK: - Private Properties
     private var previousProximity: CLProximity = .unknown
@@ -33,6 +36,14 @@ class ClientViewModel: ObservableObject {
     // MARK: - Managers
     let peerManager: PeerManager
     let beaconManager: BeaconManagerService
+
+    // MARK: - Harcoded data, should be in a DB
+    let beaconToPeerDisplayNameMap: [BeaconData: String] = [
+        BeaconData(major: 1, minor: 1): "Jorge’s MacBook Pro",
+        BeaconData(major: 1, minor: 2): "Jorge’s MacBook Pro",
+        // Add more mappings as needed
+    ]
+
 
 
     // MARK: - Initialization
@@ -74,17 +85,19 @@ class ClientViewModel: ObservableObject {
                     case .connected:
                         self.showProgressView = false
                         self.previouslyPaired = true
-                        return ("Connected to \(self.peerManager.connectedDevices.joined(separator: ", "))", .green)
                         self.stopMPCBrowsing()
+                        return ("Connected to \(self.peerManager.connectedDevices.joined(separator: ", "))", .green)
                     case .connecting:
                         self.showProgressView = self.previouslyPaired
                         return ("Connecting", .blue)
                     case .notConnected:
                         self.showProgressView = self.previouslyPaired
-                        //TODO: Check if user is within the range before attempt a reconnection
+                        // Check if user is within the range before attempt a reconnection
                         if self.proximity != .unknown {
                             self.startMPCBrowsing()
-                            self.peerManager.attemptReconnection()
+                            if let nearestBeaconDisplayName = self.nearestBeaconDisplayName {
+                                self.peerManager.attemptReconnection(serverName: nearestBeaconDisplayName)
+                            }
                         }
                         return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
                     @unknown default:
@@ -97,16 +110,11 @@ class ClientViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        // Load previously paired server
-        if let savedServerName = UserDefaults.standard.string(forKey: "savedServerName") {
-            previouslyPaired = true
-            previouslyPairedServer = savedServerName
-        }
-
         // Reconnection logic
         peerManager.$discoveredPeers
             .receive(on: RunLoop.main)
             .sink { [weak self] peers in
+                guard let self else { return }
 
                 Logger.shared.log("New value for discoveredPeers : \(peers)")
 
@@ -115,13 +123,20 @@ class ClientViewModel: ObservableObject {
                 }
 
                 Logger.shared.log("New peers discovered \(peers)")
-                self?.peerManager.attemptReconnection()
+
+                if let nearestBeaconDisplayName = self.nearestBeaconDisplayName {
+                    self.peerManager.attemptReconnection(serverName: nearestBeaconDisplayName)
+                }
             }
             .store(in: &cancellables)
 
         // Bindings from BeaconManagerService
         beaconManager.$proximity
             .assign(to: \.proximity, on: self)
+            .store(in: &cancellables)
+
+        beaconManager.$nearestBeacon
+            .assign(to: \.nearestBeacon, on: self)
             .store(in: &cancellables)
 
 
@@ -131,6 +146,17 @@ class ClientViewModel: ObservableObject {
             .sink { [weak self] proximity in
                 self?.handleProximityChange(proximity)
                 self?.previousProximity = proximity
+            }
+            .store(in: &cancellables)
+
+        // Handle beacon-based peer connection
+        beaconManager.$nearestBeacon
+            .sink { [weak self] beacon in
+                guard let beacon else {
+                    return
+                }
+
+                self?.handleNearestBeacon(beacon)
             }
             .store(in: &cancellables)
     }
@@ -169,9 +195,34 @@ class ClientViewModel: ObservableObject {
         beaconManager.stopRangingBeacons()
     }
 
+    // MARK: - Beacon Handling
+
+    /// Handles the event of detecting a beacon and attempts to retrieve its saved MPC Display name
+    /// - Parameter beacon: The nearest `CLBeacon` detected.
+    private func handleNearestBeacon(_ beacon: CLBeacon) {
+        // Guard against unknown proximity
+        guard beacon.proximity != .unknown else {
+            Logger.shared.log("Detected beacon with unknown proximity. Ignoring.")
+            nearestBeaconDisplayName = nil
+            return
+        }
+
+        if nearestBeaconDisplayName == nil {
+            // Create a BeaconIdentifier from the detected beacon
+            let beaconData = BeaconData(major: beacon.major.uint16Value, minor: beacon.minor.uint16Value)
+
+            // Lookup the display name associated with this beacon
+            guard let peerDisplayName = beaconToPeerDisplayNameMap[beaconData] else {
+                Logger.shared.log("No peer mapping found for beacon: \(beaconData).")
+                return
+            }
+            self.nearestBeaconDisplayName = peerDisplayName
+            Logger.shared.log("Beacon detected: \(beaconData). Associated peer: \(peerDisplayName)")
+        }
+    }
+
     private func handleProximityChange(_ proximity: CLProximity) {
         //log("Proximity changed to \(proximity.rawValue). Previous Value: \(previousProximity.rawValue).")
-
         if proximity != .unknown && previousProximity == .unknown {
             // Just started detecting the beacon; start MPC browsing
             Logger.shared.log("Beacon found. Start MPC Browsing.")
@@ -206,4 +257,6 @@ class ClientViewModel: ObservableObject {
         peerManager.leaveSession()
         peerManager.stopBrowsing()
     }
+
+    
 }

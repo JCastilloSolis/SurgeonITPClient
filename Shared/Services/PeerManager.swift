@@ -68,7 +68,6 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         super.init()
         self.mcSession.delegate = self
 
-
         //TODO: Create load data method based on the target
         // iOS should save/load the latest saved server
         // macOS should save/load the latest saved client
@@ -193,20 +192,15 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
     // MARK: - Reconnection Logic
 
     /// Attempts to reconnect to the saved server by trying all discovered peers with the saved display name.
-    func attemptReconnection() {
+    func attemptReconnection(serverName: String) {
         //TODO: Investigare reconnection issues
-        Logger.shared.log("Attempting reconnection")
-
-        guard let savedServerName = UserDefaults.standard.string(forKey: "savedServerName") else {
-            Logger.shared.log("No saved server name found for reconnection.")
-            return
-        }
+        Logger.shared.log("Attempting reconnection to \(serverName)")
 
         // Gather all peers with the saved displayName
-        let peersToAttempt = discoveredPeers.filter { $0.displayName == savedServerName }
+        let peersToAttempt = discoveredPeers.filter { $0.displayName == serverName }
 
         if peersToAttempt.isEmpty {
-            Logger.shared.log("No peers with displayName \(savedServerName) found for reconnection.")
+            Logger.shared.log("No peers with displayName \(serverName) found for reconnection.")
             return
         }
 
@@ -214,7 +208,7 @@ class PeerManager: NSObject, ObservableObject, MCSessionDelegate, MCNearbyServic
         reconnectionPeersQueue = peersToAttempt
         isReconnecting = true
 
-        Logger.shared.log("Will attempt to reconnect to \(peersToAttempt.count) peers with name \(savedServerName).")
+        Logger.shared.log("Will attempt to reconnect to \(peersToAttempt.count) peers with name \(serverName).")
 
         // Start attempting to connect to the first peer
         attemptNextPeerInQueue()
