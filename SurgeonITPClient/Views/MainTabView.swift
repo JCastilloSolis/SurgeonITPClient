@@ -14,12 +14,31 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $clientViewModel.selectedTab) {
 
-            CaseCreationView(viewModel: clientViewModel)
-                .tabItem {
-                    Image(systemName: "waveform.path.ecg.text.clipboard.fill")
-                    Text("Case")
+            if clientViewModel.mpcSessionState == .connected {
+                CaseCreationView(viewModel: clientViewModel)
+                    .tabItem {
+                        Image(systemName: "waveform.path.ecg.text.clipboard.fill")
+                        Text("Case")
+                    }
+                    .tag(0)
+            } else {
+                VStack {
+                    Image("console")
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFit()
+                        .frame(width: 100, height: 100)
+                        .padding()
+                    
+                    Text("Please get closer to the system and ensure you are on the same network")
+                        .font(.headline)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                        .foregroundColor(.secondary)
                 }
                 .tag(0)
+            }
+
 
             // Embed SessionView conditionally
             if clientViewModel.sessionViewModel.sessionIsActive {

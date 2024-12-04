@@ -21,6 +21,34 @@ struct SelectProcedureView: View {
     
     var body: some View {
         VStack {
+
+            // IDR Status
+            VStack {
+                Text(viewModel.connectionStatus)
+                    .foregroundColor(viewModel.connectionColor)
+
+                if let serverState = viewModel.receivedServerState {
+                    Text("Server State: \(serverState.serverStatus)")
+
+                    if serverState.serverStatus == .inZoomCall,
+                       let zoomSessionID = serverState.zoomSessionID {
+                        Text("SessionID: \(zoomSessionID)")
+                            .font(.subheadline)
+
+                        if !viewModel.sessionViewModel.sessionIsActive {
+                            //Rejoin session
+                            Button("Join Zoom Session") {
+                                viewModel.rejoinZoomCall(sessionName: zoomSessionID)
+                            }
+                            .padding()
+                            .foregroundColor(.green)
+                            .buttonStyle(.bordered)
+                        }
+                    }
+                }
+            }
+
+
             Text("Hi Dr. Castillo")
                 .font(.title)
                 .padding()
@@ -39,20 +67,28 @@ struct SelectProcedureView: View {
             .padding()
             
             Spacer()
-            
-            if selection != .notSet && selection !=  .TR100 {
-                
-                SetClinicalProcedureCharacteristicsView()
-                
-                
-                Button("Start Zoom Call") {
-                    viewModel.startZoomCall()
+
+            if viewModel.receivedServerState?.serverStatus == .idle {
+                if selection != .notSet && selection !=  .TR100 {
+
+                    SetClinicalProcedureCharacteristicsView()
+
+                    Button("Start Zoom Call") {
+                        viewModel.startZoomCall()
+                    }
+                    .buttonStyle(.bordered)
+                    .padding()
+                    .disabled(viewModel.peerManager.sessionState != .connected)
+                    .isHidden(viewModel.peerManager.sessionState != .connected)
                 }
-                .buttonStyle(.bordered)
-                .padding()
-                .disabled(viewModel.peerManager.sessionState != .connected)
-                .isHidden(viewModel.peerManager.sessionState != .connected)
             }
+
+            if viewModel.showProgressView {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .frame(width: 100, height: 100)
+            }
+
             Spacer()
         }
         

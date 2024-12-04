@@ -19,15 +19,15 @@ class ClientViewModel: ObservableObject {
     @Published var messageCounter: Int = 0
     @Published var connectionStatus: String = "Not Connected"
     @Published var connectionColor: Color = .red
-    @Published var previouslyPaired: Bool = false
-    @Published var previouslyPairedServer: String = "server to connect"
     @Published var showProgressView: Bool = false
     @Published var proximity: CLProximity = .unknown
     @Published var sessionViewModel: SessionViewModel
     @Published var selectedTab = 0
+    @Published var mpcSessionState: MCSessionState = .notConnected
     @Published var sortedBeacons: [CLBeacon] = []
     @Published var nearestBeacon: CLBeacon?
     @Published var nearestBeaconDisplayName: String?
+    @Published var receivedServerState: ServerState?
 
     // MARK: - Private Properties
     private var previousProximity: CLProximity = .unknown
@@ -58,6 +58,26 @@ class ClientViewModel: ObservableObject {
 
     private func setupBindings() {
         // Bindings from PeerManager
+        peerManager.$receivedServerState
+            .assign(to: \.receivedServerState, on: self)
+            .store(in: &cancellables)
+
+/// automatically join session if it exists
+//        peerManager.$receivedServerState
+//            .receive(on: RunLoop.main)
+//            .sink { [weak self] serverState in
+//                guard
+//                    let self,
+//                    let sessionName = serverState?.zoomSessionID,
+//                    serverState?.serverStatus == .inZoomCall,
+//                    !self.sessionViewModel.sessionIsActive
+//                else { return }
+//
+//                //IDR is in a zoom call, automatically rejoin
+//                rejoinZoomCall(sessionName: sessionName)
+//            }
+//            .store(in: &cancellables)
+
         peerManager.$connectedDevices
             .assign(to: \.connectedPeers, on: self)
             .store(in: &cancellables)
@@ -84,30 +104,31 @@ class ClientViewModel: ObservableObject {
                 switch state {
                     case .connected:
                         self.showProgressView = false
-                        self.previouslyPaired = true
                         self.stopMPCBrowsing()
                         return ("Connected to \(self.peerManager.connectedDevices.joined(separator: ", "))", .green)
                     case .connecting:
-                        self.showProgressView = self.previouslyPaired
                         return ("Connecting", .blue)
                     case .notConnected:
-                        self.showProgressView = self.previouslyPaired
+                        guard let nearestBeaconDisplayName = nearestBeaconDisplayName else { return ("Not Connected", .red) }
                         // Check if user is within the range before attempt a reconnection
                         if self.proximity != .unknown {
                             self.startMPCBrowsing()
-                            if let nearestBeaconDisplayName = self.nearestBeaconDisplayName {
-                                self.peerManager.attemptReconnection(serverName: nearestBeaconDisplayName)
-                            }
+                            self.peerManager.attemptReconnection(serverName: nearestBeaconDisplayName)
                         }
-                        return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
+                        return ("Not Connected, looking for \(nearestBeaconDisplayName)", .red)
                     @unknown default:
-                        return ("Not Connected, looking for \(self.previouslyPairedServer)", .red)
+                        guard let nearestBeaconDisplayName = nearestBeaconDisplayName else { return ("Not Connected", .red) }
+                        return ("Not Connected, looking for \(nearestBeaconDisplayName)", .red)
                 }
             }
             .sink { [weak self] status, color in
                 self?.connectionStatus = status
                 self?.connectionColor = color
             }
+            .store(in: &cancellables)
+
+        peerManager.$sessionState
+            .assign(to: \.mpcSessionState, on: self)
             .store(in: &cancellables)
 
         // Reconnection logic
@@ -159,32 +180,39 @@ class ClientViewModel: ObservableObject {
                 self?.handleNearestBeacon(beacon)
             }
             .store(in: &cancellables)
+
+        // Zoom bindings
+        sessionViewModel.$sessionIsActive
+            .receive(on: RunLoop.main)
+            .sink { [weak self] sessionIsActive in
+                guard let self else { return }
+                showProgressView.toggle()
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Methods
     func startZoomCall() {
-        peerManager.sendStartZoomCallCommand()
-        Logger.shared.log("Start zoom call command sent")
+        if !showProgressView {
+            showProgressView = true
+            peerManager.sendStartZoomCallCommand()
+            Logger.shared.log("Start zoom call command sent")
+        }
     }
 
     func stopZoomCall() {
-        peerManager.sendEndZoomCallCommand()
-        Logger.shared.log("End zoom call command sent")
+        if !showProgressView {
+            showProgressView = true
+            peerManager.sendEndZoomCallCommand()
+            Logger.shared.log("End zoom call command sent")
+        }
     }
 
-    func clearSavedServer() {
-        Logger.shared.log("Clear Saved Server info")
-        UserDefaults.standard.removeObject(forKey: "savedServerName")
-        connectionStatus = "Not Connected"
-        previouslyPaired = false
-        showProgressView = false
-        previouslyPairedServer = "server to connect"
-        peerManager.leaveSession()
-    }
-
-    func selectServer(peerID: MCPeerID) {
-        peerManager.selectPeerForConnection(peerID: peerID)
-        previouslyPaired = true
+    func rejoinZoomCall(sessionName: String) {
+        if !showProgressView {
+            showProgressView = true
+            sessionViewModel.joinSession(sessionName: sessionName)
+        }
     }
 
     func startBeaconScanning() {
@@ -239,7 +267,6 @@ class ClientViewModel: ObservableObject {
     /// - Parameter sessionName: The name of the started Zoom session.
     private func handleZoomSessionStarted(sessionName: String) {
         Logger.shared.log("Handling Zoom session started with sessionName: \(sessionName)")
-
         // Instruct SessionViewModel to join the Zoom session
         sessionViewModel.joinSession(sessionName: sessionName)
     }
@@ -254,7 +281,8 @@ class ClientViewModel: ObservableObject {
     /// Stops MultipeerConnectivity browsing.
     private func stopMPCBrowsing() {
         Logger.shared.log("Stopping MPC browsing.")
-        peerManager.leaveSession()
+
+        //peerManager.leaveSession()
         peerManager.stopBrowsing()
     }
 

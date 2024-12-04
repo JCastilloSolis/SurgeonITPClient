@@ -24,29 +24,8 @@ struct SettingsView: View {
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle())
                             }
-                            
-                            if viewModel.previouslyPaired {
-                                Button("Clear Saved Server") {
-                                    viewModel.clearSavedServer()
-                                }
-                                .padding()
-                                .foregroundColor(.red)
-                                .buttonStyle(.bordered)
-                            }
                         }
                         .padding()
-                        
-                        
-                        if !viewModel.previouslyPaired {
-                            List(viewModel.discoveredPeers, id: \.self) { peer in
-                                Button(peer.displayName) {
-                                    viewModel.selectServer(peerID: peer)
-                                }
-                            }
-                            .padding()
-                        }
-                        
-                        
                     }
                     .padding()
                     
