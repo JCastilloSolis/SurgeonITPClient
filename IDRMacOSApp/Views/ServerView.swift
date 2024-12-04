@@ -24,9 +24,9 @@ struct ServerView: View {
     var serverContent: some View {
         VStack {
             HStack {
-                Text(viewModel.peerViewModel.connectionStatus)
-                    .foregroundColor(viewModel.peerViewModel.connectionColor)
-                if viewModel.peerViewModel.showProgressView {
+                Text(viewModel.connectionStatus)
+                    .foregroundColor(viewModel.connectionColor)
+                if viewModel.showProgressView {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
                 }
@@ -42,9 +42,9 @@ struct ServerView: View {
                 }
             
             
-            if viewModel.peerViewModel.previouslyPaired {
+            if viewModel.previouslyPaired {
                 Button("Forget Client Device") {
-                    viewModel.peerViewModel.clearSavedClient()
+                    viewModel.clearSavedClient()
                 }
                 .padding()
                 .foregroundColor(.red)
