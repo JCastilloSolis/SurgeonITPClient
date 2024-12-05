@@ -39,8 +39,8 @@ class ClientViewModel: ObservableObject {
 
     // MARK: - Harcoded data, should be in a DB
     let beaconToPeerDisplayNameMap: [BeaconData: String] = [
-        BeaconData(major: 1, minor: 1): "Jorge’s MacBook Pro",
-        BeaconData(major: 1, minor: 2): "Jorge’s MacBook Pro",
+        BeaconData(major: 1, minor: 1): "H2WHW0RZQ6NY",
+        BeaconData(major: 1, minor: 2): "T9RX65X75K",
         // Add more mappings as needed
     ]
 

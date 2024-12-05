@@ -24,8 +24,14 @@ struct ServerView: View {
     var serverContent: some View {
         VStack {
             HStack {
+                Text(Host.current().localizedName ?? "Mac")
+                    .font(.headline)
+                    .padding()
+                
                 Text(viewModel.connectionStatus)
                     .foregroundColor(viewModel.connectionColor)
+                    .padding()
+                
                 if viewModel.showProgressView {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
@@ -42,15 +48,25 @@ struct ServerView: View {
                 }
             
             
-            if viewModel.previouslyPaired {
-                Button("Forget Client Device") {
-                    viewModel.clearSavedClient()
-                }
-                .padding()
-                .foregroundColor(.red)
-                .buttonStyle(.bordered)
+            VStack {
+                Text("App Version: \(getAppVersion())")
+                Text("Build Number: \(getBuildNumber())")
             }
         }
+    }
+    
+    func getAppVersion() -> String {
+        if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+            return appVersion
+        }
+        return "Unknown"
+    }
+    
+    func getBuildNumber() -> String {
+        if let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
+            return buildNumber
+        }
+        return "Unknown"
     }
 }
 

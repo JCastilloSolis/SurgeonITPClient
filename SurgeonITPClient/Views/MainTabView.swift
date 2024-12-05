@@ -30,6 +30,13 @@ struct MainTabView: View {
                         .frame(width: 100, height: 100)
                         .padding()
                     
+                    if let nearestBeaconDisplayName = clientViewModel.nearestBeaconDisplayName {
+                        Text(nearestBeaconDisplayName)
+                            .font(.subheadline)
+                            .padding()
+                    }
+                    
+                    
                     Text("Please get closer to the system and ensure you are on the same network")
                         .font(.headline)
                         .multilineTextAlignment(.center)

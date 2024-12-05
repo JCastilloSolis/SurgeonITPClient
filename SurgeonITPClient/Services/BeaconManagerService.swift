@@ -75,15 +75,7 @@ class BeaconManagerService: NSObject, ObservableObject {
 
     /// Creates and schedules a local notification.
     private func createNotification(title: String, body: String) {
-//        let minimumTimeGap: TimeInterval = 5 * 60  // 5 minutes for testing
-//        let lastNotificationDate = UserDefaults.standard.object(forKey: "LastNotificationDate") as? Date ?? Date.distantPast
-//        let timeSinceLastNotification = Date().timeIntervalSince(lastNotificationDate)
-//
-//        guard timeSinceLastNotification >= minimumTimeGap else {
-//            Logger.shared.log("Notification suppressed to prevent spamming.")
-//            return
-//        }
-
+        //TODO: Eventually add some sort of timer so that the user does not get spammed by notifications.
         Logger.shared.log("Creating notification: \(title) - \(body)")
         let content = UNMutableNotificationContent()
         content.title = title

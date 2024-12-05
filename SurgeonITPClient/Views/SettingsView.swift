@@ -15,22 +15,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .center, spacing: 20) {
-                if viewModel.proximity != .unknown {
-                    VStack {
-                        HStack {
-                            Text(viewModel.connectionStatus)
-                                .foregroundColor(viewModel.connectionColor)
-                            if viewModel.showProgressView {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle())
-                            }
-                        }
-                        .padding()
-                    }
-                    .padding()
-                    
-                }
-                
+                //TODO: Figure out what to controls to put here 
             }// Vstack
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)

@@ -21,19 +21,26 @@ struct SelectProcedureView: View {
     
     var body: some View {
         VStack {
+            
+            Text("Hi Dr. Castillo")
+                .font(.title)
+                .padding()
 
             // IDR Status
             VStack {
                 Text(viewModel.connectionStatus)
                     .foregroundColor(viewModel.connectionColor)
+                    .padding()
 
                 if let serverState = viewModel.receivedServerState {
                     Text("Server State: \(serverState.serverStatus)")
+                        .padding()
 
                     if serverState.serverStatus == .inZoomCall,
                        let zoomSessionID = serverState.zoomSessionID {
                         Text("SessionID: \(zoomSessionID)")
                             .font(.subheadline)
+                            .padding()
 
                         if !viewModel.sessionViewModel.sessionIsActive {
                             //Rejoin session
@@ -47,28 +54,24 @@ struct SelectProcedureView: View {
                     }
                 }
             }
-
-
-            Text("Hi Dr. Castillo")
-                .font(.title)
-                .padding()
-            
-            Text("Please select a procedure type: ")
-            Picker("Procedure Type", selection: $selection) {
-                ForEach(ProcedureType.allCases, id: \.self) { value in
-                    Text(value.rawValue)
-                        .tag(value.rawValue)
-                }
-            }
-            .onChange(of: selection) { procedureType in
-                UserDefaults.standard.set(procedureType.rawValue, forKey: ProcedureType.userDefaultsKey)
-            }
-            //.frame(maxHeight: 100)
-            .padding()
-            
             Spacer()
 
             if viewModel.receivedServerState?.serverStatus == .idle {
+                
+                Text("Please select a procedure type: ")
+                Picker("Procedure Type", selection: $selection) {
+                    ForEach(ProcedureType.allCases, id: \.self) { value in
+                        Text(value.rawValue)
+                            .tag(value.rawValue)
+                    }
+                }
+                .onChange(of: selection) { procedureType in
+                    UserDefaults.standard.set(procedureType.rawValue, forKey: ProcedureType.userDefaultsKey)
+                }
+                //.frame(maxHeight: 100)
+                .padding()
+                
+                
                 if selection != .notSet && selection !=  .TR100 {
 
                     SetClinicalProcedureCharacteristicsView()
