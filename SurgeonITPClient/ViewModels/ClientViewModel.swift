@@ -107,6 +107,7 @@ class ClientViewModel: ObservableObject {
                         self.stopMPCBrowsing()
                         return ("Connected to \(self.peerManager.connectedDevices.joined(separator: ", "))", .green)
                     case .connecting:
+                        self.showProgressView = true
                         return ("Connecting", .blue)
                     case .notConnected:
                         guard let nearestBeaconDisplayName = nearestBeaconDisplayName else { return ("Not Connected", .red) }

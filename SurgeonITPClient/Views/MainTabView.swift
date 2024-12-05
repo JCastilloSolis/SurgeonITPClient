@@ -23,21 +23,27 @@ struct MainTabView: View {
                     .tag(0)
             } else {
                 VStack {
-                    Image("console")
-                        .resizable()
-                        .renderingMode(.original)
-                        .scaledToFit()
-                        .frame(width: 100, height: 100)
-                        .padding()
+                    
                     
                     if let nearestBeaconDisplayName = clientViewModel.nearestBeaconDisplayName {
+                        Image("console")
+                            .resizable()
+                            .renderingMode(.original)
+                            .scaledToFit()
+                            .frame(width: 100, height: 100)
+                            .padding()
+                        
                         Text(nearestBeaconDisplayName)
                             .font(.subheadline)
                             .padding()
+                        
+                        if clientViewModel.showProgressView {
+                            ProgressView("Connecting")
+                                .frame(width: 100, height: 100, alignment: .center)
+                        }
                     }
                     
-                    
-                    Text("Please get closer to the system and ensure you are on the same network")
+                    Text("Please remain close to the system and ensure you are on the same network")
                         .font(.headline)
                         .multilineTextAlignment(.center)
                         .padding()
