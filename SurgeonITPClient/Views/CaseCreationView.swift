@@ -94,6 +94,16 @@ struct SelectProcedureView: View {
 
             Spacer()
         }
+        .onReceive(viewModel.peerManager.$sessionState) { state in
+            if state == .notConnected {
+                selection = .notSet
+            }
+        }
+        .onReceive(viewModel.sessionViewModel.$sessionIsActive) { isSessionActive in
+            if isSessionActive {
+                selection = .notSet
+            }
+        }
         
     }
 }
