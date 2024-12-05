@@ -133,6 +133,8 @@ class SessionViewModel : NSObject, ObservableObject {
         sessionContext.token = token
         sessionContext.videoOption = videoOption
         sessionContext.audioOption = audioOption
+        
+        Logger.shared.log("Session attemting to create session \(sessionName)")
 
         // Attempt to join the session with the given context
         if ZMVideoSDK.shared().joinSession(sessionContext) != nil {

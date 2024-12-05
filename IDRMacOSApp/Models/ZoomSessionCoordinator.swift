@@ -170,8 +170,8 @@ class ZoomSessionCoordinator: NSObject, ZMVideoSDKDelegate {
         }
     }
     
-    func onError(_ ErrorType: ZMVideoSDKErrors, detail details: Int32) {
-        Logger.shared.log("ZoomSessionCoordinator macOS received error   \(details)")
+    func onError(_ errorType: ZMVideoSDKErrors, detail details: Int32) {
+        Logger.shared.log("ZoomSessionCoordinator macOS received error   \(details)  error type \(errorType)")
     }
     
     func onCameraControlRequestResult(_ user: ZMVideoSDKUser?, approved isApproved: Bool) {
