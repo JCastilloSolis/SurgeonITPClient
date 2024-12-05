@@ -232,7 +232,9 @@ class ClientViewModel: ObservableObject {
         // Guard against unknown proximity
         guard beacon.proximity != .unknown else {
             Logger.shared.log("Detected beacon with unknown proximity. Ignoring.")
-            nearestBeaconDisplayName = nil
+            if peerManager.sessionState == .connected {
+                cleanup()
+            }
             return
         }
 
@@ -282,10 +284,20 @@ class ClientViewModel: ObservableObject {
     /// Stops MultipeerConnectivity browsing.
     private func stopMPCBrowsing() {
         Logger.shared.log("Stopping MPC browsing.")
-
-        //peerManager.leaveSession()
         peerManager.stopBrowsing()
     }
+    
+    /// Leaves the MPC session.
+    private func leaveMPCSession() {
+        Logger.shared.log("Beacon was lost, terminating MPC session")
+        peerManager.leaveSession()
+    }
 
+    
+    private func cleanup() {
+        nearestBeaconDisplayName = nil
+        leaveMPCSession()
+        sessionViewModel.leaveSession()
+    }
     
 }
