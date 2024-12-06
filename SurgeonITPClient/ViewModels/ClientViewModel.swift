@@ -165,22 +165,29 @@ class ClientViewModel: ObservableObject {
 
 
         //TODO: Disable beacon ranging once an MPC session is confirmed, only enable it again once the mpc session has been lost and not able to reconnect
+        
         // Handle proximity changes
-        beaconManager.$proximity
-            .sink { [weak self] proximity in
-                self?.handleProximityChange(proximity)
-                self?.previousProximity = proximity
-            }
-            .store(in: &cancellables)
+//        beaconManager.$proximity
+//            .sink { [weak self] proximity in
+//                self?.handleProximityChange(proximity)
+//                self?.previousProximity = proximity
+//            }
+//            .store(in: &cancellables)
 
         // Handle beacon-based peer connection
         beaconManager.$currentNearestBeacon
             .sink { [weak self] beacon in
+                guard let self else { return }
+                
                 guard let beacon else {
+                    
+                    if self.peerManager.sessionState == .connected {
+                        self.cleanup()
+                    }
                     return
                 }
 
-                self?.handleNearestBeacon(beacon)
+                self.handleNearestBeacon(beacon)
             }
             .store(in: &cancellables)
 
@@ -249,6 +256,11 @@ class ClientViewModel: ObservableObject {
             return
         }
         
+        
+        
+        cleanup()
+        startMPCBrowsing()
+        
         self.currentNearestBeaconDisplayName = peerDisplayName
         Logger.shared.log("Beacon detected: \(beaconData). Associated peer: \(peerDisplayName)")
 
@@ -297,9 +309,17 @@ class ClientViewModel: ObservableObject {
 
     
     private func cleanup() {
+        Logger.shared.log("Cleaning up. Leave MPC and Zoom sessions")
         currentNearestBeaconDisplayName = nil
-        leaveMPCSession()
-        sessionViewModel.leaveSession()
+        if peerManager.sessionState == .connected {
+            leaveMPCSession()
+        }
+        
+        if sessionViewModel.sessionIsActive {
+            sessionViewModel.leaveSession()
+        }
+        
+        
     }
     
 }
