@@ -26,7 +26,7 @@ class ClientViewModel: ObservableObject {
     @Published var mpcSessionState: MCSessionState = .notConnected
     @Published var sortedBeacons: [CLBeacon] = []
     @Published var nearestBeacon: CLBeacon?
-    @Published var nearestBeaconDisplayName: String?
+    @Published var currentNearestBeaconDisplayName: String?
     @Published var receivedServerState: ServerState?
 
     // MARK: - Private Properties
@@ -40,6 +40,8 @@ class ClientViewModel: ObservableObject {
     // MARK: - Harcoded data, should be in a DB
     let beaconToPeerDisplayNameMap: [BeaconData: String] = [
         BeaconData(major: 1, minor: 1): "H2WHW0RZQ6NY",
+       //BeaconData(major: 1, minor: 1): "YN4Y736WLT",
+        BeaconData(major: 1, minor: 6): "TLFQLV75MJ",
         BeaconData(major: 1, minor: 2): "T9RX65X75K",
         // Add more mappings as needed
     ]
@@ -110,16 +112,16 @@ class ClientViewModel: ObservableObject {
                         self.showProgressView = true
                         return ("Connecting", .blue)
                     case .notConnected:
-                        guard let nearestBeaconDisplayName = nearestBeaconDisplayName else { return ("Not Connected", .red) }
+                        guard let currentNearestBeaconDisplayName = currentNearestBeaconDisplayName else { return ("Not Connected", .red) }
                         // Check if user is within the range before attempt a reconnection
                         if self.proximity != .unknown {
                             self.startMPCBrowsing()
-                            self.peerManager.attemptReconnection(serverName: nearestBeaconDisplayName)
+                            self.peerManager.attemptReconnection(serverName: currentNearestBeaconDisplayName)
                         }
-                        return ("Not Connected, looking for \(nearestBeaconDisplayName)", .red)
+                        return ("Not Connected, looking for \(currentNearestBeaconDisplayName)", .red)
                     @unknown default:
-                        guard let nearestBeaconDisplayName = nearestBeaconDisplayName else { return ("Not Connected", .red) }
-                        return ("Not Connected, looking for \(nearestBeaconDisplayName)", .red)
+                        guard let currentNearestBeaconDisplayName = currentNearestBeaconDisplayName else { return ("Not Connected", .red) }
+                        return ("Not Connected, looking for \(currentNearestBeaconDisplayName)", .red)
                 }
             }
             .sink { [weak self] status, color in
@@ -146,8 +148,8 @@ class ClientViewModel: ObservableObject {
 
                 Logger.shared.log("New peers discovered \(peers)")
 
-                if let nearestBeaconDisplayName = self.nearestBeaconDisplayName {
-                    self.peerManager.attemptReconnection(serverName: nearestBeaconDisplayName)
+                if let currentNearestBeaconDisplayName = self.currentNearestBeaconDisplayName {
+                    self.peerManager.attemptReconnection(serverName: currentNearestBeaconDisplayName)
                 }
             }
             .store(in: &cancellables)
@@ -157,7 +159,7 @@ class ClientViewModel: ObservableObject {
             .assign(to: \.proximity, on: self)
             .store(in: &cancellables)
 
-        beaconManager.$nearestBeacon
+        beaconManager.$currentNearestBeacon
             .assign(to: \.nearestBeacon, on: self)
             .store(in: &cancellables)
 
@@ -172,7 +174,7 @@ class ClientViewModel: ObservableObject {
             .store(in: &cancellables)
 
         // Handle beacon-based peer connection
-        beaconManager.$nearestBeacon
+        beaconManager.$currentNearestBeacon
             .sink { [weak self] beacon in
                 guard let beacon else {
                     return
@@ -237,19 +239,19 @@ class ClientViewModel: ObservableObject {
             }
             return
         }
-
-        if nearestBeaconDisplayName == nil {
-            // Create a BeaconIdentifier from the detected beacon
-            let beaconData = BeaconData(major: beacon.major.uint16Value, minor: beacon.minor.uint16Value)
-
-            // Lookup the display name associated with this beacon
-            guard let peerDisplayName = beaconToPeerDisplayNameMap[beaconData] else {
-                Logger.shared.log("No peer mapping found for beacon: \(beaconData).")
-                return
-            }
-            self.nearestBeaconDisplayName = peerDisplayName
-            Logger.shared.log("Beacon detected: \(beaconData). Associated peer: \(peerDisplayName)")
+        
+        // Create a BeaconIdentifier from the detected beacon
+        let beaconData = BeaconData(major: beacon.major.uint16Value, minor: beacon.minor.uint16Value)
+        
+        // Lookup the display name associated with this beacon
+        guard let peerDisplayName = beaconToPeerDisplayNameMap[beaconData] else {
+            Logger.shared.log("No peer mapping found for beacon: \(beaconData).")
+            return
         }
+        
+        self.currentNearestBeaconDisplayName = peerDisplayName
+        Logger.shared.log("Beacon detected: \(beaconData). Associated peer: \(peerDisplayName)")
+
     }
 
     private func handleProximityChange(_ proximity: CLProximity) {
@@ -295,7 +297,7 @@ class ClientViewModel: ObservableObject {
 
     
     private func cleanup() {
-        nearestBeaconDisplayName = nil
+        currentNearestBeaconDisplayName = nil
         leaveMPCSession()
         sessionViewModel.leaveSession()
     }

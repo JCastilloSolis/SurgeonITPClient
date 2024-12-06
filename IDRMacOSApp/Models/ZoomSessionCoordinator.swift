@@ -171,6 +171,8 @@ class ZoomSessionCoordinator: NSObject, ZMVideoSDKDelegate {
     }
     
     func onError(_ errorType: ZMVideoSDKErrors, detail details: Int32) {
+        //TODO: Create a method to return a string for all errorTypes and print it
+        /// Additionally it could be represented in the macOS UI
         Logger.shared.log("ZoomSessionCoordinator macOS received error   \(details)  error type \(errorType)")
     }
     

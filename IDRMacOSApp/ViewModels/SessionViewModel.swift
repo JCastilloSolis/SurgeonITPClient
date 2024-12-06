@@ -134,7 +134,7 @@ class SessionViewModel : NSObject, ObservableObject {
         sessionContext.videoOption = videoOption
         sessionContext.audioOption = audioOption
         
-        Logger.shared.log("Session attemting to create session \(sessionName)")
+        Logger.shared.log("Session attempting to create session :  \(sessionName), username: \(userDisplayName)  videoOption: \(videoOption)  audioOption:\(audioOption)")
 
         // Attempt to join the session with the given context
         if ZMVideoSDK.shared().joinSession(sessionContext) != nil {

@@ -25,7 +25,7 @@ struct MainTabView: View {
                 VStack {
                     
                     
-                    if let nearestBeaconDisplayName = clientViewModel.nearestBeaconDisplayName {
+                    if let nearestBeaconDisplayName = clientViewModel.currentNearestBeaconDisplayName {
                         Image("console")
                             .resizable()
                             .renderingMode(.original)

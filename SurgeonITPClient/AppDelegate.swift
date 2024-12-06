@@ -16,7 +16,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     private var authSession: CLServiceSession?
     private let beacons: [BeaconData] = [
         .init(major: 1, minor: 1),
-        .init(major: 1, minor: 2)
+        .init(major: 1, minor: 2),
+        .init(major: 1, minor: 6)
     ]
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {

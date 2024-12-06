@@ -14,13 +14,15 @@ import UserNotifications
 class BeaconManagerService: NSObject, ObservableObject {
     @Published var proximity: CLProximity = .unknown
     @Published var sortedBeacons: [CLBeacon] = []
-    @Published var nearestBeacon: CLBeacon?
+    @Published var currentNearestBeacon: CLBeacon?
+    
     //TODO: Create a published var that represents if the device is inside a beacon region.
     private var locationManager: CLLocationManager?
     private let beaconUUID: UUID
     private let beaconIdentifier = "com.example.myBeacon"
     private var beaconConstraint: CLBeaconIdentityConstraint?
     private var notificationCenter: UNUserNotificationCenter
+    private var previousNearestBeacon: CLBeacon?
 
 
     override init() {
@@ -114,7 +116,7 @@ extension BeaconManagerService: CLLocationManagerDelegate {
 
         guard !beacons.isEmpty else {
             sortedBeacons = []
-            nearestBeacon = nil
+            currentNearestBeacon = nil
             proximity = .unknown
             return
         }
@@ -124,21 +126,23 @@ extension BeaconManagerService: CLLocationManagerDelegate {
 
         // Retrieve the nearest beacon
         if let nearest = sorted.first {
-            nearestBeacon = nearest
-            proximity = nearest.proximity
-
-//            Logger.shared.log("""
-//            Nearest Beacon - UUID: \(nearest.uuid),
-//            Major: \(nearest.major),
-//            Minor: \(nearest.minor),
-//            Proximity: \(nearest.proximity.rawValue),
-//            Accuracy: \(nearest.accuracy),
-//            RSSI: \(nearest.rssi),
-//            \(nearest.timestamp)
-//            """)
+            if nearest.minor != currentNearestBeacon?.minor{
+                currentNearestBeacon = nearest
+                proximity = nearest.proximity
+                            Logger.shared.log("""
+                            Nearest Beacon - UUID: \(nearest.uuid),
+                            Major: \(nearest.major),
+                            Minor: \(nearest.minor),
+                            Proximity: \(nearest.proximity.rawValue),
+                            Accuracy: \(nearest.accuracy),
+                            RSSI: \(nearest.rssi),
+                            \(nearest.timestamp)
+                            """)
+            }
+            previousNearestBeacon = nearest
+            //Logger.shared.log("Nearest Beacon \(nearest.major).\(nearest.minor)")
         }
     }
-
 
     /// Called when entering a beacon region.
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
@@ -188,6 +192,7 @@ extension BeaconManagerService: CLLocationManagerDelegate {
     /// - Parameter beacons: The array of beacons to sort.
     /// - Returns: A sorted array of beacons.
     func sortBeacons(byProximity beacons: [CLBeacon]) -> [CLBeacon] {
+        //Logger.shared.log("Will sort beacon array: \(beacons.count)")
         return beacons.sorted { (beacon1, beacon2) -> Bool in
             let priority1 = proximityPriority(beacon1.proximity)
             let priority2 = proximityPriority(beacon2.proximity)
