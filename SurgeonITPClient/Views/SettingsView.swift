@@ -8,6 +8,11 @@
 
 
 import SwiftUI
+import CoreLocation
+
+extension CLBeacon : @retroactive Identifiable {
+    
+}
 
 struct SettingsView: View {
     @StateObject var viewModel: ClientViewModel
@@ -15,7 +20,20 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .center, spacing: 20) {
-                //TODO: Figure out what to controls to put here 
+                
+                Text("Detected beacons, sorted by proximity: ")
+                    .font(.headline)
+                    .padding()
+                
+                //TODO: Figure out what to controls to put here
+                ForEach(viewModel.sortedBeacons) { beacon in
+                    if let serialNumber = viewModel.getDisplayNameForBeacon(beacon) {
+                        Text("\(serialNumber)")
+                            .font(.subheadline)
+                            .padding()
+                    }
+                }
+                
             }// Vstack
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)

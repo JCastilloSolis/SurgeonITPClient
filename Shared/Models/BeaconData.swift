@@ -12,6 +12,6 @@ struct BeaconData : Hashable {
     let major: UInt16
     let minor: UInt16
     var description: String {
-        return "uuid:\(uuid), major:\(major), minor:\(minor)"
+        return "\(uuid), Major:\(major), Minor:\(minor)"
     }
 }

@@ -42,7 +42,7 @@ struct SelectProcedureView: View {
                             .font(.subheadline)
                             .padding()
 
-                        if !viewModel.sessionViewModel.sessionIsActive {
+                        if !viewModel.sessionViewModel.sessionIsActive && !viewModel.showProgressView {
                             //Rejoin session
                             Button("Join Zoom Session") {
                                 viewModel.rejoinZoomCall(sessionName: zoomSessionID)
